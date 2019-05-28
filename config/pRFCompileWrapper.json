@@ -3,7 +3,7 @@
 	"flavor": "",
 	"hook": "",
 	"importance": "",
-	"localHookTemplate": "configuration/pRFCompileWrapperLocalHookTemplate.m",
+	"localHookTemplate": "config/pRFCompileWrapperLocalHookTemplate.m",
 	"name": "pRFCompileWrapper",
 	"pathPlacement": "append",
 	"subfolder": "code",
