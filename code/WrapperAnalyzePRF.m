@@ -5,7 +5,37 @@ function WrapperAnalyzePRF(stimFileName,dataFileName,tr,outpath,varargin)
 %  WrapperAnalyzePRF(stimFileName,dataFileName,tr,outpath)
 %
 % Description:
-%   Add a description here.
+%   Details on the pRF model:
+%   - Before analysis, we zero out any voxel that has a non-finite value or
+%   has all zeros in at least one of the runs.  This prevents weird issues 
+%   due to missing or bad data. 
+%   - The pRF model that is fit is similar to that described in Dumoulin 
+%   and Wandell (2008), except that a static power-law nonlinearity is 
+%   added to the model.  This new model, called the Compressive Spatial 
+%   Summation (CSS) model, is described in Kay, Winawer, Mezer, & Wandell 
+%   (2013).
+%   - The model involves computing the dot-product between the stimulus and
+%   a 2D isotropic Gaussian, raising the result to an exponent, scaling the
+%   result by a gain factor, and then convolving the result with a 
+%   hemodynamic response function (HRF).  Polynomial terms are included 
+%   (on a run-by-run basis) to model the baseline signal level.
+% - The 2D isotropic Gaussian is scaled such that the summation of the 
+%   values in the Gaussian is equal to one. This eases the interpretation 
+%   of the gain of the model.
+% - The exponent parameter in the model is constrained to be non-negative.
+% - The gain factor in the model is constrained to be non-negative; this 
+%   aids the interpretation of the model (e.g. helps avoid voxels with 
+%   negative BOLD responses to the stimuli).
+% - The workhorse of the analysis is fitnonlinearmodel.m, which is 
+%   essentially a wrapper around routines in the MATLAB Optimization 
+%   Toolbox. We use the Levenberg-Marquardt algorithm for optimization, 
+%   minimizing squared error between the model and the data.
+% - A two-stage optimization strategy is used whereby all parameters 
+%   excluding the exponent parameter are first optimized (holding the 
+%   exponent parameter fixed) and then all parameters are optimized 
+%   (including the exponent parameter).This strategy helps avoid local 
+%   minima.
+%
 %
 %   Note: All variable inputs are in the form of strings. This is to
 %   support compilation.
@@ -55,24 +85,26 @@ function WrapperAnalyzePRF(stimFileName,dataFileName,tr,outpath,varargin)
 %                           1 means use generic small PRF seed
 %                           2 means use best seed based on super-grid
 %                           default: [0 1 2].
-%  -xvalmode                - String.
+%  -'xvalmode'              - String.
 %                           0 means just fit all the data
 %                           1 means two-fold cross-validation (first half 
 %                           of runs; second half of runs)
 %                           2 means two-fold cross-validation (first half               
 %                           of each run; second half of each run)
 %                           default: 0.  (note that we round when halving.)
-%  -numperjob               - String.[] means to run locally (not on the cluster)
+%  -'numperjob'             - String.[] means to run locally (not on the cluster)
 %                           N where N is a positive integer indicating the 
 %                           number of voxels to analyze in each cluster job
 %                           this option requires a customized computational 
 %                           setup! default: [].
-%  -maxiter                 - String. Is the maximum number of iterations.  
+%  -'maxiter'               - String. Is the maximum number of iterations.  
 %                           default: 500.
-%  -display                 - String.is 'iter' | 'final' | 'off'.  
+%  -'display'               - String.is 'iter' | 'final' | 'off'.  
 %                           default: 'iter'.
-%  -typicalgain             - String. Is a typical value for the gain in 
+%  -'typicalgain'           - String. Is a typical value for the gain in 
 %                           each time-series. Default: 10.
+%  -'maskFileName'          - String. Path to the mask. If not used, all
+%                           voxels in the data file are analyzed.
 %
 % Outputs:
 %   none
@@ -209,7 +241,7 @@ stim_temporal_size = stimsizes(3);
 
 if data_temporal_size ~= stim_temporal_size
     error("Sample lengths of the stimulus and data are not equal. Please resample your data or stimulus") 
-
+end
 
 % Prepare the final structure and convert the remaining variables to
 % numerical
