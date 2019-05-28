@@ -51,7 +51,7 @@ function WrapperAnalyzePRF(stimFileName,dataFileName,tr,outpath,varargin)
 %                           voxels x time.the number of time points should 
 %                           match the number of time points in <stimulus>.
 %   tr                    - String. The TR in seconds (e.g. 1.5)                          
-%   outpath               - String. Output path without the save file name.
+%   outpath               - String. Output path
 %
 % Optional key/value pairs:
 %  
@@ -252,30 +252,24 @@ analysisStructure = struct('vxs',vxs,'wantglmdenoise',str2double(p.Results.wantg
 
 % Run the function and save the results
 results = analyzePRF(stimulus,data,tr,analysisStructure);
-save(strcat(outpath,"results.mat"),'results')
+save(outpath,'results')
 
 % Code here to reformat the results into brain maps, respecting the mask
 % that was defined above, and then save the image maps someplace. Also, we
 % will want to save some pictures that illustrate what the image map
 % outputs look like.
 
-%%REPLACE NANs WITH 0
+%REPLACE NANs WITH 0
 %results.ecc(isnan(results.ecc)) = 0;
 %results.ang(isnan(results.ang)) = 0;
 %results.expt(isnan(results.expt)) = 0; 
 %results.rfsize(isnan(results.rfsize)) = 0; 
 %results.R2(isnan(results.R2)) = 0; 
 %results.gain(isnan(results.gain)) = 0; 
-%%MAKE 3D
-%eccentricity = reshape(results.ecc,[getsize(1) getsize(2) getsize(3) 1]);
-%angular = reshape(results.ang,[getsize(1) getsize(2) getsize(3) 1]);
-%exponent = reshape(results.expt,[getsize(1) getsize(2) getsize(3) 1]);
-%rfsize = reshape(results.rfsize,[getsize(1) getsize(2) getsize(3) 1]);
-%%SAVE NIFTI 
+%MAKE 3D
 %getsize = size(rawData); %Get the size of the original scan
-%niftiwrite(eccentricity, strcat(outpath,'ecc'))
-%niftiwrite(angular, strcat(outpath,'ang'))
-%niftiwrite(exponent, strcat(outpath,'expt'))
-%niftiwrite(rfsize, strcat(outpath,'rfsize'))
+%angular = reshape(results.ang,[get 104 72 1]);
+
+
 
 end
