@@ -259,5 +259,7 @@ save(outpath,'results')
 % will want to save some pictures that illustrate what the image map
 % outputs look like.
 
+%-Get rid of NaNs
+%-Make 3D 
 
 end
