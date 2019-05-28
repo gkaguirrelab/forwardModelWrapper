@@ -271,8 +271,8 @@ save(strcat(outpath,"results.mat"),'results')
 %angular = reshape(results.ang,[getsize(1) getsize(2) getsize(3) 1]);
 %exponent = reshape(results.expt,[getsize(1) getsize(2) getsize(3) 1]);
 %rfsize = reshape(results.rfsize,[getsize(1) getsize(2) getsize(3) 1]);
-%getsize = size(rawData); %Get the size of the original scan
 %%SAVE NIFTI 
+%getsize = size(rawData); %Get the size of the original scan
 %niftiwrite(eccentricity, strcat(outpath,'ecc'))
 %niftiwrite(angular, strcat(outpath,'ang'))
 %niftiwrite(exponent, strcat(outpath,'expt'))
