@@ -138,7 +138,7 @@ load(stimFileName,'stimulus');
 %%nifti to 2d
 rawData = niftiread(p.Results.dataFileName);   % Load 4D data
 data = reshape(rawData, [size(rawData,1)*size(rawData,2)*size(rawData,3), size(rawData,4)]); % Convert 4D to 2D
-data = im2single(data);   % convert data to single precision
+data = single(data);   % convert data to single precision
 
 % massage cell inputs
 if ~iscell(stimulus)
@@ -202,6 +202,13 @@ end
 
 %% Need to check that the movie and voxel time-series are of the same
 %% temporal length. If they are not, we could issue an error here
+datasizes = size(data{1});
+data_temporal_size = datasizes(2);
+stimsizes = size(stimulus{1});
+stim_temporal_size = stimsizes(3);
+
+if data_temporal_size ~= stim_temporal_size
+    error("Sample lengths of the stimulus and data are not equal. Please resample your data or stimulus") 
 
 
 % Prepare the final structure and convert the remaining variables to
