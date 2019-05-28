@@ -71,8 +71,10 @@ function WrapperAnalyzePRF(stimFileName,dataFileName,tr,outpath,varargin)
 %                           default: 500.
 %  -display                 - String.is 'iter' | 'final' | 'off'.  
 %                           default: 'iter'.
-%  -typicalgain             - String. Is a typical value for the gain in 
-%                           each time-series. Default: 10.
+%  -typica
+%
+%
+%
 %
 % Outputs:
 %   none
