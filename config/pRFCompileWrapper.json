@@ -1,0 +1,30 @@
+[
+	{
+	"flavor": "",
+	"hook": "",
+	"importance": "",
+	"localHookTemplate": "config/pRFCompileWrapperLocalHookTemplate.m",
+	"name": "pRFCompileWrapper",
+	"pathPlacement": "append",
+	"subfolder": "code",
+	"toolboxRoot": "",
+	"type": "git",
+	"update": "",
+	"url": "https:\/\/github.com\/gkaguirrelab\/pRFCompileWrapper.git"
+	},
+	{
+		"flavor": "",
+		"hook": "",
+		"importance": "",
+		"localHookTemplate": "",
+		"name": "analyzePRF",
+		"pathPlacement": "append",
+		"subfolder": "",
+		"toolboxRoot": "",
+		"type": "git",
+		"update": "",
+		"url": "https:\/\/github.com\/kendrickkay\/analyzePRF.git"
+	}
+
+]
+

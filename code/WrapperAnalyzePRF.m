@@ -1,4 +1,68 @@
-function p = WrapperAnalyzePRF(stimFileName,dataFileName,tr,outpath,varargin)
+function WrapperAnalyzePRF(stimFileName,dataFileName,tr,outpath,varargin)
+% Wrapper to manage inputs to Kendrick Kay's analyze pRF code
+%
+% Syntax:
+%  WrapperAnalyzePRF(stimFileName,dataFileName,tr,outpath)
+%
+% Description:
+%   Add a description here.
+%
+%   Note: All variable inputs are in the form of strings. This is to
+%   support compilation.
+%
+%
+% Inputs:
+%   stimFileName          - String. Lorem ipsum lorem ipsum lorem ipsum 
+%                           lorem ipsum lorem ipsum lorem ipsum lorem ipsum
+%                           lorem ipsum lorem ipsum lorem ipsum lorem ipsum
+%   dataFileName          - String. Lorem ipsum lorem ipsum lorem ipsum 
+%                           lorem ipsum lorem ipsum lorem ipsum lorem ipsum
+%                           lorem ipsum lorem ipsum lorem ipsum lorem ipsum
+%   tr                    - String. Lorem ipsum lorem ipsum lorem ipsum 
+%                           lorem ipsum lorem ipsum lorem ipsum lorem ipsum
+%                           lorem ipsum lorem ipsum lorem ipsum lorem ipsum
+%   outpath               - String. Lorem ipsum lorem ipsum lorem ipsum 
+%                           lorem ipsum lorem ipsum lorem ipsum lorem ipsum
+%                           lorem ipsum lorem ipsum lorem ipsum lorem ipsum
+%
+% Optional key/value pairs:
+%  'wantglmdenoise'       - String. Lorem ipsum lorem ipsum lorem ipsum 
+%                           lorem ipsum lorem ipsum lorem ipsum lorem ipsum
+%                           lorem ipsum lorem ipsum lorem ipsum lorem ipsum
+%
+% Outputs:
+%   none
+%
+% Examples:
+%{
+    % Run the wrapper using Kendrick's example data. The path to Kendrick's
+    % data is currently hard-coded
+    examplePath='~/Documents/MATLAB/toolboxes/analyzePRF/exampledataset.mat';
+    load(examplePath,'stimulus','data')
+
+    % Kendrick's example fMRI data must be resampled to match the time
+    % domain of the stimulus
+    data = tseriesinterp(data,2,1,2);
+
+    % We reshape the data to be a 2x2x2 volume and save as a nifti file
+    tempData=reshape(data{1}(1:8,:),[2 2 2 300]);
+    tempNiftiPath='~/Desktop/tempNifti.nii';
+    niftiwrite(tempData, tempNiftiPath)
+
+    % Save the stimulus file
+    tempStimFilePath='~/Desktop/tempStim.mat';
+    stimulus=stimulus{1};
+    save(tempStimFilePath,'stimulus');
+
+    % Run the wrapper function
+    tr='1';
+    outpath='~/Desktop/tempResults.mat';
+    WrapperAnalyzePRF(tempStimFilePath,tempNiftiPath,tr,outpath);
+%}
+
+
+
+
 %% Parse vargin for options passed here
 
 p = inputParser; p.KeepUnmatched = true;
@@ -30,8 +94,7 @@ load(stimFileName,'stimulus');
 %%nifti to 2d
 rawData = niftiread(p.Results.dataFileName);   % Load 4D data
 data = reshape(rawData, [size(rawData,1)*size(rawData,2)*size(rawData,3), size(rawData,4)]); % Convert 4D to 2D
-%data = data(:,1:300);
-data = im2single(data);   % convert data to single and scale to 0-1 range
+data = im2single(data);   % convert data to single precision
 
 % massage cell inputs
 if ~iscell(stimulus)
@@ -93,6 +156,10 @@ for ii = p.Results.seedmode
     end
 end
 
+%% Need to check that the movie and voxel time-series are of the same
+%% temporal length. If they are not, we could issue an error here
+
+
 % Prepare the final structure and convert the remaining variables to
 % numerical
 analysisStructure = struct('vxs',vxs,'wantglmdenoise',str2double(p.Results.wantglmdenoise),'hrf',new_hrf, ...
@@ -103,5 +170,11 @@ analysisStructure = struct('vxs',vxs,'wantglmdenoise',str2double(p.Results.wantg
 % Run the function and save the results
 results = analyzePRF(stimulus,data,tr,analysisStructure);
 save(outpath,'results')
+
+% Code here to reformat the results into brain maps, respecting the mask
+% that was defined above, and then save the image maps someplace. Also, we
+% will want to save some pictures that illustrate what the image map
+% outputs look like.
+
 
 end
