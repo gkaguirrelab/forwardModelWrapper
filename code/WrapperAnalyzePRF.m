@@ -175,6 +175,7 @@ load(stimFileName,'stimulus');
 
 %%nifti to 2d
 rawData = niftiread(p.Results.dataFileName);   % Load 4D data
+datainfo = niftiinfo(p.Results.dataFileName);
 data = reshape(rawData, [size(rawData,1)*size(rawData,2)*size(rawData,3), size(rawData,4)]); % Convert 4D to 2D
 %data = single(data);   % convert data to single precision
 
@@ -285,15 +286,20 @@ results.rfsize(isnan(results.rfsize)) = 0;
 results.R2(isnan(results.R2)) = 0; 
 results.gain(isnan(results.gain)) = 0; 
 %MAKE 3D
-getsize = size(rawData); %Get the size of the original scan  NEED COMMAS MAYBE ??? 
+getsize = size(rawData); %Get the size of the original scan 
 eccentricity = reshape(results.ecc,[getsize(1) getsize(2) getsize(3) 1]);
 angular = reshape(results.ang,[getsize(1) getsize(2) getsize(3) 1]);
 exponent = reshape(results.expt,[getsize(1) getsize(2) getsize(3) 1]);
 rfsize = reshape(results.rfsize,[getsize(1) getsize(2) getsize(3) 1]);
+R2 = reshape(results.R2,[getsize(1) getsize(2) getsize(3) 1]);
+gain = reshape(results.gain,[getsize(1) getsize(2) getsize(3) 1]);
 %SAVE NIFTI 
-niftiwrite(eccentricity, strcat(outpath,'ecc'))
-niftiwrite(angular, strcat(outpath,'ang'))
-niftiwrite(exponent, strcat(outpath,'expt'))
-niftiwrite(rfsize, strcat(outpath,'rfsize'))
+niftiwrite(eccentricity, strcat(outpath,'ecc',datainfo))
+niftiwrite(angular, strcat(outpath,'ang',datainfo))
+niftiwrite(exponent, strcat(outpath,'expt',datainfo))
+niftiwrite(rfsize, strcat(outpath,'rfsize',datainfo))
+niftiwrite(R2, strcat(outpath,'R2',datainfo))
+niftiwrite(gain, strcat(outpath,'gain',datainfo))
+
 
 end
