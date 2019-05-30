@@ -106,10 +106,7 @@ function WrapperAnalyzePRF(stimFileName,dataFileName,tr,outpath,varargin)
 %  -'maskFileName'          - String. Path to the mask. If not used, all
 %                           voxels in the data file are analyzed.
 %  -'prependDummyTRs'       - String. Used when the stimulus and data
-%                           lengths are not equal and the inequality is 
-%                           caused due to the removal of dummy TRs from
-%                           the sample. 1 for true and 0 for false.
-%                           Default = 0
+%                           length are n
 %
 % Outputs:
 %   none
@@ -248,9 +245,9 @@ data_temporal_size = datasizes(2);
 stimsizes = size(stimulus{1});
 stim_temporal_size = stimsizes(3);
 
-if data_temporal_size < stim_temporal_size
+if data_temporal_size ~= stim_temporal_size
     if str2double(p.Results.prependDummyTRs) == 1
-        difference = stim_temporal_size - data_temporal_size;
+        difference = stim_temporal_size - data_tempral_size;
         means_of_rows = mean(data, 2);
         for i = 1:difference
             data = horzcat(means_of_rows, data);
