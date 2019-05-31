@@ -172,12 +172,14 @@ p.parse(stimFileName, dataFileName, tr, outpath, varargin{:})
 
 % Load the stimulus and data files
 load(stimFileName,'stimulus');
+stimulus = single(stimulus); % Convert stimulus to single 
 
 %%nifti to 2d
-rawData = niftiread(p.Results.dataFileName);   % Load 4D data
-datainfo = niftiinfo(p.Results.dataFileName);
-data = reshape(rawData, [size(rawData,1)*size(rawData,2)*size(rawData,3), size(rawData,4)]); % Convert 4D to 2D
-%data = single(data);   % convert data to single precision
+rawData = MRIread(p.Results.dataFileName);   % Load 4D data
+data = rawData.vol;
+data = single(data); % convert data volume to single 
+data = reshape(data, [size(data,1)*size(data,2)*size(data,3), size(data,4)]); % Convert 4D to 2D
+clear rawData
 
 % massage cell inputs
 if ~iscell(stimulus)
@@ -190,9 +192,14 @@ end
 % determine how many voxels to analyze 
 
 if ~isempty(p.Results.maskFileName)    % Get the indices from mask if specified
-    rawMask = niftiread(p.Results.maskFileName);
-    mask = reshape(rawMask, [size(rawMask,1)*size(rawMask,2)*size(rawMask,3),1]);
+    rawMask = MRIread(p.Results.maskFileName);
+    mask = rawMask.vol;
+    mask = single(mask); % Convert mask volume to single
+    mask = reshape(mask, [size(mask,1)*size(mask,2)*size(mask,3),1]);
+    clear rawMask
+    
     vxs = find(mask)';
+    vxs = single(vxs);
 else                                   % Analyze all voxels if no mask is specified 
     is3d = size(data{1},4) > 1;
     if is3d
@@ -278,28 +285,28 @@ save(strcat(outpath,"results.mat"),'results')
 % will want to save some pictures that illustrate what the image map
 % outputs look like.
 
-%%REPLACE NANs WITH 0
-results.ecc(isnan(results.ecc)) = 0;
-results.ang(isnan(results.ang)) = 0;
-results.expt(isnan(results.expt)) = 0; 
-results.rfsize(isnan(results.rfsize)) = 0; 
-results.R2(isnan(results.R2)) = 0; 
-results.gain(isnan(results.gain)) = 0; 
-%MAKE 3D
-getsize = size(rawData); %Get the size of the original scan 
-eccentricity = reshape(results.ecc,[getsize(1) getsize(2) getsize(3) 1]);
-angular = reshape(results.ang,[getsize(1) getsize(2) getsize(3) 1]);
-exponent = reshape(results.expt,[getsize(1) getsize(2) getsize(3) 1]);
-rfsize = reshape(results.rfsize,[getsize(1) getsize(2) getsize(3) 1]);
-R2 = reshape(results.R2,[getsize(1) getsize(2) getsize(3) 1]);
-gain = reshape(results.gain,[getsize(1) getsize(2) getsize(3) 1]);
+% %%REPLACE NANs WITH 0
+% results.ecc(isnan(results.ecc)) = 0;
+% results.ang(isnan(results.ang)) = 0;
+% results.expt(isnan(results.expt)) = 0; 
+% results.rfsize(isnan(results.rfsize)) = 0; 
+% results.R2(isnan(results.R2)) = 0; 
+% results.gain(isnan(results.gain)) = 0; 
+% %MAKE 3D
+% getsize = size(rawData.vol); %Get the size of the original scan 
+% eccentricity = reshape(results.ecc,[getsize(1) getsize(2) getsize(3) 1]);
+% angular = reshape(results.ang,[getsize(1) getsize(2) getsize(3) 1]);
+% exponent = reshape(results.expt,[getsize(1) getsize(2) getsize(3) 1]);
+% rfsize = reshape(results.rfsize,[getsize(1) getsize(2) getsize(3) 1]);
+% R2 = reshape(results.R2,[getsize(1) getsize(2) getsize(3) 1]);
+% gain = reshape(results.gain,[getsize(1) getsize(2) getsize(3) 1]);
 %SAVE NIFTI 
-niftiwrite(eccentricity, strcat(outpath,'ecc',datainfo))
-niftiwrite(angular, strcat(outpath,'ang',datainfo))
-niftiwrite(exponent, strcat(outpath,'expt',datainfo))
-niftiwrite(rfsize, strcat(outpath,'rfsize',datainfo))
-niftiwrite(R2, strcat(outpath,'R2',datainfo))
-niftiwrite(gain, strcat(outpath,'gain',datainfo))
+% niftiwrite(eccentricity, strcat(outpath,'ecc',datainfo))
+% niftiwrite(angular, strcat(outpath,'ang',datainfo))
+% niftiwrite(exponent, strcat(outpath,'expt',datainfo))
+% niftiwrite(rfsize, strcat(outpath,'rfsize',datainfo))
+% niftiwrite(R2, strcat(outpath,'R2',datainfo))
+% niftiwrite(gain, strcat(outpath,'gain',datainfo))
 
 
 end
