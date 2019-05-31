@@ -108,8 +108,13 @@ function WrapperAnalyzePRF(stimFileName,dataFileName,tr,outpath,varargin)
 %  -'prependDummyTRs'       - String. Used when the stimulus and data
 %                           lengths are not equal and the inequality is 
 %                           caused due to the removal of dummy TRs from
-%                           the sample. 1 for true and 0 for false.
-%                           Default = 0
+%                           the sample. Calculates the mean along the time
+%                           dimension for each voxel and adds that mean at
+%                           the beginning of the data (multiple times if
+%                           required until data and stimulus sample lengths
+%                           are exactly the same. Don't use this option if
+%                           the difference is due to sampling. 1 for true 
+%                           and 0 for false. Default = 0
 %
 % Outputs:
 %   none
@@ -165,7 +170,7 @@ p.addParameter('maxiter','500',@isstr);
 p.addParameter('display','iter',@isstr);
 p.addParameter('typicalgain','10',@isstr);
 p.addParameter('maskFileName',[], @isstr);
-p.addParameter('prependDummyTRs','1', @isstr)
+p.addParameter('prependDummyTRs','0', @isstr)
 
 % parse
 p.parse(stimFileName, dataFileName, tr, outpath, varargin{:})
@@ -258,14 +263,14 @@ stim_temporal_size = stimsizes(3);
 
 if data_temporal_size < stim_temporal_size
     if str2double(p.Results.prependDummyTRs) == 1
+        warning("prependDummyTR function is enabled")
         difference = stim_temporal_size - data_temporal_size;
         means_of_rows = mean(data, 2);
         for i = 1:difference
             data = horzcat(means_of_rows, data);
         end 
     else
-        error("Sample lengths of the stimulus and data are not equal. Either resample your data or consider prependDummyTR option") 
-
+        error("Sample lengths of the stimulus and data are not equal. Either resample your data or consider prependDummyTR option")
     end
 end
 
@@ -285,28 +290,41 @@ save(strcat(outpath,"results.mat"),'results')
 % will want to save some pictures that illustrate what the image map
 % outputs look like.
 
-% %%REPLACE NANs WITH 0
-% results.ecc(isnan(results.ecc)) = 0;
-% results.ang(isnan(results.ang)) = 0;
-% results.expt(isnan(results.expt)) = 0; 
-% results.rfsize(isnan(results.rfsize)) = 0; 
-% results.R2(isnan(results.R2)) = 0; 
-% results.gain(isnan(results.gain)) = 0; 
-% %MAKE 3D
-% getsize = size(rawData.vol); %Get the size of the original scan 
-% eccentricity = reshape(results.ecc,[getsize(1) getsize(2) getsize(3) 1]);
-% angular = reshape(results.ang,[getsize(1) getsize(2) getsize(3) 1]);
-% exponent = reshape(results.expt,[getsize(1) getsize(2) getsize(3) 1]);
-% rfsize = reshape(results.rfsize,[getsize(1) getsize(2) getsize(3) 1]);
-% R2 = reshape(results.R2,[getsize(1) getsize(2) getsize(3) 1]);
-% gain = reshape(results.gain,[getsize(1) getsize(2) getsize(3) 1]);
-%SAVE NIFTI 
-% niftiwrite(eccentricity, strcat(outpath,'ecc',datainfo))
-% niftiwrite(angular, strcat(outpath,'ang',datainfo))
-% niftiwrite(exponent, strcat(outpath,'expt',datainfo))
-% niftiwrite(rfsize, strcat(outpath,'rfsize',datainfo))
-% niftiwrite(R2, strcat(outpath,'R2',datainfo))
-% niftiwrite(gain, strcat(outpath,'gain',datainfo))
+% REPLACE NANs WITH 0 - This is not needed but some softwares (eg. freeview) 
+% throws warnings when there are NaNs in the data. This stops it.
+results.ecc(isnan(results.ecc)) = 0;
+results.ang(isnan(results.ang)) = 0;
+results.expt(isnan(results.expt)) = 0; 
+results.rfsize(isnan(results.rfsize)) = 0; 
+results.R2(isnan(results.R2)) = 0; 
+results.gain(isnan(results.gain)) = 0; 
 
+%MAKE 3D
+rawData = MRIread(p.Results.dataFileName);   % Load 4D data again
+getsize = size(rawData.vol); %Get the size of the original scan 
+
+% Results converted 2D -> 3D
+eccentricity = reshape(results.ecc,[getsize(1) getsize(2) getsize(3) 1]);
+angular = reshape(results.ang,[getsize(1) getsize(2) getsize(3) 1]);
+exponent = reshape(results.expt,[getsize(1) getsize(2) getsize(3) 1]);
+rfsize = reshape(results.rfsize,[getsize(1) getsize(2) getsize(3) 1]);
+R2 = reshape(results.R2,[getsize(1) getsize(2) getsize(3) 1]);
+gain = reshape(results.gain,[getsize(1) getsize(2) getsize(3) 1]);
+
+%SAVE NIFTI results
+rawData.nframes = 1; %Set the 4th dimension 1
+
+rawData.vol = eccentricity;
+MRIwrite(RawData, 'eccentricity_map.nii.gz')
+rawData.vol = angular;
+MRIwrite(RawData, 'angular_map.nii.gz')
+rawData.vol = exponent;
+MRIwrite(RawData, 'exponent_map.nii.gz')
+rawData.vol = rfsize;
+MRIwrite(RawData, 'rfsize_map.nii.gz')
+rawData.vol = R2;
+MRIwrite(RawData, 'R2_map.nii.gz')
+rawData.vol = gain;
+MRIwrite(RawData, 'gain_map.nii.gz')
 
 end
