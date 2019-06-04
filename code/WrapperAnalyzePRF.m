@@ -1,4 +1,4 @@
-function WrapperAnalyzePRF(stimFileName,dataFileName,tr,outpath,varargin)
+function results = WrapperAnalyzePRF(stimFileName,dataFileName,tr,outpath,varargin)
 % Wrapper to manage inputs to Kendrick Kay's analyze pRF code
 %
 % Syntax:
@@ -184,7 +184,6 @@ rawData = MRIread(p.Results.dataFileName);   % Load 4D data
 data = rawData.vol;
 data = single(data); % convert data volume to single 
 data = reshape(data, [size(data,1)*size(data,2)*size(data,3), size(data,4)]); % Convert 4D to 2D
-clear rawData
 
 % massage cell inputs
 if ~iscell(stimulus)
@@ -300,7 +299,6 @@ results.R2(isnan(results.R2)) = 0;
 results.gain(isnan(results.gain)) = 0; 
 
 %MAKE 3D
-rawData = MRIread(p.Results.dataFileName);   % Load 4D data again
 getsize = size(rawData.vol); %Get the size of the original scan 
 
 % Results converted 2D -> 3D
@@ -315,16 +313,16 @@ gain = reshape(results.gain,[getsize(1) getsize(2) getsize(3) 1]);
 rawData.nframes = 1; %Set the 4th dimension 1
 
 rawData.vol = eccentricity;
-MRIwrite(RawData, 'eccentricity_map.nii.gz')
+MRIwrite(rawData, 'eccentricity_map.nii.gz')
 rawData.vol = angular;
-MRIwrite(RawData, 'angular_map.nii.gz')
+MRIwrite(rawData, 'angular_map.nii.gz')
 rawData.vol = exponent;
-MRIwrite(RawData, 'exponent_map.nii.gz')
+MRIwrite(rawData, 'exponent_map.nii.gz')
 rawData.vol = rfsize;
-MRIwrite(RawData, 'rfsize_map.nii.gz')
+MRIwrite(rawData, 'rfsize_map.nii.gz')
 rawData.vol = R2;
-MRIwrite(RawData, 'R2_map.nii.gz')
+MRIwrite(rawData, 'R2_map.nii.gz')
 rawData.vol = gain;
-MRIwrite(RawData, 'gain_map.nii.gz')
+MRIwrite(rawData, 'gain_map.nii.gz')
 
 end
