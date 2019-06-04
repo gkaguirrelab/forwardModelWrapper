@@ -175,15 +175,34 @@ p.addParameter('prependDummyTRs','0', @isstr)
 % parse
 p.parse(stimFileName, dataFileName, tr, outpath, varargin{:})
 
-% Load the stimulus and data files
+% Load the stimulus and convert to single
 load(stimFileName,'stimulus');
-stimulus = single(stimulus); % Convert stimulus to single 
+stimulus = single(stimulus); 
 
-%%nifti to 2d
-rawData = MRIread(p.Results.dataFileName);   % Load 4D data
-data = rawData.vol;
-data = single(data); % convert data volume to single 
-data = reshape(data, [size(data,1)*size(data,2)*size(data,3), size(data,4)]); % Convert 4D to 2D
+%% Load Data
+
+% If the input does not end with gz then gear will extract the zip into a
+% folder and this matlab script will go to that folder, find all the
+% hp2000_clean volumes, and exclude the folder containing the avarage of 
+% all runs. This piece of code will only work inside a gear.
+if dataFileName(end-1:end) ~= "gz" 
+    d = dir('/flywheel/v0/input/*/*/MNINonLinear/Results'); % find the run folders
+    d = d(~ismember({d.name},{'.','..'})); % get rid of "." and ".." stuff
+    d(1) = []; % Get rid of the first item which is the one contains all runs
+    runNumber = length(d); % Get the number of runs
+    for i = 1:runNumber
+        rawName = strcat(d(i).folder,'/', d(i).name); % Get the name of runs with path
+        rawData = MRIread(rawName);
+        data = rawData.vol;
+        data = single(data);
+        data{1,i} = reshape(data, [size(data,1)*size(data,2)*size(data,3), size(data,4)]); %create the data cell required for Kendrick's code
+    end
+else    
+    rawData = MRIread(p.Results.dataFileName);   % Load 4D data
+    data = rawData.vol;
+    data = single(data); % convert data volume to single 
+    data = reshape(data, [size(data,1)*size(data,2)*size(data,3), size(data,4)]); % Convert 4D to 2D
+end
 
 % massage cell inputs
 if ~iscell(stimulus)
