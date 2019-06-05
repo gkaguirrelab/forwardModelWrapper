@@ -186,16 +186,21 @@ stimulus = single(stimulus);
 % hp2000_clean volumes, and exclude the folder containing the avarage of 
 % all runs. This piece of code will only work inside a gear.
 if dataFileName(end-1:end) ~= "gz" 
-    d = dir('/flywheel/v0/input/*/*/MNINonLinear/Results'); % find the run folders
+    d = dir('/*/*/*/*/*/MNINonLinear/Results'); % Use this for testing
+    
+    %d = dir('/flywheel/v0/input/*/*/MNINonLinear/Results'); % find the
+    % runs (use this in the gear
+    
     d = d(~ismember({d.name},{'.','..'})); % get rid of "." and ".." stuff
     d(1) = []; % Get rid of the first item which is the one contains all runs
     runNumber = length(d); % Get the number of runs
     for i = 1:runNumber
-        rawName = strcat(d(i).folder,'/', d(i).name); % Get the name of runs with path
+        rawName = strcat(d(i).folder,'/', d(i).name, '/', d(i).name, '_', 'hp2000_clean.nii.gz'); % Get the name of runs with path
         rawData = MRIread(rawName);
         data = rawData.vol;
         data = single(data);
-        data{1,i} = reshape(data, [size(data,1)*size(data,2)*size(data,3), size(data,4)]); %create the data cell required for Kendrick's code
+        data = reshape(data, [size(data,1)*size(data,2)*size(data,3), size(data,4)]); %create the data cell required for Kendrick's code
+        data{1,i} = data;  %PROBLEM HERE
     end
 else    
     rawData = MRIread(p.Results.dataFileName);   % Load 4D data
