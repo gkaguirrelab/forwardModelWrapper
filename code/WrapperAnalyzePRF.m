@@ -187,20 +187,17 @@ stimulus = single(stimulus);
 % all runs. This piece of code will only work inside a gear.
 if dataFileName(end-1:end) ~= "gz" 
     d = dir('/*/*/*/*/*/MNINonLinear/Results'); % Use this for testing
-    
     %d = dir('/flywheel/v0/input/*/*/MNINonLinear/Results'); % find the
     % runs (use this in the gear
-    
     d = d(~ismember({d.name},{'.','..'})); % get rid of "." and ".." stuff
     d(1) = []; % Get rid of the first item which is the one contains all runs
     runNumber = length(d); % Get the number of runs
     for i = 1:runNumber
-        rawName = strcat(d(i).folder,'/', d(i).name, '/', d(i).name, '_', 'hp2000_clean.nii.gz'); % Get the name of runs with path
-        rawData = MRIread(rawName);
-        data = rawData.vol;
-        data = single(data);
-        data = reshape(data, [size(data,1)*size(data,2)*size(data,3), size(data,4)]); %create the data cell required for Kendrick's code
-        data{1,i} = data;  %PROBLEM HERE
+        rawName{i} = strcat(d(i).folder,'/', d(i).name, '/', d(i).name, '_', 'hp2000_clean.nii.gz'); % Get the name of runs with path
+        data{i} = MRIread(rawName{i});
+        data{i} = data{i}.vol;
+        data{i} = single(data{i});
+        data{i} = reshape(data{i}, [size(data{i},1)*size(data{i},2)*size(data{i},3), size(data{i},4)]);
     end
 else    
     rawData = MRIread(p.Results.dataFileName);   % Load 4D data
