@@ -178,31 +178,33 @@ p.parse(stimFileName, dataFileName, tr, outpath, varargin{:})
 %% Load Data
 
 % If the input does not end with gz then gear will extract the zip into a
-% folder and this matlab script will go to that folder, find all the
+% folder and this part of the script will go to that folder, find all the
 % hp2000_clean volumes, and exclude the folder containing the avarage of 
-% all runs. This piece of code will only work inside a gear.
+% all runs which is usually the first folder in the ica results.
+
 if dataFileName(end-1:end) ~= "gz" 
-    d = dir('/*/*/*/*/*/MNINonLinear/Results'); % Use this for testing
-    %d = dir('/flywheel/v0/input/*/*/MNINonLinear/Results'); % find the
-    % runs (use this in the gear
-    d = d(~ismember({d.name},{'.','..'})); % get rid of "." and ".." stuff
-    d(1) = []; % Get rid of the first item which is the one contains all runs
+    d = dir('/*/*/*/*/*/MNINonLinear/Results'); % Find the acquisitions
+    d = d(~ismember({d.name},{'.','..'})); % get rid of "." and ".." items in the cell containing path names
+    d(1) = []; % Get rid of the first folder which is that first large folder we don't want
     runNumber = length(d); % Get the number of runs
-    for ii = 1:runNumber
-        rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'hp2000_clean.nii.gz'); % Get the name of runs with path
+
+    for ii = 1:runNumber % This creates a data cell 1xrunNumber and populates the cells with the data
+        rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'hp2000_clean.nii.gz');
         data{ii} = MRIread(rawName{ii});
-        data{ii} = data{ii}.vol;
-        data{ii} = single(data{ii});
+        data{ii} = data{ii}.vol;  %only get the volume
+        data{ii} = single(data{ii}); %convert to single
         data{ii} = reshape(data{ii}, [size(data{ii},1)*size(data{ii},2)*size(data{ii},3), size(data{ii},4)]);
     end
-else    
-    rawData = MRIread(p.Results.dataFileName);   % Load 4D data
+    
+else   % This is used when a single acquisition is analyzed
+    rawData = MRIread(p.Results.dataFileName);   
     data = rawData.vol;
-    data = single(data); % convert data volume to single 
+    data = single(data); 
     data = reshape(data, [size(data,1)*size(data,2)*size(data,3), size(data,4)]); % Convert 4D to 2D
 end
 
-%% Load the stimulus, convert to single, and copy it to the other cells (if multi runs is used)
+%% Load the stimulus, convert to single, and copy it to the other cells
+%  so that the cell size of the stimulus matches the cell size of the data
 
 load(stimFileName,'stimulus');
 stimulus = single(stimulus); 
@@ -228,10 +230,10 @@ end
 % determine how many voxels to analyze 
 
 if ~isempty(p.Results.maskFileName)    % Get the indices from mask if specified
-    rawMask = MRIread(p.Results.maskFileName);
-    mask = rawMask.vol;
+    rawMask = MRIread(p.Results.maskFileName); % Load mask
+    mask = rawMask.vol;  % Get only the volume
     mask = single(mask); % Convert mask volume to single
-    mask = reshape(mask, [size(mask,1)*size(mask,2)*size(mask,3),1]);
+    mask = reshape(mask, [size(mask,1)*size(mask,2)*size(mask,3),1]); % Reshape
     
     vxs = find(mask)';
     vxs = single(vxs);
@@ -281,11 +283,12 @@ for ii = p.Results.seedmode
     end
 end
 
-% Check that the movie and voxel time-series are of the same temporal 
-% length. If they are not but prependDummyTR is issued, add the mean time
-% for each voxel at the beginning of the timeseries matrix until the data
-% and stimulus matrix lengths become the same.
-if dataFileName(end-1:end) ~= "gz" 
+% Check that the stimulus and data are of the same temporal length. If they
+% are not same, but prependDummyTR command is issued, add the mean of the 
+% time series for each voxel at the beginning of the matrix until the data 
+% and stimulus matrix lengths become equal.
+
+if dataFileName(end-1:end) ~= "gz" % This part does it for multiple runs
      for ii = 1:runNumber
          datasizes = size(data{ii});
          data_temporal_size = datasizes(2);
@@ -306,7 +309,8 @@ if dataFileName(end-1:end) ~= "gz"
              end
          end
      end
-else
+     
+else                                %This one does it for single run
     datasizes = size(data{1});
     data_temporal_size = datasizes(2);
     stimsizes = size(stimulus{1});
@@ -335,6 +339,8 @@ analysisStructure = struct('vxs',vxs,'wantglmdenoise',str2double(p.Results.wantg
     'numperjob',new_numperjob,'maxiter',str2double(p.Results.maxiter),'display',p.Results.display, ...
     'typicalgain',str2double(p.Results.typicalgain));
 
+% Get rid of the unwanted variables to save memory
+
 clear d 
 clear rawData
 clear temporarystim
@@ -354,6 +360,10 @@ save(strcat(outpath,"results.mat"),'results')
 % that was defined above, and then save the image maps someplace. Also, we
 % will want to save some pictures that illustrate what the image map
 % outputs look like.
+
+
+%% This part needs more work. 
+
 
 % REPLACE NANs WITH 0 - This is not needed but some softwares (eg. freeview) 
 % throws warnings when there are NaNs in the data. This stops it.
