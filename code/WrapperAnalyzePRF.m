@@ -175,16 +175,48 @@ p.addParameter('prependDummyTRs','0', @isstr)
 % parse
 p.parse(stimFileName, dataFileName, tr, outpath, varargin{:})
 
-% Load the stimulus and data files
+%% Load Data
+
+% If the input does not end with gz then gear will extract the zip into a
+% folder and this matlab script will go to that folder, find all the
+% hp2000_clean volumes, and exclude the folder containing the avarage of 
+% all runs. This piece of code will only work inside a gear.
+if dataFileName(end-1:end) ~= "gz" 
+    d = dir('/*/*/*/*/*/MNINonLinear/Results'); % Use this for testing
+    %d = dir('/flywheel/v0/input/*/*/MNINonLinear/Results'); % find the
+    % runs (use this in the gear
+    d = d(~ismember({d.name},{'.','..'})); % get rid of "." and ".." stuff
+    d(1) = []; % Get rid of the first item which is the one contains all runs
+    runNumber = length(d); % Get the number of runs
+    for ii = 1:runNumber
+        rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'hp2000_clean.nii.gz'); % Get the name of runs with path
+        data{ii} = MRIread(rawName{ii});
+        data{ii} = data{ii}.vol;
+        data{ii} = single(data{ii});
+        data{ii} = reshape(data{ii}, [size(data{ii},1)*size(data{ii},2)*size(data{ii},3), size(data{ii},4)]);
+    end
+else    
+    rawData = MRIread(p.Results.dataFileName);   % Load 4D data
+    data = rawData.vol;
+    data = single(data); % convert data volume to single 
+    data = reshape(data, [size(data,1)*size(data,2)*size(data,3), size(data,4)]); % Convert 4D to 2D
+end
+
+%% Load the stimulus, convert to single, and copy it to the other cells (if multi runs is used)
+
 load(stimFileName,'stimulus');
-stimulus = single(stimulus); % Convert stimulus to single 
-
-%%nifti to 2d
-rawData = MRIread(p.Results.dataFileName);   % Load 4D data
-data = rawData.vol;
-data = single(data); % convert data volume to single 
-data = reshape(data, [size(data,1)*size(data,2)*size(data,3), size(data,4)]); % Convert 4D to 2D
-
+stimulus = single(stimulus); 
+dataLength = length(data);
+temporarystim = stimulus;
+stimulus = {};
+if dataLength > 1
+    for celvar = 1:dataLength
+        stimulus{celvar} = temporarystim;
+    end
+else 
+    stimulus = temporarystim;
+end
+    
 % massage cell inputs
 if ~iscell(stimulus)
   stimulus = {stimulus};
@@ -254,24 +286,48 @@ end
 % length. If they are not but prependDummyTR is issued, add the mean time
 % for each voxel at the beginning of the timeseries matrix until the data
 % and stimulus matrix lengths become the same.
+if dataFileName(end-1:end) ~= "gz" 
+     for ii = 1:runNumber
+         datasizes = size(data{ii});
+         data_temporal_size = datasizes(2);
+         stimsizes = size(stimulus{ii});
+         stim_temporal_size = stimsizes(3);
+         if data_temporal_size < stim_temporal_size
+             if str2double(p.Results.prependDummyTRs) == 1
+                 warning("prependDummyTR function is enabled")
+                 difference = stim_temporal_size - data_temporal_size;
+                 means_of_rows = mean(data, 2);
+                 for change = 1:difference
+                     data = horzcat(means_of_rows, data);
+                 end
+             else
+                 errorMessage = "Sample lengths of the stimulus and data are not equal for the run number. Either resample your data or consider prependDummyTR option";
+                 errorMessage = insertAfter(errorMessage, 'number', num2str(ii)); 
+                 error(errorMessage)
+             end
+         end
+     end
+else
+    datasizes = size(data{1});
+    data_temporal_size = datasizes(2);
+    stimsizes = size(stimulus{1});
+    stim_temporal_size = stimsizes(3);
 
-datasizes = size(data{1});
-data_temporal_size = datasizes(2);
-stimsizes = size(stimulus{1});
-stim_temporal_size = stimsizes(3);
-
-if data_temporal_size < stim_temporal_size
-    if str2double(p.Results.prependDummyTRs) == 1
-        warning("prependDummyTR function is enabled")
-        difference = stim_temporal_size - data_temporal_size;
-        means_of_rows = mean(data, 2);
-        for i = 1:difference
-            data = horzcat(means_of_rows, data);
-        end 
-    else
-        error("Sample lengths of the stimulus and data are not equal. Either resample your data or consider prependDummyTR option")
+    if data_temporal_size < stim_temporal_size
+        if str2double(p.Results.prependDummyTRs) == 1
+            warning("prependDummyTR function is enabled")
+            difference = stim_temporal_size - data_temporal_size;
+            means_of_rows = mean(data, 2);
+            for i = 1:difference
+                data = horzcat(means_of_rows, data);
+            end 
+        else
+            error("Sample lengths of the stimulus and data are not equal. Either resample your data or consider prependDummyTR option")
+        end
     end
 end
+    
+    
 
 % Prepare the final structure and convert the remaining variables to
 % numerical
