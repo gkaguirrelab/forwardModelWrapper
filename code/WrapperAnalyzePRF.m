@@ -216,7 +216,7 @@ if dataLength > 1
 else 
     stimulus = temporarystim;
 end
-    
+
 % massage cell inputs
 if ~iscell(stimulus)
   stimulus = {stimulus};
@@ -232,7 +232,6 @@ if ~isempty(p.Results.maskFileName)    % Get the indices from mask if specified
     mask = rawMask.vol;
     mask = single(mask); % Convert mask volume to single
     mask = reshape(mask, [size(mask,1)*size(mask,2)*size(mask,3),1]);
-    clear rawMask
     
     vxs = find(mask)';
     vxs = single(vxs);
@@ -335,6 +334,17 @@ analysisStructure = struct('vxs',vxs,'wantglmdenoise',str2double(p.Results.wantg
     'maxpolydeg',new_maxpolydeg,'seedmode',new_seedmode,'xvalmode',str2double(p.Results.xvalmode), ...
     'numperjob',new_numperjob,'maxiter',str2double(p.Results.maxiter),'display',p.Results.display, ...
     'typicalgain',str2double(p.Results.typicalgain));
+
+clear d 
+clear rawData
+clear temporarystim
+clear rawMask
+clear listofnums
+clear celvar
+clear datasizes 
+clear data_temporal_size
+clear stim_temporal_size
+clear mask
 
 % Run the function and save the results
 results = analyzePRF(stimulus,data,tr,analysisStructure);
