@@ -6,7 +6,7 @@
 	"localHookTemplate": "config/pRFCompileWrapperLocalHookTemplate.m",
 	"name": "pRFCompileWrapper",
 	"pathPlacement": "append",
-	"subfolder": "code",
+	"subfolder": ["code","demo"],
 	"toolboxRoot": "",
 	"type": "git",
 	"update": "",
