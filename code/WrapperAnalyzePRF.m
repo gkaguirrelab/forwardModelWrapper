@@ -87,27 +87,27 @@ function results = WrapperAnalyzePRF(stimFileName,dataFileName,dataFileType,tr,o
 %                           1 means use generic small PRF seed
 %                           2 means use best seed based on super-grid
 %                           default: [0 1 2].
-%  -'xvalmode'              - String.
+%  'xvalmode'              - String.
 %                           0 means just fit all the data
 %                           1 means two-fold cross-validation (first half 
 %                           of runs; second half of runs)
 %                           2 means two-fold cross-validation (first half               
 %                           of each run; second half of each run)
 %                           default: 0.  (note that we round when halving.)
-%  -'numperjob'             - String.[] means to run locally (not on the cluster)
+%  'numperjob'             - String.[] means to run locally (not on the cluster)
 %                           N where N is a positive integer indicating the 
 %                           number of voxels to analyze in each cluster job
 %                           this option requires a customized computational 
 %                           setup! default: [].
-%  -'maxiter'               - String. Is the maximum number of iterations.  
+%  'maxiter'               - String. Is the maximum number of iterations.  
 %                           default: 500.
-%  -'display'               - String.is 'iter' | 'final' | 'off'.  
+%  'display'               - String.is 'iter' | 'final' | 'off'.  
 %                           default: 'iter'.
-%  -'typicalgain'           - String. Is a typical value for the gain in 
+%  'typicalgain'           - String. Is a typical value for the gain in 
 %                           each time-series. Default: 10.
-%  -'maskFileName'          - String. Path to the mask. If not used, all
+%  'maskFileName'          - String. Path to the mask. If not used, all
 %                           voxels in the data file are analyzed.
-%  -'prependDummyTRs'       - String. Used when the stimulus and data
+%  'prependDummyTRs'       - String. Used when the stimulus and data
 %                           lengths are not equal and the inequality is 
 %                           caused due to the removal of dummy TRs from
 %                           the sample. Calculates the mean along the time
@@ -199,14 +199,16 @@ if dataFileName(end-1:end) ~= "gz"
             data{ii} = single(data{ii}); %convert to single
             data{ii} = reshape(data{ii}, [size(data{ii},1)*size(data{ii},2)*size(data{ii},3), size(data{ii},4)]);
         end
-    else
+    elseif dataFileType == "cifti"
         for ii = 1:runNumber % This creates a data cell 1xrunNumber and populates the cells with the data
             fprintf(strcat("Reading cifti number", ' ', num2str(ii), '\n'))
-            rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'Atlas_hp2000.dtseries.nii');
+            rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'Atlas_hp2000_clean.dtseries.nii');
             data{ii} = ft_read_cifti(rawName{ii});
             data{ii} = data{ii}.dtseries;  %only get the volume
             data{ii} = single(data{ii}); %convert to single
-        end  
+        end 
+    else
+        fprintf("Scan type is not valid")
     end
     
 else   % This is used when a single acquisition is analyzed
@@ -215,10 +217,12 @@ else   % This is used when a single acquisition is analyzed
         data = rawData.vol;
         data = single(data);
         data = reshape(data, [size(data,1)*size(data,2)*size(data,3), size(data,4)]); % Convert 4D to 2D
-    else
+    elseif dataFileType == "cifti"
         rawData = ft_read_cifti(p.Results.dataFileName);
         data = rawData.dtseries;
         data = single(data);
+    else
+        fprintf("Scan type is not valid")
     end
 end
 
@@ -249,13 +253,25 @@ end
 % determine how many voxels to analyze 
 
 if ~isempty(p.Results.maskFileName)    % Get the indices from mask if specified
-    rawMask = MRIread(p.Results.maskFileName); % Load mask
-    mask = rawMask.vol;  % Get only the volume
-    mask = single(mask); % Convert mask volume to single
-    mask = reshape(mask, [size(mask,1)*size(mask,2)*size(mask,3),1]); % Reshape
+    if dataFileType == "volumetric"
+        rawMask = MRIread(p.Results.maskFileName); % Load mask
+        mask = rawMask.vol;  % Get only the volume
+        mask = single(mask); % Convert mask volume to single
+        mask = reshape(mask, [size(mask,1)*size(mask,2)*size(mask,3),1]); % Reshape
+
+        vxs = find(mask)';
+        vxs = single(vxs);
+    elseif dataFileType == "cifti"
+        rawMask = ft_read_cifti(p.Results.maskFileName); % Load mask
+        mask = rawMask.dtseries;  % Get only the volume
+        mask = single(mask); % Convert mask volume to single
+        
+        vxs = find(mask)';
+        vxs = single(vxs);    
+    else
+        fprintf("Mask type invalid")
+    end
     
-    vxs = find(mask)';
-    vxs = single(vxs);
 else                                   % Analyze all voxels if no mask is specified 
     is3d = size(data{1},4) > 1;
     if is3d
@@ -405,19 +421,34 @@ R2 = reshape(results.R2,[getsize(1) getsize(2) getsize(3) 1]);
 gain = reshape(results.gain,[getsize(1) getsize(2) getsize(3) 1]);
 
 %SAVE NIFTI results
-rawData.nframes = 1; %Set the 4th dimension 1
-
-rawData.vol = eccentricity;
-MRIwrite(rawData, 'eccentricity_map.nii.gz')
-rawData.vol = angular;
-MRIwrite(rawData, 'angular_map.nii.gz')
-rawData.vol = exponent;
-MRIwrite(rawData, 'exponent_map.nii.gz')
-rawData.vol = rfsize;
-MRIwrite(rawData, 'rfsize_map.nii.gz')
-rawData.vol = R2;
-MRIwrite(rawData, 'R2_map.nii.gz')
-rawData.vol = gain;
-MRIwrite(rawData, 'gain_map.nii.gz')
-
+if dataFileType == "volumetric"
+    rawData = MRIread(p.Results.dataFileName);
+    rawData.nframes = 1; %Set the 4th dimension 1
+    rawData.vol = eccentricity;
+    MRIwrite(rawData, 'eccentricity_map.nii.gz')
+    rawData.vol = angular;
+    MRIwrite(rawData, 'angular_map.nii.gz')
+    rawData.vol = exponent;
+    MRIwrite(rawData, 'exponent_map.nii.gz')
+    rawData.vol = rfsize;
+    MRIwrite(rawData, 'rfsize_map.nii.gz')
+    rawData.vol = R2;
+    MRIwrite(rawData, 'R2_map.nii.gz')
+    rawData.vol = gain;
+    MRIwrite(rawData, 'gain_map.nii.gz')
+elseif dataFileType == "volumetric"   % This might neet to change a little bit (not tested)
+    rawData = ft_read_cifti(p.Results.dataFileName);
+    rawData.dtseries = results.ecc;
+    ft_write_cifti(rawData, 'eccentricity_map.nii.gz')
+    rawData.dtseries = results.ang;
+    ft_write_cifti(rawData, 'angular_map.nii.gz')
+    rawData.dtseries = results.expt;
+    ft_write_cifti(rawData, 'exponent_map.nii.gz')
+    rawData.dtseries = results.rfsize;
+    ft_write_cifti(rawData, 'rfsize_map.nii.gz')
+    rawData.dtseries = results.R2;
+    ft_write_cifti(rawData, 'R2_map.nii.gz')
+    rawData.dtseries = results.gain;
+    ft_write_cifti(rawData, 'gain_map.nii.gz')    
+end
 end
