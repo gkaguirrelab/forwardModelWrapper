@@ -1,4 +1,4 @@
-function results = WrapperAnalyzePRF(stimFileName,dataFileName,tr,outpath,varargin)
+function results = WrapperAnalyzePRF(stimFileName,dataFileName,dataFileType,tr,outpath,varargin)
 % Wrapper to manage inputs to Kendrick Kay's analyze pRF code
 %
 % Syntax:
@@ -50,6 +50,8 @@ function results = WrapperAnalyzePRF(stimFileName,dataFileName,tr,outpath,vararg
 %   dataFileName          - String. Provides the data as a cell vector of 
 %                           voxels x time.the number of time points should 
 %                           match the number of time points in <stimulus>.
+%   dataFileType          - String. Select whether the data is volumetric
+%                           surface(CIFTI).
 %   tr                    - String. The TR in seconds (e.g. 1.5)                          
 %   outpath               - String. Output path without the save file name.
 %
@@ -156,6 +158,7 @@ p = inputParser; p.KeepUnmatched = true;
 % Required  
 p.addRequired('stimFileName',@isstr);
 p.addRequired('dataFileName',@isstr);
+p.addRequired('dataFileType',@isstr);
 p.addRequired('tr', @isstr);
 p.addRequired('outpath', @isstr);
 
@@ -173,7 +176,7 @@ p.addParameter('maskFileName',[], @isstr);
 p.addParameter('prependDummyTRs','0', @isstr)
 
 % parse
-p.parse(stimFileName, dataFileName, tr, outpath, varargin{:})
+p.parse(stimFileName, dataFileName, dataFileType, tr, outpath, varargin{:})
 
 %% Load Data
 
@@ -181,26 +184,42 @@ p.parse(stimFileName, dataFileName, tr, outpath, varargin{:})
 % folder and this part of the script will go to that folder, find all the
 % hp2000_clean volumes, and exclude the folder containing the avarage of 
 % all runs which is usually the first folder in the ica results.
-
-if dataFileName(end-1:end) ~= "gz" 
+if dataFileName(end-1:end) ~= "gz"
+    
     d = dir('/*/*/*/*/*/MNINonLinear/Results'); % Find the acquisitions
     d = d(~ismember({d.name},{'.','..'})); % get rid of "." and ".." items in the cell containing path names
     d(1) = []; % Get rid of the first folder which is that first large folder we don't want
     runNumber = length(d); % Get the number of runs
-
-    for ii = 1:runNumber % This creates a data cell 1xrunNumber and populates the cells with the data
-        rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'hp2000_clean.nii.gz');
-        data{ii} = MRIread(rawName{ii});
-        data{ii} = data{ii}.vol;  %only get the volume
-        data{ii} = single(data{ii}); %convert to single
-        data{ii} = reshape(data{ii}, [size(data{ii},1)*size(data{ii},2)*size(data{ii},3), size(data{ii},4)]);
+    
+    if dataFileType == "volumetric"
+        for ii = 1:runNumber % This creates a data cell 1xrunNumber and populates the cells with the data
+            rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'hp2000_clean.nii.gz');
+            data{ii} = MRIread(rawName{ii});
+            data{ii} = data{ii}.vol;  %only get the volume
+            data{ii} = single(data{ii}); %convert to single
+            data{ii} = reshape(data{ii}, [size(data{ii},1)*size(data{ii},2)*size(data{ii},3), size(data{ii},4)]);
+        end
+    else
+        for ii = 1:runNumber % This creates a data cell 1xrunNumber and populates the cells with the data
+            fprintf(strcat("Reading cifti number", ' ', num2str(ii), '\n'))
+            rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'Atlas_hp2000.dtseries.nii');
+            data{ii} = ft_read_cifti(rawName{ii});
+            data{ii} = data{ii}.dtseries;  %only get the volume
+            data{ii} = single(data{ii}); %convert to single
+        end  
     end
     
 else   % This is used when a single acquisition is analyzed
-    rawData = MRIread(p.Results.dataFileName);   
-    data = rawData.vol;
-    data = single(data); 
-    data = reshape(data, [size(data,1)*size(data,2)*size(data,3), size(data,4)]); % Convert 4D to 2D
+    if dataFileType == "volumetric"
+        rawData = MRIread(p.Results.dataFileName);
+        data = rawData.vol;
+        data = single(data);
+        data = reshape(data, [size(data,1)*size(data,2)*size(data,3), size(data,4)]); % Convert 4D to 2D
+    else
+        rawData = ft_read_cifti(p.Results.dataFileName);
+        data = rawData.dtseries;
+        data = single(data);
+    end
 end
 
 %% Load the stimulus, convert to single, and copy it to the other cells
