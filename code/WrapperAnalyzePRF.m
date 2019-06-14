@@ -407,7 +407,6 @@ if dataFileType == "volumetric"
     rawData = MRIread(p.Results.dataFileName);
     %MAKE 3D
     getsize = size(rawData.vol); %Get the size of the original scan 
-
     % Results converted 2D -> 3D
     eccentricity = reshape(results.ecc,[getsize(1) getsize(2) getsize(3) 1]);
     angular = reshape(results.ang,[getsize(1) getsize(2) getsize(3) 1]);
@@ -415,10 +414,9 @@ if dataFileType == "volumetric"
     rfsize = reshape(results.rfsize,[getsize(1) getsize(2) getsize(3) 1]);
     R2 = reshape(results.R2,[getsize(1) getsize(2) getsize(3) 1]);
     gain = reshape(results.gain,[getsize(1) getsize(2) getsize(3) 1]);
-
 else 
     rawData = ft_read_cifti(p.Results.dataFileName);
-
+end
 
 % REPLACE NANs WITH 0 - This is not needed but some softwares (eg. freeview) 
 % throws warnings when there are NaNs in the data. This stops it.
@@ -444,7 +442,7 @@ if str2double(p.Results.thresholdData) == 1
     end
 end
 
-%SAVE NIFTI results
+%SAVE NIFTI or CIFTI results
 if dataFileType == "volumetric"
     rawData.nframes = 1; %Set the 4th dimension 1
     rawData.vol = eccentricity;
