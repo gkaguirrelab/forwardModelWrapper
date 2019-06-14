@@ -116,9 +116,9 @@ function results = WrapperAnalyzePRF(stimFileName,dataFileName,dataFileType,tr,o
 %                           required until data and stimulus sample lengths
 %                           are exactly the same. Don't use this option if
 %                           the difference is due to sampling. 1 for true 
-%                           and 0 for false. Default = 0
-%   'thresholdR2'          - Threshold all maps with this value. Default:
-%                           0.1
+%                           and 0 for false. Default = 0 (false)
+%   'thresholdData'        - String. Threshold results. Default: False
+%   'thresholdSize'        - String. Threshold with this value. Default:0.1
 %
 % Outputs:
 %   none
@@ -176,7 +176,8 @@ p.addParameter('display','iter',@isstr);
 p.addParameter('typicalgain','10',@isstr);
 p.addParameter('maskFileName',[], @isstr);
 p.addParameter('prependDummyTRs','0', @isstr)
-p.addParameter('thresholdR2','0.1', @isstr
+p.addParameter('thresholdData','0', @isstr)
+p.addParameter('thresholdSize','0.1', @isstr)
 
 % parse
 p.parse(stimFileName, dataFileName, dataFileType, tr, outpath, varargin{:})
@@ -428,15 +429,19 @@ results.rfsize(isnan(results.rfsize)) = 0;
 results.R2(isnan(results.R2)) = 0; 
 results.gain(isnan(results.gain)) = 0; 
 
-threshold = str2double(p.Results.thresholdR2); % Convert string to num
-ins = find(results.R2 < threshold); % Find the indices under threshold
-for i = ins'  % Remove the values under threshold from all maps
-    results.ang(i) = NaN;
-    results.ecc(i) = NaN;
-    results.expt(i) = NaN;
-    results.rfsize(i) = NaN;
-    results.R2(i) = NaN;
-    results.gain(i) = NaN;
+
+%%%THRESHOLDING
+if str2double(p.Results.thresholdData) == 1
+    threshold = str2double(p.Results.thresholdSize); % Convert string to num
+    ins = find(results.R2 < threshold); % Find the indices under threshold
+    for i = ins'  % Remove the values under threshold from all maps
+        results.ang(i) = NaN;
+        results.ecc(i) = NaN;
+        results.expt(i) = NaN;
+        results.rfsize(i) = NaN;
+        results.R2(i) = NaN;
+        results.gain(i) = NaN;
+    end
 end
 
 %SAVE NIFTI results
