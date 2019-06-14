@@ -117,6 +117,8 @@ function results = WrapperAnalyzePRF(stimFileName,dataFileName,dataFileType,tr,o
 %                           are exactly the same. Don't use this option if
 %                           the difference is due to sampling. 1 for true 
 %                           and 0 for false. Default = 0
+%   'thresholdR2'          - Threshold all maps with this value. Default:
+%                           0.1
 %
 % Outputs:
 %   none
@@ -174,6 +176,7 @@ p.addParameter('display','iter',@isstr);
 p.addParameter('typicalgain','10',@isstr);
 p.addParameter('maskFileName',[], @isstr);
 p.addParameter('prependDummyTRs','0', @isstr)
+p.addParameter('thresholdR2','0.1', @isstr
 
 % parse
 p.parse(stimFileName, dataFileName, dataFileType, tr, outpath, varargin{:})
@@ -397,7 +400,23 @@ save(strcat(outpath,"results.mat"),'results')
 % outputs look like.
 
 
-%% This part needs more work. 
+%% Load the raw image again to modify and make maps
+
+if dataFileType == "volumetric"
+    rawData = MRIread(p.Results.dataFileName);
+    %MAKE 3D
+    getsize = size(rawData.vol); %Get the size of the original scan 
+
+    % Results converted 2D -> 3D
+    eccentricity = reshape(results.ecc,[getsize(1) getsize(2) getsize(3) 1]);
+    angular = reshape(results.ang,[getsize(1) getsize(2) getsize(3) 1]);
+    exponent = reshape(results.expt,[getsize(1) getsize(2) getsize(3) 1]);
+    rfsize = reshape(results.rfsize,[getsize(1) getsize(2) getsize(3) 1]);
+    R2 = reshape(results.R2,[getsize(1) getsize(2) getsize(3) 1]);
+    gain = reshape(results.gain,[getsize(1) getsize(2) getsize(3) 1]);
+
+else 
+    rawData = ft_read_cifti(p.Results.dataFileName);
 
 
 % REPLACE NANs WITH 0 - This is not needed but some softwares (eg. freeview) 
@@ -409,20 +428,19 @@ results.rfsize(isnan(results.rfsize)) = 0;
 results.R2(isnan(results.R2)) = 0; 
 results.gain(isnan(results.gain)) = 0; 
 
-%MAKE 3D
-getsize = size(rawData.vol); %Get the size of the original scan 
-
-% Results converted 2D -> 3D
-eccentricity = reshape(results.ecc,[getsize(1) getsize(2) getsize(3) 1]);
-angular = reshape(results.ang,[getsize(1) getsize(2) getsize(3) 1]);
-exponent = reshape(results.expt,[getsize(1) getsize(2) getsize(3) 1]);
-rfsize = reshape(results.rfsize,[getsize(1) getsize(2) getsize(3) 1]);
-R2 = reshape(results.R2,[getsize(1) getsize(2) getsize(3) 1]);
-gain = reshape(results.gain,[getsize(1) getsize(2) getsize(3) 1]);
+threshold = str2double(p.Results.thresholdR2); % Convert string to num
+ins = find(results.R2 < threshold); % Find the indices under threshold
+for i = ins'  % Remove the values under threshold from all maps
+    results.ang(i) = NaN;
+    results.ecc(i) = NaN;
+    results.expt(i) = NaN;
+    results.rfsize(i) = NaN;
+    results.R2(i) = NaN;
+    results.gain(i) = NaN;
+end
 
 %SAVE NIFTI results
 if dataFileType == "volumetric"
-    rawData = MRIread(p.Results.dataFileName);
     rawData.nframes = 1; %Set the 4th dimension 1
     rawData.vol = eccentricity;
     MRIwrite(rawData, 'eccentricity_map.nii.gz')
@@ -436,19 +454,19 @@ if dataFileType == "volumetric"
     MRIwrite(rawData, 'R2_map.nii.gz')
     rawData.vol = gain;
     MRIwrite(rawData, 'gain_map.nii.gz')
-elseif dataFileType == "volumetric"   % This might neet to change a little bit (not tested)
-    rawData = ft_read_cifti(p.Results.dataFileName);
+elseif dataFileType == "cifti"   % This might neet to change a little bit (not tested)
+    rawData.time = 0;
     rawData.dtseries = results.ecc;
-    ft_write_cifti(rawData, 'eccentricity_map.nii.gz')
+    ft_write_cifti('eccentricity_map.nii.gz', rawData, 'parameter', 'dtseries')
     rawData.dtseries = results.ang;
-    ft_write_cifti(rawData, 'angular_map.nii.gz')
+    ft_write_cifti('angular_map.nii.gz', rawData, 'parameter', 'dtseries')
     rawData.dtseries = results.expt;
-    ft_write_cifti(rawData, 'exponent_map.nii.gz')
+    ft_write_cifti('exponent_map.nii.gz', rawData, 'parameter', 'dtseries')
     rawData.dtseries = results.rfsize;
-    ft_write_cifti(rawData, 'rfsize_map.nii.gz')
+    ft_write_cifti('rfsize_map.nii.gz', rawData, 'parameter', 'dtseries')
     rawData.dtseries = results.R2;
-    ft_write_cifti(rawData, 'R2_map.nii.gz')
+    ft_write_cifti('R2_map.nii.gz', rawData, 'parameter', 'dtseries')
     rawData.dtseries = results.gain;
-    ft_write_cifti(rawData, 'gain_map.nii.gz')    
+    ft_write_cifti('gain_map.nii.gz', rawData, 'parameter', 'dtseries')    
 end
 end
