@@ -117,7 +117,7 @@ function results = WrapperAnalyzePRF(stimFileName,dataFileName,dataFileType,tr,o
 %                           are exactly the same. Don't use this option if
 %                           the difference is due to sampling. 1 for true 
 %                           and 0 for false. Default = 0 (false)
-%   'thresholdData'        - String. Threshold results. Default: False
+%   'thresholdData'        - String. Threshold results. Default: 0 (false)
 %   'thresholdSize'        - String. Threshold with this value. Default:0.1
 %
 % Outputs:
