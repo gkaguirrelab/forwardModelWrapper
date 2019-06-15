@@ -1,8 +1,15 @@
 
+% Which subject to process?
+subjectName = 'TOME_3021';
 
 % Define a few variables
 outputFileSuffix = '_hcpicafix.zip';
 scratchSaveDir = getpref('flywheelMRSupport','flywheelScratchDir');
+
+% Create the save dir if it does not exist
+if ~exist(scratchSaveDir,'dir')
+    mkdir(scratchSaveDir);
+end
 
 % This is the dev-null path for Mac OSX
 devNull = ' >/dev/null';
@@ -17,7 +24,7 @@ searchStruct = struct(...
     struct('match', struct('analysis0x2elabel', 'hcp-icafix')), ...
     struct('match', struct('analysis0x2elabel', 'RETINO')), ...
     struct('match', struct('project0x2elabel', 'tome')), ...
-    struct('match', struct('subject0x2ecode', 'TOME_3021')), ...
+    struct('match', struct('subject0x2ecode', subjectName)), ...
     }} ...
     );
 analyses = fw.search(searchStruct);
@@ -34,20 +41,61 @@ analysisFileMatchIdx = cellfun(@(x) endsWith(x.name,outputFileSuffix),thisAnalys
 
 % Get some more information about the analysis and define a saveStem
 thisName = thisAnalysis.files{analysisFileMatchIdx}.name;
-tmp = strsplit(thisName,outputFileSuffix);
-saveStem = tmp{1};
+saveName = fullfile(scratchSaveDir,thisName);
 
-% Inform the user
-fprintf(['Downloading: ' thisName '\n']);
-fprintf(['         to: ' scratchSaveDir '\n']);
+% If the file has not already been downloaded, get it
+if ~exist(saveName,'file')
+    
+    % Inform the user
+    fprintf(['Downloading: ' thisName '\n']);
+    fprintf(['         to: ' scratchSaveDir '\n']);
+    
+    % Download the matching file to the rootSaveDir. This can take a while
+    fw.downloadOutputFromAnalysis(thisAnalysis.id,thisName,saveName);
+    
+    % Inform the user
+    fprintf('  Unzipping\n');
+    
+    % Unzip the downloaded file; overwright existing; pipe the terminal
+    % output to dev/null
+    command = ['unzip -o -a ' saveName ' -d ' saveName '_unzip' devNull];
+    system(command);
+    
+end
 
-% Download the matching file to the rootSaveDir. This can take a while
-zipFileName = fw.downloadOutputFromAnalysis(thisAnalysis.id,thisName,fullfile(scratchSaveDir,thisName));
+% Find the acquisition directories within the unzipped file directory
+subjectID = thisAnalysis.job.config.config.Subject;
+acquisitionDir = fullfile([saveName '_unzip'],subjectID,'MNINonLinear','Results');
+acquisitionList = dir(acquisitionDir);
 
-% Inform the user
-fprintf('  Unzipping\n');
+% Remove the dir itself, the enclosing dir, and the ICAFIX concat dir
+acquisitionList = acquisitionList(3:end);
+acquisitionList = acquisitionList(...
+    cellfun(@(x) ~startsWith(x,'ICAFIX'),extractfield(acquisitionList,'name')) ...
+    );
 
-% Unzip the downloaded file; overwright existing; pipe the terminal
-% output to dev/null
-command = ['unzip -o -a ' zipFileName ' -d ' zipFileName '_unzip' devNull];
-system(command);
+% Identify the CIFTI files
+ciftiPathList = {};
+for ii=1:length(acquisitionList)
+    path = fullfile(acquisitionDir,acquisitionList(ii).name);
+    name = dir(fullfile(path,'*_clean.dtseries.nii'));
+    ciftiPathList(ii) = {fullfile(path,name.name)};
+end
+
+% Identify the NIFTI files
+niftiPathList = {};
+for ii=1:length(acquisitionList)
+    path = fullfile(acquisitionDir,acquisitionList(ii).name);
+    name = dir(fullfile(path,'*_clean.nii.gz'));
+    niftiPathList(ii) = {fullfile(path,name.name)};
+end
+
+% Set the path to the stimulus; assume it is in the same directory as this
+% script
+demoDir = mfilename('fullpath');
+demoDir = demoDir(1:find(demoDir == filesep, 1, 'last'));
+stimFileName = fullfile(demoDir,'pRFStimulus_108x108x420.mat');
+
+% Call the pRF wrapper function
+fprintf('  Calling the pRF routine\n');
+WrapperAnalyzePRF(stimFileName,niftiPathList{1},'volumetric','800',demoDir)
