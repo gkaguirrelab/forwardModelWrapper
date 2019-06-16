@@ -4,6 +4,7 @@ subjectName = 'TOME_3021';
 
 % Define a few variables
 outputFileSuffix = '_hcpicafix.zip';
+wbCommand = getpref('flywheelMRSupport','wbCommand');
 scratchSaveDir = getpref('flywheelMRSupport','flywheelScratchDir');
 
 % Create the save dir if it does not exist
@@ -22,7 +23,7 @@ searchStruct = struct(...
     'returnType', 'analysis', ...
     'filters', {{...
     struct('match', struct('analysis0x2elabel', 'hcp-icafix')), ...
-    struct('match', struct('analysis0x2elabel', 'RETINO')), ...
+    struct('match', struct('analysis0x2elabel', 'FLASH')), ...
     struct('match', struct('project0x2elabel', 'tome')), ...
     struct('match', struct('subject0x2ecode', subjectName)), ...
     }} ...
@@ -90,12 +91,34 @@ for ii=1:length(acquisitionList)
     niftiPathList(ii) = {fullfile(path,name.name)};
 end
 
+% Create an average, smooth NIFTI file
+fprintf('  Averaging the NIFTI files\n');
+sigma = 2;
+for ii=1:length(acquisitionList)
+    tmpFile = [tempname '_smoothed.nii.gz'];
+    system(['FSLDIR=/usr/local/fsl; PATH=${FSLDIR}/bin:${PATH}; export FSLDIR PATH; . ${FSLDIR}/etc/fslconf/fsl.sh; fslmaths "' niftiPathList{ii}, '" -kernel gauss ', num2str(sigma), ' -fmean "', tmpFile, '"']);
+    tmp = MRIread(tmpFile);
+    if ii == 1
+        data = tmp.vol;
+    else
+        data = data + tmp.vol;
+    end
+end
+clear tmp
+data = data ./ length(acquisitionList);
+
 % Set the path to the stimulus; assume it is in the same directory as this
 % script
 demoDir = mfilename('fullpath');
 demoDir = demoDir(1:find(demoDir == filesep, 1, 'last'));
 stimFileName = fullfile(demoDir,'pRFStimulus_108x108x420.mat');
 
-% Call the pRF wrapper function
+% Load the stimulus into memory
+load(stimFileName,'stimulus');
+
+% Set the TR to 0.8 seconds
+tr = 0.8;
+
+% Call the pRF analysis
 fprintf('  Calling the pRF routine\n');
-WrapperAnalyzePRF(stimFileName,niftiPathList{1},'volumetric','800',demoDir)
+results = analyzePRF(stimulus,data,tr);
