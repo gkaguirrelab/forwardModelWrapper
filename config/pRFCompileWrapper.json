@@ -30,13 +30,13 @@
 		"hook": "",
 		"importance": "",
 		"localHookTemplate": "",
-		"name": "fieldtrip",
+		"name": "gifti",
 		"pathPlacement": "append",
 		"subfolder": "",
 		"toolboxRoot": "",
 		"type": "git",
 		"update": "",
-		"url": "https:\/\/github.com\/fieldtrip\/fieldtrip.git"
+		"url": "https:\/\/github.com\/gllmflndn\/gifti.git"
 	},
 	{
 		"flavor": "",
