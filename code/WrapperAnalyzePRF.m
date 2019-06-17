@@ -415,7 +415,7 @@ if dataFileType == "volumetric"
     R2 = reshape(results.R2,[getsize(1) getsize(2) getsize(3) 1]);
     gain = reshape(results.gain,[getsize(1) getsize(2) getsize(3) 1]);
 else 
-    rawData = ft_read_cifti(p.Results.dataFileName);
+    rawData = ft_read_cifti(rawName{1,1});
 end
 
 % REPLACE NANs WITH 0 - This is not needed but some softwares (eg. freeview) 
