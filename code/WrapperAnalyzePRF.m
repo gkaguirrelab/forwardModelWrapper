@@ -267,9 +267,12 @@ if ~isempty(p.Results.maskFileName)    % Get the indices from mask if specified
         vxs = single(vxs);
     elseif dataFileType == "cifti"
         rawMask = ft_read_cifti(p.Results.maskFileName); % Load mask
-        mask = rawMask.dtseries;  % Get only the volume
-        mask = single(mask); % Convert mask volume to single
-        
+        mask = rmfield(rawMask, {'dimord','hdr', 'unit','brainstructure','brainstructurelabel','dim','pos','transform'}); %remove this and isolate the mask (needed because mask subfield changes names with different masks)
+        fnames = fieldnames(mask);
+        if numel(fnames) == 1
+            mask = mask.(fnames{1,1});  % Get only the volume
+            mask = single(mask); % Convert mask volume to single
+        end
         vxs = find(mask)';
         vxs = single(vxs);    
     else
