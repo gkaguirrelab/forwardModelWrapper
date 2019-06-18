@@ -177,7 +177,7 @@ p.addParameter('typicalgain','10',@isstr);
 p.addParameter('maskFileName',[], @isstr);
 p.addParameter('prependDummyTRs','0', @isstr)
 p.addParameter('thresholdData','0', @isstr)
-p.addParameter('thresholdSize','0.1', @isstr)
+p.addParameter('thresholdSize','10', @isstr)
 
 % parse
 p.parse(stimFileName, dataFileName, dataFileType, tr, outpath, varargin{:})
