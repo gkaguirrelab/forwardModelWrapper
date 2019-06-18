@@ -273,6 +273,7 @@ if ~isempty(p.Results.maskFileName)    % Get the indices from mask if specified
             mask = mask.(fnames{1,1});  % Get only the volume
             mask = single(mask); % Convert mask volume to single
         end
+        mask(isnan(mask)) = 0; % Get rid of NaNs or find function will get their indices too
         vxs = find(mask)';
         vxs = single(vxs);    
     else
