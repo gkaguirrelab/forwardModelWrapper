@@ -1,3 +1,8 @@
+% DEMO pRF analysis
+%
+% This routine downloads a set of ICAFIX data from flywheel and then
+% submits the files to pRF analysis.
+
 
 % Which subject to process?
 subjectName = 'TOME_3021';
@@ -23,13 +28,14 @@ searchStruct = struct(...
     'returnType', 'analysis', ...
     'filters', {{...
     struct('match', struct('analysis0x2elabel', 'hcp-icafix')), ...
-    struct('match', struct('analysis0x2elabel', 'FLASH')), ...
+    struct('match', struct('analysis0x2elabel', 'RETINO')), ...
     struct('match', struct('project0x2elabel', 'tome')), ...
     struct('match', struct('subject0x2ecode', subjectName)), ...
     }} ...
     );
 analyses = fw.search(searchStruct);
 
+% We should only find one analysis result for this search
 if length(analyses)~=1
     error('Search failed to find a unique analysis')
 end
@@ -91,34 +97,17 @@ for ii=1:length(acquisitionList)
     niftiPathList(ii) = {fullfile(path,name.name)};
 end
 
-% Create an average, smooth NIFTI file
-fprintf('  Averaging the NIFTI files\n');
-sigma = 2;
-for ii=1:length(acquisitionList)
-    tmpFile = [tempname '_smoothed.nii.gz'];
-    system(['FSLDIR=/usr/local/fsl; PATH=${FSLDIR}/bin:${PATH}; export FSLDIR PATH; . ${FSLDIR}/etc/fslconf/fsl.sh; fslmaths "' niftiPathList{ii}, '" -kernel gauss ', num2str(sigma), ' -fmean "', tmpFile, '"']);
-    tmp = MRIread(tmpFile);
-    if ii == 1
-        data = tmp.vol;
-    else
-        data = data + tmp.vol;
-    end
-end
-clear tmp
-data = data ./ length(acquisitionList);
-
 % Set the path to the stimulus; assume it is in the same directory as this
 % script
 demoDir = mfilename('fullpath');
 demoDir = demoDir(1:find(demoDir == filesep, 1, 'last'));
 stimFileName = fullfile(demoDir,'pRFStimulus_108x108x420.mat');
 
-% Load the stimulus into memory
-load(stimFileName,'stimulus');
-
 % Set the TR to 0.8 seconds
 tr = 0.8;
 
-% Call the pRF analysis
+% Call the pRF analysis wrapper
 fprintf('  Calling the pRF routine\n');
-results = analyzePRF(stimulus,data,tr);
+% call wrapper here
+
+
