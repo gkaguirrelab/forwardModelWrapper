@@ -118,9 +118,9 @@ function results = WrapperAnalyzePRF(stimFileName,dataFileName,dataFileType,tr,o
 %                           the difference is due to sampling. 1 for true 
 %                           and 0 for false. Default = 0 (false)
 %   'thresholdData'        - String. Threshold with this percent. Default:10
-%   'pixelToDegree'        - String. If a pixel to degree number is given
-%                           eccentricity values are represented on this 
-%                           scale.
+%   'pixelToDegree'        - String. If a pixel to degree number is
+%                           specified, eccentricity values are represented 
+%                           on this scale.
 %
 % Outputs:
 %   none
@@ -436,9 +436,8 @@ results.R2(isnan(results.R2)) = 0;
 results.gain(isnan(results.gain)) = 0; 
 
 %%%Pixel to Degrees
-if ~isempty(pixelToDegree):
+if ~isempty(pixelToDegree)
     results.ecc = results.ecc./pixelToDegree;
-    end
 end
 
 %%%THRESHOLDING
