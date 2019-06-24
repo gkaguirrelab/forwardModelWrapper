@@ -211,7 +211,8 @@ if dataFileName(end-1:end) ~= "gz"
             fprintf(strcat("Reading cifti number", ' ', num2str(ii), '\n'))
             rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'Atlas_hp2000_clean.dtseries.nii');
             data{ii} = ft_read_cifti(rawName{ii});
-            data{ii} = data{ii}.dtseries;  %only get the volume
+            datafnames = fieldnames(data{ii});
+            data{ii} = data{ii}.(datafnames{end});  %only get the last element which is the volume
             data{ii} = single(data{ii}); %convert to single    
             data{ii}(isnan(data{ii})) = 0; %NaN to 0
         end 
@@ -272,9 +273,9 @@ if ~isempty(p.Results.maskFileName)    % Get the indices from mask if specified
     elseif dataFileType == "cifti"
         rawMask = ft_read_cifti(p.Results.maskFileName); % Load mask
         mask = rmfield(rawMask, {'dimord','hdr', 'unit','brainstructure','brainstructurelabel','dim','pos','transform'}); %remove this and isolate the mask (needed because mask subfield changes names with different masks)
-        fnames = fieldnames(mask);
-        if numel(fnames) == 1
-            mask = mask.(fnames{1,1});  % Get only the volume
+        maskfnames = fieldnames(mask);
+        if numel(maskfnames) == 1
+            mask = mask.(maskfnames{1,1});  % Get only the volume
             mask = single(mask); % Convert mask volume to single
         end
         mask(isnan(mask)) = 0; % Get rid of NaNs or find function will get their indices too
