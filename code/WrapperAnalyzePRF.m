@@ -117,8 +117,10 @@ function results = WrapperAnalyzePRF(stimFileName,dataFileName,dataFileType,tr,o
 %                           are exactly the same. Don't use this option if
 %                           the difference is due to sampling. 1 for true 
 %                           and 0 for false. Default = 0 (false)
-%   'thresholdData'        - String. Threshold results. Default: 0 (false)
-%   'thresholdSize'        - String. Threshold with this value. Default:0.1
+%   'thresholdData'        - String. Threshold with this percent. Default:10
+%   'pixelToDegree'        - String. If a pixel to degree number is given
+%                           eccentricity values are represented on this 
+%                           scale.
 %
 % Outputs:
 %   none
@@ -176,8 +178,8 @@ p.addParameter('display','iter',@isstr);
 p.addParameter('typicalgain','10',@isstr);
 p.addParameter('maskFileName',[], @isstr);
 p.addParameter('prependDummyTRs','0', @isstr)
-p.addParameter('thresholdData','0', @isstr)
-p.addParameter('thresholdSize','10', @isstr)
+p.addParameter('thresholdData','10', @isstr)
+p.addParameter('pixelToDegree',[], @isstr)
 
 % parse
 p.parse(stimFileName, dataFileName, dataFileType, tr, outpath, varargin{:})
@@ -202,6 +204,7 @@ if dataFileName(end-1:end) ~= "gz"
             data{ii} = data{ii}.vol;  %only get the volume
             data{ii} = single(data{ii}); %convert to single
             data{ii} = reshape(data{ii}, [size(data{ii},1)*size(data{ii},2)*size(data{ii},3), size(data{ii},4)]);
+            data{ii}(isnan(data{ii})) = 0; %NaN to 0
         end
     elseif dataFileType == "cifti"
         for ii = 1:runNumber % This creates a data cell 1xrunNumber and populates the cells with the data
@@ -209,7 +212,8 @@ if dataFileName(end-1:end) ~= "gz"
             rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'Atlas_hp2000_clean.dtseries.nii');
             data{ii} = ft_read_cifti(rawName{ii});
             data{ii} = data{ii}.dtseries;  %only get the volume
-            data{ii} = single(data{ii}); %convert to single
+            data{ii} = single(data{ii}); %convert to single    
+            data{ii}(isnan(data{ii})) = 0; %NaN to 0
         end 
     else
         fprintf("Scan type is not valid")
@@ -412,12 +416,12 @@ if dataFileType == "volumetric"
     %MAKE 3D
     getsize = size(rawData.vol); %Get the size of the original scan 
     % Results converted 2D -> 3D
-    eccentricity = reshape(results.ecc,[getsize(1) getsize(2) getsize(3) 1]);
-    angular = reshape(results.ang,[getsize(1) getsize(2) getsize(3) 1]);
-    exponent = reshape(results.expt,[getsize(1) getsize(2) getsize(3) 1]);
-    rfsize = reshape(results.rfsize,[getsize(1) getsize(2) getsize(3) 1]);
-    R2 = reshape(results.R2,[getsize(1) getsize(2) getsize(3) 1]);
-    gain = reshape(results.gain,[getsize(1) getsize(2) getsize(3) 1]);
+    results.ecc = reshape(results.ecc,[getsize(1) getsize(2) getsize(3) 1]);
+    results.ang = reshape(results.ang,[getsize(1) getsize(2) getsize(3) 1]);
+    results.expt = reshape(results.expt,[getsize(1) getsize(2) getsize(3) 1]);
+    results.rfsize = reshape(results.rfsize,[getsize(1) getsize(2) getsize(3) 1]);
+    results.R2 = reshape(results.R2,[getsize(1) getsize(2) getsize(3) 1]);
+    results.gain = reshape(results.gain,[getsize(1) getsize(2) getsize(3) 1]);
 else 
     rawData = ft_read_cifti(rawName{1,1});
 end
@@ -431,49 +435,83 @@ results.rfsize(isnan(results.rfsize)) = 0;
 results.R2(isnan(results.R2)) = 0; 
 results.gain(isnan(results.gain)) = 0; 
 
+%%%Pixel to Degrees
+if ~isempty(pixelToDegree):
+    results.ecc = results.ecc./pixelToDegree;
+    end
+end
 
 %%%THRESHOLDING
-if str2double(p.Results.thresholdData) == 1
+if ~isempty(thresholdData)
     threshold = str2double(p.Results.thresholdSize); % Convert string to num
     ins = find(results.R2 < threshold); % Find the indices under threshold
-    for i = ins'  % Remove the values under threshold from all maps
-        results.ang(i) = NaN;
-        results.ecc(i) = NaN;
-        results.expt(i) = NaN;
-        results.rfsize(i) = NaN;
-        results.R2(i) = NaN;
-        results.gain(i) = NaN;
+    results_thresh = results; 
+    for ii = ins'  % Remove the values under threshold from all maps
+        results_thresh.ang(ii) = 0;
+        results_thresh.ecc(ii) = 0;
+        results_thresh.expt(ii) = 0;
+        results_thresh.rfsize(ii) = 0;
+        results_thresh.R2(ii) = 0;
+        results_thresh.gain(ii) = 0;        
     end
 end
 
 %SAVE NIFTI or CIFTI results
 if dataFileType == "volumetric"
     rawData.nframes = 1; %Set the 4th dimension 1
-    rawData.vol = eccentricity;
-    MRIwrite(rawData, 'eccentricity_map.nii.gz')
-    rawData.vol = angular;
-    MRIwrite(rawData, 'angular_map.nii.gz')
-    rawData.vol = exponent;
-    MRIwrite(rawData, 'exponent_map.nii.gz')
-    rawData.vol = rfsize;
-    MRIwrite(rawData, 'rfsize_map.nii.gz')
-    rawData.vol = R2;
-    MRIwrite(rawData, 'R2_map.nii.gz')
-    rawData.vol = gain;
-    MRIwrite(rawData, 'gain_map.nii.gz')
+    rawData.vol = results.ecc;
+    MRIwrite(rawData, strcat(outpath,'eccentricity_map.nii.gz'))
+    rawData.vol = results.ang;
+    MRIwrite(rawData, strcat(outpath,'angular_map.nii.gz'))
+    rawData.vol = results.expt;
+    MRIwrite(rawData, strcat(outpath,'exponent_map.nii.gz'))
+    rawData.vol = results.rfsize;
+    MRIwrite(rawData, strcat(outpath,'rfsize_map.nii.gz'))
+    rawData.vol = results.R2;
+    MRIwrite(rawData, strcat(outpath,'R2_map.nii.gz'))
+    rawData.vol = results.gain;
+    MRIwrite(rawData, strcat(outpath,'gain_map.nii.gz'))
+    if ~isempty(thresholdData)
+        rawData.vol = results_thresh.ecc;
+        MRIwrite(rawData, strcat(outpath,'thresh_eccentricity_map.nii.gz'))
+        rawData.vol = results_thresh.ang;
+        MRIwrite(rawData, strcat(outpath,'thresh_angular_map.nii.gz'))
+        rawData.vol = results_thresh.expt;
+        MRIwrite(rawData, strcat(outpath,'thresh_exponent_map.nii.gz'))
+        rawData.vol = results_thresh.rfsize;
+        MRIwrite(rawData, strcat(outpath,'thresh_rfsize_map.nii.gz'))
+        rawData.vol = results_thresh.R2;
+        MRIwrite(rawData, strcat(outpath,'thresh_R2_map.nii.gz'))
+        rawData.vol = results_thresh.gain;
+        MRIwrite(rawData, strcat(outpath,'thresh_gain_map.nii.gz'))
+    end
 elseif dataFileType == "cifti"   % This might neet to change a little bit (not tested)
     rawData.time = 0;
     rawData.dtseries = results.ecc;
-    ft_write_cifti('eccentricity_map.nii.gz', rawData, 'parameter', 'dtseries')
+    ft_write_cifti(strcat(outpath,'eccentricity_map.nii.gz'), rawData, 'parameter', 'dtseries')
     rawData.dtseries = results.ang;
-    ft_write_cifti('angular_map.nii.gz', rawData, 'parameter', 'dtseries')
+    ft_write_cifti(strcat(outpath, 'angular_map.nii.gz'), rawData, 'parameter', 'dtseries')
     rawData.dtseries = results.expt;
-    ft_write_cifti('exponent_map.nii.gz', rawData, 'parameter', 'dtseries')
+    ft_write_cifti(strcat(outpath,'exponent_map.nii.gz'), rawData, 'parameter', 'dtseries')
     rawData.dtseries = results.rfsize;
-    ft_write_cifti('rfsize_map.nii.gz', rawData, 'parameter', 'dtseries')
+    ft_write_cifti(strcat(outpath,'rfsize_map.nii.gz'), rawData, 'parameter', 'dtseries')
     rawData.dtseries = results.R2;
-    ft_write_cifti('R2_map.nii.gz', rawData, 'parameter', 'dtseries')
+    ft_write_cifti(strcat(outpath, 'R2_map.nii.gz'), rawData, 'parameter', 'dtseries')
     rawData.dtseries = results.gain;
-    ft_write_cifti('gain_map.nii.gz', rawData, 'parameter', 'dtseries')    
+    ft_write_cifti(strcat(outpath,'gain_map.nii.gz'), rawData, 'parameter', 'dtseries')  
+    if ~isempty(thresholdData)
+        rawData.vol = results_thresh.ecc;
+        ft_write_cifti(strcat(outpath,'thresh_eccentricity_map.nii.gz'), rawData, 'parameter', 'dtseries')
+        rawData.vol = results_thresh.ang;
+        ft_write_cifti(strcat(outpath,'thresh_angular_map.nii.gz'), rawData, 'parameter', 'dtseries')
+        rawData.vol = results_thresh.expt;
+        ft_write_cifti(strcat(outpath,'thresh_exponent_map.nii.gz'), rawData, 'parameter', 'dtseries')
+        rawData.vol = results_thresh.rfsize;
+        ft_write_cifti(strcat(outpath,'thresh_rfsize_map.nii.gz'), rawData, 'parameter', 'dtseries')
+        rawData.vol = results_thresh.R2;
+        ft_write_cifti(strcat(outpath,'thresh_R2_map.nii.gz'), rawData, 'parameter', 'dtseries')
+        rawData.vol = results_thresh.gain;
+        ft_write_cifti(strcat(outpath,'thresh_gain_map.nii.gz'), rawData, 'parameter', 'dtseries')
+    end
 end
 end
