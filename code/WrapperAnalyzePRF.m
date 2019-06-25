@@ -402,7 +402,7 @@ clear mask
 
 % Run the function and save the results
 results = analyzePRF(stimulus,data,tr,analysisStructure);
-save(strcat(outpath,"results.mat"),'results')
+save(strcat(outpath,"retinotopy_results.mat"),'results')
 
 % Code here to reformat the results into brain maps, respecting the mask
 % that was defined above, and then save the image maps someplace. Also, we
