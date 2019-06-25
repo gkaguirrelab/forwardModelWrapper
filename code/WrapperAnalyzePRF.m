@@ -54,7 +54,7 @@ function results = WrapperAnalyzePRF(stimFileName,dataFileName,dataFileType,tr,o
 %                           surface(CIFTI).
 %   tr                    - String. The TR in seconds (e.g. 1.5)                          
 %   outpath               - String. Output path without the save file name.
-%
+%                           needs to end with a /
 % Optional key/value pairs:
 %  
 %  'wantglmdenoise'         - String. (optional) is whether to use GLMdenoise
@@ -472,6 +472,7 @@ if dataFileType == "volumetric"
     rawData.vol = results.gain;
     MRIwrite(rawData, strcat(outpath,'gain_map.nii.gz'))
     if ~isempty(thresholdData)
+        rawData.nframes = 1; %Set the 4th dimension 1
         rawData.vol = results_thresh.ecc;
         MRIwrite(rawData, strcat(outpath,'thresh_eccentricity_map.nii.gz'))
         rawData.vol = results_thresh.ang;
@@ -487,30 +488,32 @@ if dataFileType == "volumetric"
     end
 elseif dataFileType == "cifti"   % This might neet to change a little bit (not tested)
     rawData.time = 0;
-    rawData.dtseries = results.ecc;
+    finaldatafnames = fieldnames(rawData);
+    rawData.(finaldatafnames{end}) = results.ecc;
     ft_write_cifti(strcat(outpath,'eccentricity_map.nii.gz'), rawData, 'parameter', 'dtseries')
-    rawData.dtseries = results.ang;
+    rawData.(finaldatafnames{end}) = results.ang;
     ft_write_cifti(strcat(outpath, 'angular_map.nii.gz'), rawData, 'parameter', 'dtseries')
-    rawData.dtseries = results.expt;
+    rawData.(finaldatafnames{end}) = results.expt;
     ft_write_cifti(strcat(outpath,'exponent_map.nii.gz'), rawData, 'parameter', 'dtseries')
-    rawData.dtseries = results.rfsize;
+    rawData.(finaldatafnames{end}) = results.rfsize;
     ft_write_cifti(strcat(outpath,'rfsize_map.nii.gz'), rawData, 'parameter', 'dtseries')
-    rawData.dtseries = results.R2;
+    rawData.(finaldatafnames{end}) = results.R2;
     ft_write_cifti(strcat(outpath, 'R2_map.nii.gz'), rawData, 'parameter', 'dtseries')
-    rawData.dtseries = results.gain;
+    rawData.(finaldatafnames{end}) = results.gain;
     ft_write_cifti(strcat(outpath,'gain_map.nii.gz'), rawData, 'parameter', 'dtseries')  
     if ~isempty(thresholdData)
-        rawData.vol = results_thresh.ecc;
+        rawData.time = 0;
+        rawData.(finaldatafnames{end}) = results_thresh.ecc;
         ft_write_cifti(strcat(outpath,'thresh_eccentricity_map.nii.gz'), rawData, 'parameter', 'dtseries')
-        rawData.vol = results_thresh.ang;
+        rawData.(finaldatafnames{end}) = results_thresh.ang;
         ft_write_cifti(strcat(outpath,'thresh_angular_map.nii.gz'), rawData, 'parameter', 'dtseries')
-        rawData.vol = results_thresh.expt;
+        rawData.(finaldatafnames{end}) = results_thresh.expt;
         ft_write_cifti(strcat(outpath,'thresh_exponent_map.nii.gz'), rawData, 'parameter', 'dtseries')
-        rawData.vol = results_thresh.rfsize;
+        rawData.(finaldatafnames{end}) = results_thresh.rfsize;
         ft_write_cifti(strcat(outpath,'thresh_rfsize_map.nii.gz'), rawData, 'parameter', 'dtseries')
-        rawData.vol = results_thresh.R2;
+        rawData.(finaldatafnames{end}) = results_thresh.R2;
         ft_write_cifti(strcat(outpath,'thresh_R2_map.nii.gz'), rawData, 'parameter', 'dtseries')
-        rawData.vol = results_thresh.gain;
+        rawData.(finaldatafnames{end}) = results_thresh.gain;
         ft_write_cifti(strcat(outpath,'thresh_gain_map.nii.gz'), rawData, 'parameter', 'dtseries')
     end
 end
