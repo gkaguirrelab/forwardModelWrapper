@@ -192,7 +192,7 @@ p.parse(stimFileName, dataFileName, dataFileType, tr, outpath, varargin{:})
 % all runs which is usually the first folder in the ica results.
 if dataFileName(end-1:end) ~= "gz"
     
-    d = dir('/*/*/*/*/*/MNINonLinear/Results'); % Find the acquisitions
+    d = dir('/flywheel/v0/input/*/*/*/MNINonLinear/Results'); % Find the acquisitions
     d = d(~ismember({d.name},{'.','..'})); % get rid of "." and ".." items in the cell containing path names
     d(1) = []; % Get rid of the first folder which is that first large folder we don't want
     runNumber = length(d); % Get the number of runs
@@ -437,12 +437,12 @@ results.R2(isnan(results.R2)) = 0;
 results.gain(isnan(results.gain)) = 0; 
 
 %%%Pixel to Degrees
-if ~isempty(pixelToDegree)
+if ~isempty(p.Results.pixelToDegree)
     results.ecc = results.ecc./pixelToDegree;
 end
 
 %%%THRESHOLDING
-if ~isempty(thresholdData)
+if ~isempty(p.Results.thresholdData)
     threshold = str2double(p.Results.thresholdSize); % Convert string to num
     ins = find(results.R2 < threshold); % Find the indices under threshold
     results_thresh = results; 
