@@ -241,9 +241,10 @@ end
 load(stimFileName,'stimulus');
 stimulus = single(stimulus); 
 dataLength = length(data);
-temporarystim = stimulus;
-stimulus = {};
-if dataLength > 1
+stimLength = length(stimulus);
+if dataLength ~= stimLength
+    temporarystim = stimulus;
+    stimulus = {};
     for celvar = 1:dataLength
         stimulus{celvar} = temporarystim;
     end
