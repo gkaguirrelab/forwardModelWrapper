@@ -98,7 +98,7 @@ function results = WrapperAnalyzePRF(stimFileName,dataFileName,dataFileType,tr,o
 %                           N where N is a positive integer indicating the 
 %                           number of voxels to analyze in each cluster job
 %                           this option requires a customized computational 
-%                           setup! default: [].
+%                           setup! default: Na.
 %  'maxiter'               - String. Is the maximum number of iterations.  
 %                           default: 500.
 %  'display'               - String.is 'iter' | 'final' | 'off'.  
@@ -167,19 +167,19 @@ p.addRequired('tr', @isstr);
 p.addRequired('outpath', @isstr);
 
 % Optional parameters
-p.addParameter('wantglmdenoise','0',@isstr);
-p.addParameter('hrf',[],@isstr);   %MAT FILE, COLUMN VECTOR
-p.addParameter('maxpolydeg',[],@isstr);
-p.addParameter('seedmode','[0 1 2]',@isstr);
-p.addParameter('xvalmode','0',@isstr);
-p.addParameter('numperjob',[],@isstr);
-p.addParameter('maxiter','500',@isstr);
-p.addParameter('display','iter',@isstr);
-p.addParameter('typicalgain','10',@isstr);
-p.addParameter('maskFileName',[], @isstr);
-p.addParameter('prependDummyTRs','0', @isstr)
-p.addParameter('thresholdData','10', @isstr)
-p.addParameter('pixelToDegree',[], @isstr)
+p.addParameter('wantglmdenoise',"0",@isstr);
+p.addParameter('hrf',"Na",@isstr);   %MAT FILE, COLUMN VECTOR
+p.addParameter('maxpolydeg',"Na",@isstr);
+p.addParameter('seedmode',"[0 1 2]",@isstr);
+p.addParameter('xvalmode',"0",@isstr);
+p.addParameter('numperjob',"Na",@isstr);
+p.addParameter('maxiter',"500",@isstr);
+p.addParameter('display',"iter",@isstr);
+p.addParameter('typicalgain',"10",@isstr);
+p.addParameter('maskFileName',"Na", @isstr);
+p.addParameter('prependDummyTRs',"0", @isstr)
+p.addParameter('thresholdData',"10", @isstr)
+p.addParameter('pixelToDegree',"Na", @isstr)
 
 % parse
 p.parse(stimFileName, dataFileName, dataFileType, tr, outpath, varargin{:})
@@ -262,7 +262,7 @@ end
 
 % determine how many voxels to analyze 
 
-if ~isempty(p.Results.maskFileName)    % Get the indices from mask if specified
+if p.Results.maskFileName ~= "Na"    % Get the indices from mask if specified
     if dataFileType == "volumetric"
         rawMask = MRIread(p.Results.maskFileName); % Load mask
         mask = rawMask.vol;  % Get only the volume
@@ -282,8 +282,6 @@ if ~isempty(p.Results.maskFileName)    % Get the indices from mask if specified
         mask(isnan(mask)) = 0; % Get rid of NaNs or find function will get their indices too
         vxs = find(mask)';
         vxs = single(vxs);    
-    else
-        fprintf("Mask type invalid")
     end
     
 else                                   % Analyze all voxels if no mask is specified 
@@ -307,23 +305,23 @@ end
 tr = str2double(tr);
 listofnums = ['0','1','2','3','4','5','6','7','8','9'];
 new_seedmode = [];
-if ~isempty(p.Results.maxpolydeg)
+if p.Results.maxpolydeg ~= "Na"
     new_maxpolydeg = str2double(p.Results.maxpolyreg);
 else 
-    new_maxpolydeg = p.Results.maxpolydeg;
+    new_maxpolydeg = [];
 end
 
-if ~isempty(p.Results.numperjob)
+if p.Results.numperjob ~= "Na"
     new_numperjob = str2double(p.Results.numperjob);
 else
-    new_numperjob = p.Results.numperjob;
+    new_numperjob = [];
 end
 
-if ~isempty(p.Results.hrf)
+if p.Results.hrf ~= "Na"
     new_hrf = load(p.Results.hrf,'hrf');
     new_hrf = new_hrf.hrf;
 else
-    new_hrf = p.Results.hrf;
+    new_hrf = [];
 end 
 
 for ii = p.Results.seedmode
@@ -438,7 +436,7 @@ results.R2(isnan(results.R2)) = 0;
 results.gain(isnan(results.gain)) = 0; 
 
 %%%Pixel to Degrees
-if ~isempty(p.Results.pixelToDegree)
+if p.Results.pixelToDegree ~= "Na"
     results.ecc = results.ecc./pixelToDegree;
 end
 
