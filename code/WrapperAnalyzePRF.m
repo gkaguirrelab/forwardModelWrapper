@@ -441,7 +441,7 @@ if p.Results.pixelToDegree ~= "Na"
 end
 
 %%%THRESHOLDING
-if ~isempty(p.Results.thresholdData)
+if p.Results.thresholdData ~= "Na"
     threshold = str2double(p.Results.thresholdSize); % Convert string to num
     ins = find(results.R2 < threshold); % Find the indices under threshold
     results_thresh = results; 
@@ -470,7 +470,7 @@ if dataFileType == "volumetric"
     MRIwrite(rawData, strcat(outpath,'R2_map.nii.gz'))
     rawData.vol = results.gain;
     MRIwrite(rawData, strcat(outpath,'gain_map.nii.gz'))
-    if ~isempty(thresholdData)
+    if p.Results.thresholdData ~= "Na"
         rawData.nframes = 1; %Set the 4th dimension 1
         rawData.vol = results_thresh.ecc;
         MRIwrite(rawData, strcat(outpath,'thresh_eccentricity_map.nii.gz'))
@@ -500,7 +500,7 @@ elseif dataFileType == "cifti"   % This might neet to change a little bit (not t
     ft_write_cifti(strcat(outpath, 'R2_map.nii.gz'), rawData, 'parameter', 'dtseries')
     rawData.(finaldatafnames{end}) = results.gain;
     ft_write_cifti(strcat(outpath,'gain_map.nii.gz'), rawData, 'parameter', 'dtseries')  
-    if ~isempty(thresholdData)
+    if p.Results.thresholdData ~= "Na"
         rawData.time = 0;
         rawData.(finaldatafnames{end}) = results_thresh.ecc;
         ft_write_cifti(strcat(outpath,'thresh_eccentricity_map.nii.gz'), rawData, 'parameter', 'dtseries')
