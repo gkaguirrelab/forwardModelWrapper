@@ -437,12 +437,12 @@ results.gain(isnan(results.gain)) = 0;
 
 %%%Pixel to Degrees
 if p.Results.pixelToDegree ~= "Na"
-    results.ecc = results.ecc./pixelToDegree;
+    results.ecc = results.ecc ./ str2double(p.Results.pixelToDegree);
 end
 
 %%%THRESHOLDING
 if p.Results.thresholdData ~= "Na"
-    threshold = str2double(p.Results.thresholdSize); % Convert string to num
+    threshold = str2double(p.Results.thresholdData); % Convert string to num
     ins = find(results.R2 < threshold); % Find the indices under threshold
     results_thresh = results; 
     for ii = ins'  % Remove the values under threshold from all maps
@@ -489,31 +489,31 @@ elseif dataFileType == "cifti"   % This might neet to change a little bit (not t
     rawData.time = 0;
     finaldatafnames = fieldnames(rawData);
     rawData.(finaldatafnames{end}) = results.ecc;
-    ft_write_cifti(strcat(outpath,'eccentricity_map.nii.gz'), rawData, 'parameter', 'dtseries')
+    ft_write_cifti(strcat(outpath,'eccentricity_map.nii.gz'), rawData, 'parameter', finaldatafnames{end})
     rawData.(finaldatafnames{end}) = results.ang;
-    ft_write_cifti(strcat(outpath, 'angular_map.nii.gz'), rawData, 'parameter', 'dtseries')
+    ft_write_cifti(strcat(outpath, 'angular_map.nii.gz'), rawData, 'parameter', finaldatafnames{end})
     rawData.(finaldatafnames{end}) = results.expt;
-    ft_write_cifti(strcat(outpath,'exponent_map.nii.gz'), rawData, 'parameter', 'dtseries')
+    ft_write_cifti(strcat(outpath,'exponent_map.nii.gz'), rawData, 'parameter', finaldatafnames{end})
     rawData.(finaldatafnames{end}) = results.rfsize;
-    ft_write_cifti(strcat(outpath,'rfsize_map.nii.gz'), rawData, 'parameter', 'dtseries')
+    ft_write_cifti(strcat(outpath,'rfsize_map.nii.gz'), rawData, 'parameter', finaldatafnames{end})
     rawData.(finaldatafnames{end}) = results.R2;
-    ft_write_cifti(strcat(outpath, 'R2_map.nii.gz'), rawData, 'parameter', 'dtseries')
+    ft_write_cifti(strcat(outpath, 'R2_map.nii.gz'), rawData, 'parameter', finaldatafnames{end})
     rawData.(finaldatafnames{end}) = results.gain;
-    ft_write_cifti(strcat(outpath,'gain_map.nii.gz'), rawData, 'parameter', 'dtseries')  
+    ft_write_cifti(strcat(outpath,'gain_map.nii.gz'), rawData, 'parameter', finaldatafnames{end})  
     if p.Results.thresholdData ~= "Na"
         rawData.time = 0;
         rawData.(finaldatafnames{end}) = results_thresh.ecc;
-        ft_write_cifti(strcat(outpath,'thresh_eccentricity_map.nii.gz'), rawData, 'parameter', 'dtseries')
+        ft_write_cifti(strcat(outpath,'thresh_eccentricity_map.nii.gz'), rawData, 'parameter', finaldatafnames{end})
         rawData.(finaldatafnames{end}) = results_thresh.ang;
-        ft_write_cifti(strcat(outpath,'thresh_angular_map.nii.gz'), rawData, 'parameter', 'dtseries')
+        ft_write_cifti(strcat(outpath,'thresh_angular_map.nii.gz'), rawData, 'parameter', finaldatafnames{end})
         rawData.(finaldatafnames{end}) = results_thresh.expt;
-        ft_write_cifti(strcat(outpath,'thresh_exponent_map.nii.gz'), rawData, 'parameter', 'dtseries')
+        ft_write_cifti(strcat(outpath,'thresh_exponent_map.nii.gz'), rawData, 'parameter', finaldatafnames{end})
         rawData.(finaldatafnames{end}) = results_thresh.rfsize;
-        ft_write_cifti(strcat(outpath,'thresh_rfsize_map.nii.gz'), rawData, 'parameter', 'dtseries')
+        ft_write_cifti(strcat(outpath,'thresh_rfsize_map.nii.gz'), rawData, 'parameter', finaldatafnames{end})
         rawData.(finaldatafnames{end}) = results_thresh.R2;
-        ft_write_cifti(strcat(outpath,'thresh_R2_map.nii.gz'), rawData, 'parameter', 'dtseries')
+        ft_write_cifti(strcat(outpath,'thresh_R2_map.nii.gz'), rawData, 'parameter', finaldatafnames{end})
         rawData.(finaldatafnames{end}) = results_thresh.gain;
-        ft_write_cifti(strcat(outpath,'thresh_gain_map.nii.gz'), rawData, 'parameter', 'dtseries')
+        ft_write_cifti(strcat(outpath,'thresh_gain_map.nii.gz'), rawData, 'parameter', finaldatafnames{end})
     end
 end
 end
