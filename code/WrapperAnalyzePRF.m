@@ -192,7 +192,7 @@ p.parse(stimFileName, dataFileName, dataFileType, tr, outpath, varargin{:})
 % all runs which is usually the first folder in the ica results.
 if dataFileName(end-1:end) ~= "gz"
     
-    d = dir('/flywheel/v0/input/*/*/*/MNINonLinear/Results'); % Find the acquisitions
+    d = dir('/flywheel/v0/input/DataFile/*/*/MNINonLinear/Results'); % Find the acquisitions
     d = d(~ismember({d.name},{'.','..'})); % get rid of "." and ".." items in the cell containing path names
     d(1) = []; % Get rid of the first folder which is that first large folder we don't want
     runNumber = length(d); % Get the number of runs
@@ -428,16 +428,23 @@ end
 
 % REPLACE NANs WITH 0 - This is not needed but some softwares (eg. freeview) 
 % throws warnings when there are NaNs in the data. This stops it.
-results.ecc(isnan(results.ecc)) = 0;
-results.ang(isnan(results.ang)) = 0;
-results.expt(isnan(results.expt)) = 0; 
-results.rfsize(isnan(results.rfsize)) = 0; 
-results.R2(isnan(results.R2)) = 0; 
-results.gain(isnan(results.gain)) = 0; 
+% results.ecc(isnan(results.ecc)) = 0;
+% results.ang(isnan(results.ang)) = 0;
+% results.expt(isnan(results.expt)) = 0; 
+% results.rfsize(isnan(results.rfsize)) = 0; 
+% results.R2(isnan(results.R2)) = 0; 
+% results.gain(isnan(results.gain)) = 0; 
 
-%%%Pixel to Degrees
+% Whenever there is a zero value in ecccentricity map set angle to NaN
+zero_indices_ecc = find(results.ecc == 0);
+for zero_vals = zero_indices_ecc'
+    results.ang(zero_vals) = NaN;
+end
+
+%%%Pixel to Degrees conversion  
 if p.Results.pixelToDegree ~= "Na"
     results.ecc = results.ecc ./ str2double(p.Results.pixelToDegree);
+    results.rfsize = results.rfsize ./ str2double(p.Results.pixelToDegree);
 end
 
 %%%THRESHOLDING
