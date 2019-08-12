@@ -1,4 +1,4 @@
-function results = WrapperAnalyzePRF(stimFileName,dataFileName,dataFileType,tr,outpath,varargin)
+function results = WrapperAnalyzePRF(workbench_path,stimFileName,dataFileName,dataFileType,tr,outpath,varargin)
 % Wrapper to manage inputs to Kendrick Kay's analyze pRF code
 %
 % Syntax:
@@ -42,6 +42,7 @@ function results = WrapperAnalyzePRF(stimFileName,dataFileName,dataFileType,tr,o
 %
 %
 % Inputs:
+%   workbench_path        - String. path to workbench_command
 %   stimFileName          - String. .mat file. Provides the apertures as a  
 %                           cell vector of R x C x time. Values should be 
 %                           in [0,1].The number of time points can differ 
@@ -160,6 +161,7 @@ function results = WrapperAnalyzePRF(stimFileName,dataFileName,dataFileType,tr,o
 p = inputParser; p.KeepUnmatched = true;
 
 % Required  
+p.addRequired('workbench_path',@isstr);
 p.addRequired('stimFileName',@isstr);
 p.addRequired('dataFileName',@isstr);
 p.addRequired('dataFileType',@isstr);
@@ -182,7 +184,7 @@ p.addParameter('thresholdData',"10", @isstr)
 p.addParameter('pixelToDegree',"Na", @isstr)
 
 % parse
-p.parse(stimFileName, dataFileName, dataFileType, tr, outpath, varargin{:})
+p.parse(workbench_path, stimFileName, dataFileName, dataFileType, tr, outpath, varargin{:})
 
 %% Load Data
 
@@ -190,9 +192,10 @@ p.parse(stimFileName, dataFileName, dataFileType, tr, outpath, varargin{:})
 % folder and this part of the script will go to that folder, find all the
 % hp2000_clean volumes, and exclude the folder containing the avarage of 
 % all runs which is usually the first folder in the ica results.
-if dataFileName(end-1:end) ~= "gz"
+if dataFileName(end-1:end) ~= "gz" & dataFileName(end-2:end) ~= "nii"
     
-    d = dir('/flywheel/v0/input/DataFile/*/*/MNINonLinear/Results'); % Find the acquisitions
+    %d = dir('/flywheel/v0/input/DataFile/*/*/MNINonLinear/Results'); % Find the acquisitions
+    d = dir('/*/*/*/*/*/*/*/MNINonLinear/Results'); % Find the acquisitions                             % DELET THIS
     d = d(~ismember({d.name},{'.','..'})); % get rid of "." and ".." items in the cell containing path names
     d(1) = []; % Get rid of the first folder which is that first large folder we don't want
     runNumber = length(d); % Get the number of runs
@@ -210,26 +213,30 @@ if dataFileName(end-1:end) ~= "gz"
         for ii = 1:runNumber % This creates a data cell 1xrunNumber and populates the cells with the data
             fprintf(strcat("Reading cifti number", ' ', num2str(ii), '\n'))
             rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'Atlas_hp2000_clean.dtseries.nii');
-            data{ii} = ft_read_cifti(rawName{ii});
-            datafnames = fieldnames(data{ii});
-            data{ii} = data{ii}.(datafnames{end});  %only get the last element which is the volume
-            data{ii} = single(data{ii}); %convert to single    
-            data{ii}(isnan(data{ii})) = 0; %NaN to 0
+            temporary = ciftiopen(rawName{ii}, workbench_path);
+            data{ii} = temporary.cdata; 
+            %data{ii} = data.cdata;
+            %data{ii} = ft_read_cifti(rawName{ii});
+            %datafnames = fieldnames(data{ii});
+            %data{ii} = data{ii}.(datafnames{end});  %only get the last element which is the volume
+            %data{ii} = single(data{ii}); %convert to single    
+            %data{ii}(isnan(data{ii})) = 0; %NaN to 0
         end 
     else
         fprintf("Scan type is not valid")
     end
     
 else   % This is used when a single acquisition is analyzed
+    runNumber = 1;
     if dataFileType == "volumetric"
         rawData = MRIread(p.Results.dataFileName);
         data = rawData.vol;
         data = single(data);
         data = reshape(data, [size(data,1)*size(data,2)*size(data,3), size(data,4)]); % Convert 4D to 2D
     elseif dataFileType == "cifti"
-        rawData = ft_read_cifti(p.Results.dataFileName);
-        data = rawData.dtseries;
-        data = single(data);
+        rawData = ciftiopen(p.Results.dataFileName, workbench_path);
+        data = rawData.cdata;
+        %data = single(data);
     else
         fprintf("Scan type is not valid")
     end
@@ -248,8 +255,6 @@ if dataLength ~= stimLength
     for celvar = 1:dataLength
         stimulus{celvar} = temporarystim;
     end
-else 
-    stimulus = temporarystim;
 end
 
 % massage cell inputs
@@ -268,18 +273,18 @@ if p.Results.maskFileName ~= "Na"    % Get the indices from mask if specified
         mask = rawMask.vol;  % Get only the volume
         mask = single(mask); % Convert mask volume to single
         mask = reshape(mask, [size(mask,1)*size(mask,2)*size(mask,3),1]); % Reshape
-
         vxs = find(mask)';
         vxs = single(vxs);
     elseif dataFileType == "cifti"
-        rawMask = ft_read_cifti(p.Results.maskFileName); % Load mask
-        mask = rmfield(rawMask, {'dimord','hdr', 'unit','brainstructure','brainstructurelabel','dim','pos','transform'}); %remove this and isolate the mask (needed because mask subfield changes names with different masks)
-        maskfnames = fieldnames(mask);
-        if numel(maskfnames) == 1
-            mask = mask.(maskfnames{1,1});  % Get only the volume
-            mask = single(mask); % Convert mask volume to single
-        end
-        mask(isnan(mask)) = 0; % Get rid of NaNs or find function will get their indices too
+        rawMask = ciftiopen(p.Results.maskFileName, workbenc_path); % Load mask
+        mask = rawMask.cdata;
+        %mask = rmfield(rawMask, {'dimord','hdr', 'unit','brainstructure','brainstructurelabel','dim','pos','transform'}); %remove this and isolate the mask (needed because mask subfield changes names with different masks)
+        %maskfnames = fieldnames(mask);
+        %if numel(maskfnames) == 1
+        %    mask = mask.(maskfnames{1,1});  % Get only the volume
+        %    mask = single(mask); % Convert mask volume to single
+        %end
+        %mask(isnan(mask)) = 0; % Get rid of NaNs or find function will get their indices too
         vxs = find(mask)';
         vxs = single(vxs);    
     end
@@ -423,7 +428,7 @@ if dataFileType == "volumetric"
     results.R2 = reshape(results.R2,[getsize(1) getsize(2) getsize(3) 1]);
     results.gain = reshape(results.gain,[getsize(1) getsize(2) getsize(3) 1]);
 else 
-    rawData = ft_read_cifti(rawName{1,1});
+    rawData = ciftiopen(rawName{1,1});
 end
 
 % REPLACE NANs WITH 0 - This is not needed but some softwares (eg. freeview) 
@@ -493,34 +498,58 @@ if dataFileType == "volumetric"
         MRIwrite(rawData, strcat(outpath,'thresh_gain_map.nii.gz'))
     end
 elseif dataFileType == "cifti"   % This might neet to change a little bit (not tested)
-    rawData.time = 0;
-    finaldatafnames = fieldnames(rawData);
-    rawData.(finaldatafnames{end}) = results.ecc;
-    ft_write_cifti(strcat(outpath,'eccentricity_map'), rawData, 'parameter', finaldatafnames{end})
-    rawData.(finaldatafnames{end}) = results.ang;
-    ft_write_cifti(strcat(outpath, 'angular_map'), rawData, 'parameter', finaldatafnames{end})
-    rawData.(finaldatafnames{end}) = results.expt;
-    ft_write_cifti(strcat(outpath,'exponent_map'), rawData, 'parameter', finaldatafnames{end})
-    rawData.(finaldatafnames{end}) = results.rfsize;
-    ft_write_cifti(strcat(outpath,'rfsize_map'), rawData, 'parameter', finaldatafnames{end})
-    rawData.(finaldatafnames{end}) = results.R2;
-    ft_write_cifti(strcat(outpath, 'R2_map'), rawData, 'parameter', finaldatafnames{end})
-    rawData.(finaldatafnames{end}) = results.gain;
-    ft_write_cifti(strcat(outpath,'gain_map'), rawData, 'parameter', finaldatafnames{end})  
+    rawData.cdata = results.ecc;
+    ciftisave(rawData, strcat(outpath,'eccentricity_map'), workbench_path)
+    rawData.cdata = results.ang;
+    ciftisave(rawData, strcat(outpath,'angular_map'), workbench_path)
+    rawData.cdata = results.expt;
+    ciftisave(rawData, strcat(outpath,'exponent_map'), workbench_path)
+    rawData.cdata = results.rfsize;
+    ciftisave(rawData, strcat(outpath,'rfsize_map'), workbench_path)
+    rawData.cdata = results.R2;
+    ciftisave(rawData, strcat(outpath,'R2_map'), workbench_path)
+    rawData.cdata = results.gain;
+    ciftisave(rawData, strcat(outpath,'gain_map'), workbench_path)
+%     rawData.time = 0;
+%     finaldatafnames = fieldnames(rawData);
+%     rawData.(finaldatafnames{end}) = results.ecc;
+%     ft_write_cifti(strcat(outpath,'eccentricity_map'), rawData, 'parameter', finaldatafnames{end})
+%     rawData.(finaldatafnames{end}) = results.ang;
+%     ft_write_cifti(strcat(outpath, 'angular_map'), rawData, 'parameter', finaldatafnames{end})
+%     rawData.(finaldatafnames{end}) = results.expt;
+%     ft_write_cifti(strcat(outpath,'exponent_map'), rawData, 'parameter', finaldatafnames{end})
+%     rawData.(finaldatafnames{end}) = results.rfsize;
+%     ft_write_cifti(strcat(outpath,'rfsize_map'), rawData, 'parameter', finaldatafnames{end})
+%     rawData.(finaldatafnames{end}) = results.R2;
+%     ft_write_cifti(strcat(outpath, 'R2_map'), rawData, 'parameter', finaldatafnames{end})
+%     rawData.(finaldatafnames{end}) = results.gain;
+%     ft_write_cifti(strcat(outpath,'gain_map'), rawData, 'parameter', finaldatafnames{end})  
     if p.Results.thresholdData ~= "Na"
-        rawData.time = 0;
-        rawData.(finaldatafnames{end}) = results_thresh.ecc;
-        ft_write_cifti(strcat(outpath,'thresh_eccentricity_map'), rawData, 'parameter', finaldatafnames{end})
-        rawData.(finaldatafnames{end}) = results_thresh.ang;
-        ft_write_cifti(strcat(outpath,'thresh_angular_map'), rawData, 'parameter', finaldatafnames{end})
-        rawData.(finaldatafnames{end}) = results_thresh.expt;
-        ft_write_cifti(strcat(outpath,'thresh_exponent_map'), rawData, 'parameter', finaldatafnames{end})
-        rawData.(finaldatafnames{end}) = results_thresh.rfsize;
-        ft_write_cifti(strcat(outpath,'thresh_rfsize_map'), rawData, 'parameter', finaldatafnames{end})
-        rawData.(finaldatafnames{end}) = results_thresh.R2;
-        ft_write_cifti(strcat(outpath,'thresh_R2_map'), rawData, 'parameter', finaldatafnames{end})
-        rawData.(finaldatafnames{end}) = results_thresh.gain;
-        ft_write_cifti(strcat(outpath,'thresh_gain_map'), rawData, 'parameter', finaldatafnames{end})
+        rawData.cdata = results_thresh.ecc;
+        ciftisave(rawData, strcat(outpath,'eccentricity_map'), workbench_path)
+        rawData.cdata = results_thresh.ang;
+        ciftisave(rawData, strcat(outpath,'angular_map'), workbench_path)
+        rawData.cdata = results_thresh.expt;
+        ciftisave(rawData, strcat(outpath,'exponent_map'), workbench_path)
+        rawData.cdata = results_thresh.rfsize;
+        ciftisave(rawData, strcat(outpath,'rfsize_map'), workbench_path)
+        rawData.cdata = results_thresh.R2;
+        ciftisave(rawData, strcat(outpath,'R2_map'), workbench_path)
+        rawData.cdata = results_thresh.gain;
+        ciftisave(rawData, strcat(outpath,'gain_map'), workbench_path)
+%         rawData.time = 0;
+%         rawData.(finaldatafnames{end}) = results_thresh.ecc;
+%         ft_write_cifti(strcat(outpath,'thresh_eccentricity_map'), rawData, 'parameter', finaldatafnames{end})
+%         rawData.(finaldatafnames{end}) = results_thresh.ang;
+%         ft_write_cifti(strcat(outpath,'thresh_angular_map'), rawData, 'parameter', finaldatafnames{end})
+%         rawData.(finaldatafnames{end}) = results_thresh.expt;
+%         ft_write_cifti(strcat(outpath,'thresh_exponent_map'), rawData, 'parameter', finaldatafnames{end})
+%         rawData.(finaldatafnames{end}) = results_thresh.rfsize;
+%         ft_write_cifti(strcat(outpath,'thresh_rfsize_map'), rawData, 'parameter', finaldatafnames{end})
+%         rawData.(finaldatafnames{end}) = results_thresh.R2;
+%         ft_write_cifti(strcat(outpath,'thresh_R2_map'), rawData, 'parameter', finaldatafnames{end})
+%         rawData.(finaldatafnames{end}) = results_thresh.gain;
+%         ft_write_cifti(strcat(outpath,'thresh_gain_map'), rawData, 'parameter', finaldatafnames{end})
     end
 end
 end
