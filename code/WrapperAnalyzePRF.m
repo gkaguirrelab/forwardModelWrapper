@@ -428,7 +428,7 @@ if dataFileType == "volumetric"
     results.R2 = reshape(results.R2,[getsize(1) getsize(2) getsize(3) 1]);
     results.gain = reshape(results.gain,[getsize(1) getsize(2) getsize(3) 1]);
 else 
-    rawData = ciftiopen(rawName{1,1});
+    rawData = ciftiopen(rawName{1,1}, workbench_path);
 end
 
 % REPLACE NANs WITH 0 - This is not needed but some softwares (eg. freeview) 
@@ -499,17 +499,17 @@ if dataFileType == "volumetric"
     end
 elseif dataFileType == "cifti"   % This might neet to change a little bit (not tested)
     rawData.cdata = results.ecc;
-    ciftisave(rawData, strcat(outpath,'eccentricity_map'), workbench_path)
+    ciftisave(rawData, strcat(outpath,'eccentricity_map.dtseries.nii'), workbench_path)
     rawData.cdata = results.ang;
-    ciftisave(rawData, strcat(outpath,'angular_map'), workbench_path)
+    ciftisave(rawData, strcat(outpath,'angular_map.dtseries.nii'), workbench_path)
     rawData.cdata = results.expt;
-    ciftisave(rawData, strcat(outpath,'exponent_map'), workbench_path)
+    ciftisave(rawData, strcat(outpath,'exponent_map.dtseries.nii'), workbench_path)
     rawData.cdata = results.rfsize;
-    ciftisave(rawData, strcat(outpath,'rfsize_map'), workbench_path)
+    ciftisave(rawData, strcat(outpath,'rfsize_map.dtseries.nii'), workbench_path)
     rawData.cdata = results.R2;
-    ciftisave(rawData, strcat(outpath,'R2_map'), workbench_path)
+    ciftisave(rawData, strcat(outpath,'R2_map.dtseries.nii'), workbench_path)
     rawData.cdata = results.gain;
-    ciftisave(rawData, strcat(outpath,'gain_map'), workbench_path)
+    ciftisave(rawData, strcat(outpath,'gain_map.dtseries.nii'), workbench_path)
 %     rawData.time = 0;
 %     finaldatafnames = fieldnames(rawData);
 %     rawData.(finaldatafnames{end}) = results.ecc;
@@ -526,17 +526,17 @@ elseif dataFileType == "cifti"   % This might neet to change a little bit (not t
 %     ft_write_cifti(strcat(outpath,'gain_map'), rawData, 'parameter', finaldatafnames{end})  
     if p.Results.thresholdData ~= "Na"
         rawData.cdata = results_thresh.ecc;
-        ciftisave(rawData, strcat(outpath,'eccentricity_map'), workbench_path)
+        ciftisave(rawData, strcat(outpath,'thresh_eccentricity_map.dtseries.nii'), workbench_path)
         rawData.cdata = results_thresh.ang;
-        ciftisave(rawData, strcat(outpath,'angular_map'), workbench_path)
+        ciftisave(rawData, strcat(outpath,'thresh_angular_map.dtseries.nii'), workbench_path)
         rawData.cdata = results_thresh.expt;
-        ciftisave(rawData, strcat(outpath,'exponent_map'), workbench_path)
+        ciftisave(rawData, strcat(outpath,'thresh_exponent_map.dtseries.nii'), workbench_path)
         rawData.cdata = results_thresh.rfsize;
-        ciftisave(rawData, strcat(outpath,'rfsize_map'), workbench_path)
+        ciftisave(rawData, strcat(outpath,'thresh_rfsize_map.dtseries.nii'), workbench_path)
         rawData.cdata = results_thresh.R2;
-        ciftisave(rawData, strcat(outpath,'R2_map'), workbench_path)
+        ciftisave(rawData, strcat(outpath,'thresh_R2_map.dtseries.nii'), workbench_path)
         rawData.cdata = results_thresh.gain;
-        ciftisave(rawData, strcat(outpath,'gain_map'), workbench_path)
+        ciftisave(rawData, strcat(outpath,'thresh_gain_map.dtseries.nii'), workbench_path)
 %         rawData.time = 0;
 %         rawData.(finaldatafnames{end}) = results_thresh.ecc;
 %         ft_write_cifti(strcat(outpath,'thresh_eccentricity_map'), rawData, 'parameter', finaldatafnames{end})
