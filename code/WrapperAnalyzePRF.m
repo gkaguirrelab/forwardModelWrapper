@@ -122,39 +122,18 @@ function results = WrapperAnalyzePRF(workbench_path,stimFileName,dataFileName,da
 %   'pixelToDegree'        - String. If a pixel to degree number is
 %                           specified, eccentricity values are represented 
 %                           on this scale.
+%   'convertAngleForBayes' - String. Converts angle so that the results can
+%                           be used as inputs in the Bayesian Analysis of  
+%                           Retinotopic Maps (Benson & Winawer,2018). Polar
+%                           angle is converted in a way that -90 and 90 
+%                           degrees will correspond to left and right 
+%                           horizontal meridians and upper and lower 
+%                           vertical meridians will be 0 and ±180 degrees 
+%                           respectively. 1:True, 0:False. Default:1.
 %
 % Outputs:
 %   none
 %
-% Examples:
-%{
-    % Run the wrapper using Kendrick's example data. The path to Kendrick's
-    % data is currently hard-coded
-    examplePath='~/Documents/MATLAB/toolboxes/analyzePRF/exampledataset.mat';
-    load(examplePath,'stimulus','data')
-
-    % Kendrick's example fMRI data must be resampled to match the time
-    % domain of the stimulus
-    data = tseriesinterp(data,2,1,2);
-
-    % We reshape the data to be a 2x2x2 volume and save as a nifti file
-    tempData=reshape(data{1}(1:8,:),[2 2 2 300]);
-    tempNiftiPath='~/Desktop/tempNifti.nii';
-    niftiwrite(tempData, tempNiftiPath)
-
-    % Save the stimulus file
-    tempStimFilePath='~/Desktop/tempStim.mat';
-    stimulus=stimulus{1};
-    save(tempStimFilePath,'stimulus');
-
-    % Run the wrapper function
-    tr='1';
-    outpath='~/Desktop/tempResults.mat';
-    WrapperAnalyzePRF(tempStimFilePath,tempNiftiPath,tr,outpath);
-%}
-
-
-
 
 %% Parse vargin for options passed here
 
@@ -182,6 +161,7 @@ p.addParameter('maskFileName',"Na", @isstr);
 p.addParameter('prependDummyTRs',"0", @isstr)
 p.addParameter('thresholdData',"10", @isstr)
 p.addParameter('pixelToDegree',"Na", @isstr)
+p.addParameter('convertAngleForBayes',"1", @isstr)
 
 % parse
 p.parse(workbench_path, stimFileName, dataFileName, dataFileType, tr, outpath, varargin{:})
@@ -215,12 +195,6 @@ if dataFileName(end-1:end) ~= "gz" & dataFileName(end-2:end) ~= "nii"
             rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'Atlas_hp2000_clean.dtseries.nii');
             temporary = ciftiopen(rawName{ii}, workbench_path);
             data{ii} = temporary.cdata; 
-            %data{ii} = data.cdata;
-            %data{ii} = ft_read_cifti(rawName{ii});
-            %datafnames = fieldnames(data{ii});
-            %data{ii} = data{ii}.(datafnames{end});  %only get the last element which is the volume
-            %data{ii} = single(data{ii}); %convert to single    
-            %data{ii}(isnan(data{ii})) = 0; %NaN to 0
         end 
     else
         fprintf("Scan type is not valid")
@@ -408,12 +382,6 @@ clear mask
 results = analyzePRF(stimulus,data,tr,analysisStructure);
 save(strcat(outpath,"retinotopy_results.mat"),'results')
 
-% Code here to reformat the results into brain maps, respecting the mask
-% that was defined above, and then save the image maps someplace. Also, we
-% will want to save some pictures that illustrate what the image map
-% outputs look like.
-
-
 %% Load the raw image again to modify and make maps
 
 if dataFileType == "volumetric"
@@ -431,15 +399,6 @@ else
     rawData = ciftiopen(rawName{1,1}, workbench_path);
 end
 
-% REPLACE NANs WITH 0 - This is not needed but some softwares (eg. freeview) 
-% throws warnings when there are NaNs in the data. This stops it.
-% results.ecc(isnan(results.ecc)) = 0;
-% results.ang(isnan(results.ang)) = 0;
-% results.expt(isnan(results.expt)) = 0; 
-% results.rfsize(isnan(results.rfsize)) = 0; 
-% results.R2(isnan(results.R2)) = 0; 
-% results.gain(isnan(results.gain)) = 0; 
-
 % Whenever there is a zero value in ecccentricity map set angle to NaN
 zero_indices_ecc = find(results.ecc == 0);
 for zero_vals = zero_indices_ecc'
@@ -451,6 +410,19 @@ if p.Results.pixelToDegree ~= "Na"
     results.ecc = results.ecc ./ str2double(p.Results.pixelToDegree);
     results.rfsize = results.rfsize ./ str2double(p.Results.pixelToDegree);
 end
+
+%%% The output of this analysis will be used in Bayesian Analysis of  
+%%% Retinotopic Maps (Benson & Winawer,2018). Therefore the polar angle 
+%%% should be converted in a way that -90 and 90 degrees will correspond 
+%%% to left and right horizontal meridians and upper and lower vertical 
+%%% meridians will be 0 and ±180 degrees respectively.
+if p.Results.convertAngleForBayes ~= "0" 
+    results.ang = wrapTo180(wrapTo360(abs(results.ang-360)+90));
+end
+
+%%%Divide R2 by 100 and set negative values to zero
+results.R2 = results.R2 ./ 100;
+results.R2(results.R2 < 0) = 0;
 
 %%%THRESHOLDING
 if p.Results.thresholdData ~= "Na"
@@ -497,7 +469,7 @@ if dataFileType == "volumetric"
         rawData.vol = results_thresh.gain;
         MRIwrite(rawData, strcat(outpath,'thresh_gain_map.nii.gz'))
     end
-elseif dataFileType == "cifti"   % This might neet to change a little bit (not tested)
+elseif dataFileType == "cifti"   
     rawData.cdata = results.ecc;
     ciftisave(rawData, strcat(outpath,'eccentricity_map.dtseries.nii'), workbench_path)
     rawData.cdata = results.ang;
@@ -510,20 +482,6 @@ elseif dataFileType == "cifti"   % This might neet to change a little bit (not t
     ciftisave(rawData, strcat(outpath,'R2_map.dtseries.nii'), workbench_path)
     rawData.cdata = results.gain;
     ciftisave(rawData, strcat(outpath,'gain_map.dtseries.nii'), workbench_path)
-%     rawData.time = 0;
-%     finaldatafnames = fieldnames(rawData);
-%     rawData.(finaldatafnames{end}) = results.ecc;
-%     ft_write_cifti(strcat(outpath,'eccentricity_map'), rawData, 'parameter', finaldatafnames{end})
-%     rawData.(finaldatafnames{end}) = results.ang;
-%     ft_write_cifti(strcat(outpath, 'angular_map'), rawData, 'parameter', finaldatafnames{end})
-%     rawData.(finaldatafnames{end}) = results.expt;
-%     ft_write_cifti(strcat(outpath,'exponent_map'), rawData, 'parameter', finaldatafnames{end})
-%     rawData.(finaldatafnames{end}) = results.rfsize;
-%     ft_write_cifti(strcat(outpath,'rfsize_map'), rawData, 'parameter', finaldatafnames{end})
-%     rawData.(finaldatafnames{end}) = results.R2;
-%     ft_write_cifti(strcat(outpath, 'R2_map'), rawData, 'parameter', finaldatafnames{end})
-%     rawData.(finaldatafnames{end}) = results.gain;
-%     ft_write_cifti(strcat(outpath,'gain_map'), rawData, 'parameter', finaldatafnames{end})  
     if p.Results.thresholdData ~= "Na"
         rawData.cdata = results_thresh.ecc;
         ciftisave(rawData, strcat(outpath,'thresh_eccentricity_map.dtseries.nii'), workbench_path)
@@ -537,19 +495,6 @@ elseif dataFileType == "cifti"   % This might neet to change a little bit (not t
         ciftisave(rawData, strcat(outpath,'thresh_R2_map.dtseries.nii'), workbench_path)
         rawData.cdata = results_thresh.gain;
         ciftisave(rawData, strcat(outpath,'thresh_gain_map.dtseries.nii'), workbench_path)
-%         rawData.time = 0;
-%         rawData.(finaldatafnames{end}) = results_thresh.ecc;
-%         ft_write_cifti(strcat(outpath,'thresh_eccentricity_map'), rawData, 'parameter', finaldatafnames{end})
-%         rawData.(finaldatafnames{end}) = results_thresh.ang;
-%         ft_write_cifti(strcat(outpath,'thresh_angular_map'), rawData, 'parameter', finaldatafnames{end})
-%         rawData.(finaldatafnames{end}) = results_thresh.expt;
-%         ft_write_cifti(strcat(outpath,'thresh_exponent_map'), rawData, 'parameter', finaldatafnames{end})
-%         rawData.(finaldatafnames{end}) = results_thresh.rfsize;
-%         ft_write_cifti(strcat(outpath,'thresh_rfsize_map'), rawData, 'parameter', finaldatafnames{end})
-%         rawData.(finaldatafnames{end}) = results_thresh.R2;
-%         ft_write_cifti(strcat(outpath,'thresh_R2_map'), rawData, 'parameter', finaldatafnames{end})
-%         rawData.(finaldatafnames{end}) = results_thresh.gain;
-%         ft_write_cifti(strcat(outpath,'thresh_gain_map'), rawData, 'parameter', finaldatafnames{end})
     end
 end
 end
