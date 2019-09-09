@@ -1,8 +1,8 @@
 import neuropythy as ny
 
-path_to_cifti_maps = '/home/ozzy/Desktop/lg/'
-path_to_subject = '/home/ozzy/Desktop/BENSON/DATA/TOME_3042_hcpstruct/TOME_3042'
-output = '/home/ozzy/Desktop/lg/mgzed/'
+path_to_cifti_maps = '/home/ozzy/Desktop/hcp_func_maps/'
+path_to_subject = '/home/ozzy/Desktop/BENSON/Datasaver/DATA/TOME_3042_hcpstruct/TOME_3042'
+output = '/home/ozzy/Desktop/hcp_func_maps/mgzed'
 
 sub = ny.hcp_subject(path_to_subject, default_alignment='MSMSulc')
 hem_from_left = sub.hemis['lh_LR32k']

@@ -175,7 +175,8 @@ p.parse(workbench_path, stimFileName, dataFileName, dataFileType, tr, outpath, v
 if dataFileName(end-1:end) ~= "gz" & dataFileName(end-2:end) ~= "nii"
     
     %d = dir('/flywheel/v0/input/DataFile/*/*/MNINonLinear/Results'); % Find the acquisitions
-    d = dir('/*/*/*/*/*/*/*/MNINonLinear/Results'); % Find the acquisitions                             % DELET THIS
+    %d = dir('/*/*/*/*/*/*/*/MNINonLinear/Results'); % Find the acquisitions                             % DELET THIS
+    d = dir('/home/ozzy/Desktop/area_experimentalis/*/*/MNINonLinear/Results'); % Find the acquisitions for hcp-func
     d = d(~ismember({d.name},{'.','..'})); % get rid of "." and ".." items in the cell containing path names
     d(1) = []; % Get rid of the first folder which is that first large folder we don't want
     runNumber = length(d); % Get the number of runs
@@ -192,7 +193,8 @@ if dataFileName(end-1:end) ~= "gz" & dataFileName(end-2:end) ~= "nii"
     elseif dataFileType == "cifti"
         for ii = 1:runNumber % This creates a data cell 1xrunNumber and populates the cells with the data
             fprintf(strcat("Reading cifti number", ' ', num2str(ii), '\n'))
-            rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'Atlas_hp2000_clean.dtseries.nii');
+            %rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'Atlas_hp2000_clean.dtseries.nii');
+            rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'Atlas.dtseries.nii');  %Foc hcpfunc
             temporary = ciftiopen(rawName{ii}, workbench_path);
             data{ii} = temporary.cdata; 
         end 
@@ -423,6 +425,7 @@ end
 %%%Divide R2 by 100 and set negative values to zero
 results.R2 = results.R2 ./ 100;
 results.R2(results.R2 < 0) = 0;
+results.R2(results.R2 > 1) = 1;
 
 %%%THRESHOLDING
 if p.Results.thresholdData ~= "Na"
