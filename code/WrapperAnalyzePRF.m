@@ -151,7 +151,7 @@ p.addRequired('outpath', @isstr);
 p.addParameter('wantglmdenoise',"0",@isstr);
 p.addParameter('hrf',"Na",@isstr);   %MAT FILE, COLUMN VECTOR
 p.addParameter('maxpolydeg',"Na",@isstr);
-p.addParameter('seedmode',"[0 1 2]",@isstr);
+p.addParameter('seedmode','[0 1 2]',@isstr);
 p.addParameter('xvalmode',"0",@isstr);
 p.addParameter('numperjob',"Na",@isstr);
 p.addParameter('maxiter',"500",@isstr);

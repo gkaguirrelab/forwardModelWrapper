@@ -1,3 +1,6 @@
+# This is not a part of the AnalyzePRF gear. It is used in the Bayesian Fitting gear because we don't pass hcp-struct results to AnalyzePRF
+
+
 import neuropythy as ny
 
 path_to_cifti_maps = '/home/ozzy/Desktop/asildenemebu/'
@@ -11,12 +14,13 @@ hem_from_right = sub.hemis['rh_LR32k']
 hem_to_right = sub.hemis['rh']
 
 maps = {}
-maps['angular_map'] = "%sangular_map.dtseries.nii"%path_to_cifti_maps
+maps['angular_map'] = "%sangle_map.dtseries.nii"%path_to_cifti_maps
 maps['eccentricity_map'] = "%seccentricity_map.dtseries.nii"%path_to_cifti_maps
 maps['exponent_map'] = "%sexponent_map.dtseries.nii"%path_to_cifti_maps
 maps['gain_map'] = "%sgain_map.dtseries.nii"%path_to_cifti_maps
 maps['R2_map'] = "%sR2_map.dtseries.nii"%path_to_cifti_maps
 maps['rfsize_map'] = "%srfsize_map.dtseries.nii"%path_to_cifti_maps
+maps['converted_angle_map]' = "%sconverted_angle_map.dtseries.nii"%path_to_cifti_maps
 
 for i in maps.keys():
     im = ny.load(maps[i])
