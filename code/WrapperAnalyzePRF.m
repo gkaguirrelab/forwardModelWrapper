@@ -174,9 +174,9 @@ p.parse(workbench_path, stimFileName, dataFileName, dataFileType, tr, outpath, v
 % all runs which is usually the first folder in the ica results.
 if dataFileName(end-1:end) ~= "gz" & dataFileName(end-2:end) ~= "nii"
     
-    %d = dir('/flywheel/v0/input/DataFile/*/*/MNINonLinear/Results'); % Find the acquisitions
-    %d = dir('/*/*/*/*/*/*/*/MNINonLinear/Results'); % Find the acquisitions                             % DELET THIS
-    d = dir('/home/ozzy/Desktop/area_experimentalis/*/*/MNINonLinear/Results'); % Find the acquisitions for hcp-func
+    d = dir('/flywheel/v0/input/DataFile/*/*/MNINonLinear/Results'); % Find the acquisitions in gear
+    %d = dir('/*/*/*/*/*/*/*/MNINonLinear/Results'); % Find the acquisitions      
+    %d = dir('/home/ozzy/Desktop/area_experimentalis/*/*/MNINonLinear/Results'); % Find the acquisitions for hcp-func
     d = d(~ismember({d.name},{'.','..'})); % get rid of "." and ".." items in the cell containing path names
     d(1) = []; % Get rid of the first folder which is that first large folder we don't want
     runNumber = length(d); % Get the number of runs
@@ -338,7 +338,7 @@ if dataFileName(end-1:end) ~= "gz" % This part does it for multiple runs
          end
      end
      
-else                                %This one does it for single run
+else   %This one does it for single run
     datasizes = size(data{1});
     data_temporal_size = datasizes(2);
     stimsizes = size(stimulus{1});
@@ -401,13 +401,14 @@ else
     rawData = ciftiopen(rawName{1,1}, workbench_path);
 end
 
-% Whenever there is a zero value in ecccentricity map set angle to NaN
+% Whenever there is a zero value in ecccentricity map set angle to NaN.
+% Changes the original output values
 zero_indices_ecc = find(results.ecc == 0);
 for zero_vals = zero_indices_ecc'
     results.ang(zero_vals) = NaN;
 end
 
-%%%Pixel to Degrees conversion  
+%%%Pixel to Degrees conversion. Changes the original output values
 if p.Results.pixelToDegree ~= "Na"
     results.ecc = results.ecc ./ str2double(p.Results.pixelToDegree);
     results.rfsize = results.rfsize ./ str2double(p.Results.pixelToDegree);
@@ -422,12 +423,14 @@ if p.Results.convertAngleForBayes ~= "0"
     results.ang = wrapTo180(wrapTo360(abs(results.ang-360)+90));
 end
 
-%%%Divide R2 by 100 and set negative values to zero
+%%% Divide R2 by 100 and set negative values to zero and values larger than
+%%% 1 to 1 - Changes the original output values.
 results.R2 = results.R2 ./ 100;
 results.R2(results.R2 < 0) = 0;
 results.R2(results.R2 > 1) = 1;
 
-%%%THRESHOLDING
+%%% THRESHOLDING - Does not change the original output values. Creates another
+%%% variable for the thresholded values
 if p.Results.thresholdData ~= "Na"
     threshold = str2double(p.Results.thresholdData); % Convert string to num
     ins = find(results.R2 < threshold); % Find the indices under threshold
