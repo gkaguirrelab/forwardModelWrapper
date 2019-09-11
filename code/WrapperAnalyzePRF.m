@@ -420,7 +420,7 @@ end
 %%% to left and right horizontal meridians and upper and lower vertical 
 %%% meridians will be 0 and ±180 degrees respectively.
 if p.Results.convertAngleForBayes ~= "0" 
-    results.ang = wrapTo180(wrapTo360(abs(results.ang-360)+90));
+    angle_converted = wrapTo180(wrapTo360(abs(results.ang-360)+90));
 end
 
 %%% Divide R2 by 100 and set negative values to zero and values larger than
@@ -441,7 +441,8 @@ if p.Results.thresholdData ~= "Na"
         results_thresh.expt(ii) = 0;
         results_thresh.rfsize(ii) = 0;
         results_thresh.R2(ii) = 0;
-        results_thresh.gain(ii) = 0;        
+        results_thresh.gain(ii) = 0;
+        results_thresh.converted_angle(ii) = 0;
     end
 end
 
@@ -451,7 +452,7 @@ if dataFileType == "volumetric"
     rawData.vol = results.ecc;
     MRIwrite(rawData, strcat(outpath,'eccentricity_map.nii.gz'))
     rawData.vol = results.ang;
-    MRIwrite(rawData, strcat(outpath,'angular_map.nii.gz'))
+    MRIwrite(rawData, strcat(outpath,'angle_map.nii.gz'))
     rawData.vol = results.expt;
     MRIwrite(rawData, strcat(outpath,'exponent_map.nii.gz'))
     rawData.vol = results.rfsize;
@@ -465,7 +466,7 @@ if dataFileType == "volumetric"
         rawData.vol = results_thresh.ecc;
         MRIwrite(rawData, strcat(outpath,'thresh_eccentricity_map.nii.gz'))
         rawData.vol = results_thresh.ang;
-        MRIwrite(rawData, strcat(outpath,'thresh_angular_map.nii.gz'))
+        MRIwrite(rawData, strcat(outpath,'thresh_angle_map.nii.gz'))
         rawData.vol = results_thresh.expt;
         MRIwrite(rawData, strcat(outpath,'thresh_exponent_map.nii.gz'))
         rawData.vol = results_thresh.rfsize;
@@ -479,7 +480,7 @@ elseif dataFileType == "cifti"
     rawData.cdata = results.ecc;
     ciftisave(rawData, strcat(outpath,'eccentricity_map.dtseries.nii'), workbench_path)
     rawData.cdata = results.ang;
-    ciftisave(rawData, strcat(outpath,'angular_map.dtseries.nii'), workbench_path)
+    ciftisave(rawData, strcat(outpath,'angle_map.dtseries.nii'), workbench_path)
     rawData.cdata = results.expt;
     ciftisave(rawData, strcat(outpath,'exponent_map.dtseries.nii'), workbench_path)
     rawData.cdata = results.rfsize;
@@ -487,12 +488,17 @@ elseif dataFileType == "cifti"
     rawData.cdata = results.R2;
     ciftisave(rawData, strcat(outpath,'R2_map.dtseries.nii'), workbench_path)
     rawData.cdata = results.gain;
-    ciftisave(rawData, strcat(outpath,'gain_map.dtseries.nii'), workbench_path)
+    ciftisave(rawData, strcat(outpath,'gain_map.dtseries.nii'), workbench_path)   
+    if p.Results.convertAngleForBayes ~= "0"
+        rawData.cdata = angle_converted;
+        ciftisave(rawData, strcat(outpath,'converted_angle_map.dtseries.nii'), workbench_path)
+    end
+    
     if p.Results.thresholdData ~= "Na"
         rawData.cdata = results_thresh.ecc;
         ciftisave(rawData, strcat(outpath,'thresh_eccentricity_map.dtseries.nii'), workbench_path)
         rawData.cdata = results_thresh.ang;
-        ciftisave(rawData, strcat(outpath,'thresh_angular_map.dtseries.nii'), workbench_path)
+        ciftisave(rawData, strcat(outpath,'thresh_angle_map.dtseries.nii'), workbench_path)
         rawData.cdata = results_thresh.expt;
         ciftisave(rawData, strcat(outpath,'thresh_exponent_map.dtseries.nii'), workbench_path)
         rawData.cdata = results_thresh.rfsize;
@@ -501,6 +507,10 @@ elseif dataFileType == "cifti"
         ciftisave(rawData, strcat(outpath,'thresh_R2_map.dtseries.nii'), workbench_path)
         rawData.cdata = results_thresh.gain;
         ciftisave(rawData, strcat(outpath,'thresh_gain_map.dtseries.nii'), workbench_path)
+        if p.Results.convertAngleForBayes ~= "0"
+            rawData.cdata = results_thresh.converted_angle;
+            ciftisave(rawData, strcat(outpath,'thresh_converted_angle_map.dtseries.nii'), workbench_path)
+        end
     end
 end
 end
