@@ -446,6 +446,18 @@ if p.Results.thresholdData ~= "Na"
     end
 end
 
+vector_length = length(results.ecc);
+x_map = [];
+y_map = [];
+for ii = 1:vector_length
+    temporary_ecc = results.ecc(ii);
+    temporary_ang = angle_converted(ii);
+    x_map(ii) = temporary_ecc * cosd(temporary_ang);
+    y_map(ii) = temporary_ecc * sind(temporary_ang);
+end
+x_map = x_map';
+y_map = y_map';
+
 %SAVE NIFTI or CIFTI results
 if dataFileType == "volumetric"
     rawData.nframes = 1; %Set the 4th dimension 1
@@ -461,6 +473,12 @@ if dataFileType == "volumetric"
     MRIwrite(rawData, strcat(outpath,'R2_map.nii.gz'))
     rawData.vol = results.gain;
     MRIwrite(rawData, strcat(outpath,'gain_map.nii.gz'))
+    rawData.vol = x_map;
+    MRIwrite(rawData, strcat(outpath,'x_map.nii.gz'))
+    rawData.vol = y_map;
+    MRIwrite(rawData, strcat(outpath,'y_map.nii.gz'))
+
+
     if p.Results.thresholdData ~= "Na"
         rawData.nframes = 1; %Set the 4th dimension 1
         rawData.vol = results_thresh.ecc;
@@ -488,10 +506,14 @@ elseif dataFileType == "cifti"
     rawData.cdata = results.R2;
     ciftisave(rawData, strcat(outpath,'R2_map.dtseries.nii'), workbench_path)
     rawData.cdata = results.gain;
-    ciftisave(rawData, strcat(outpath,'gain_map.dtseries.nii'), workbench_path)   
+    ciftisave(rawData, strcat(outpath,'gain_map.dtseries.nii'), workbench_path) 
     if p.Results.convertAngleForBayes ~= "0"
         rawData.cdata = angle_converted;
         ciftisave(rawData, strcat(outpath,'converted_angle_map.dtseries.nii'), workbench_path)
+        rawData.cdata = x_map;
+        ciftisave(rawData, strcat(outpath,'x_map.dtseries.nii'), workbench_path)
+        rawData.cdata = y_map;
+        ciftisave(rawData, strcat(outpath,'y_map.dtseries.nii'), workbench_path)        
     end
     
     if p.Results.thresholdData ~= "Na"
