@@ -157,7 +157,7 @@ p.addParameter('numperjob',"Na",@isstr);
 p.addParameter('maxiter',"500",@isstr);
 p.addParameter('display',"iter",@isstr);
 p.addParameter('typicalgain',"10",@isstr);
-p.addParameter('maskFileName',"Na", @isstr);
+p.addParameter('maskFileName','Na', @isstr);
 p.addParameter('prependDummyTRs',"0", @isstr)
 p.addParameter('thresholdData',"10", @isstr)
 p.addParameter('pixelToDegree',"Na", @isstr)
@@ -174,8 +174,8 @@ p.parse(workbench_path, stimFileName, dataFileName, dataFileType, tr, outpath, v
 % all runs which is usually the first folder in the ica results.
 if dataFileName(end-1:end) ~= "gz" & dataFileName(end-2:end) ~= "nii"
     
-    d = dir('/flywheel/v0/input/DataFile/*/*/MNINonLinear/Results'); % Find the acquisitions in gear
-    %d = dir('/*/*/*/*/*/*/*/MNINonLinear/Results'); % Find the acquisitions      
+    %d = dir('/flywheel/v0/input/DataFile/*/*/MNINonLinear/Results'); % Find the acquisitions in gear
+    d = dir('/*/*/*/TOME_3043/TOME_3043_ICAFIX_multi_tfMRI_RETINO_PA_run1_tfMRI_RETINO_PA_run2_tfMRI_RETINO_AP_run3_tfMRI_RETINO_AP_run4_hcpicafix/TOME_3043/MNINonLinear/Results'); % Find the acquisitions      
     %d = dir('/home/ozzy/Desktop/area_experimentalis/*/*/MNINonLinear/Results'); % Find the acquisitions for hcp-func
     d = d(~ismember({d.name},{'.','..'})); % get rid of "." and ".." items in the cell containing path names
     d(1) = []; % Get rid of the first folder which is that first large folder we don't want
@@ -193,8 +193,8 @@ if dataFileName(end-1:end) ~= "gz" & dataFileName(end-2:end) ~= "nii"
     elseif dataFileType == "cifti"
         for ii = 1:runNumber % This creates a data cell 1xrunNumber and populates the cells with the data
             fprintf(strcat("Reading cifti number", ' ', num2str(ii), '\n'))
-            %rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'Atlas_hp2000_clean.dtseries.nii');
-            rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'Atlas.dtseries.nii');  %Foc hcpfunc
+            rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'Atlas_hp2000_clean.dtseries.nii');
+            %rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'Atlas.dtseries.nii');  %Foc hcpfunc
             temporary = ciftiopen(rawName{ii}, workbench_path);
             data{ii} = temporary.cdata; 
         end 
@@ -409,7 +409,7 @@ for zero_vals = zero_indices_ecc'
 end
 
 %%%Pixel to Degrees conversion. Changes the original output values
-if p.Results.pixelToDegree ~= "Na"
+if p.Results.pixelToDegree ~= 'Na'
     results.ecc = results.ecc ./ str2double(p.Results.pixelToDegree);
     results.rfsize = results.rfsize ./ str2double(p.Results.pixelToDegree);
 end
@@ -427,7 +427,7 @@ end
 %%% 1 to 1 - Changes the original output values.
 results.R2 = results.R2 ./ 100;
 results.R2(results.R2 < 0) = 0;
-results.R2(results.R2 > 1) = 1;
+
 
 %%% THRESHOLDING - Does not change the original output values. Creates another
 %%% variable for the thresholded values
@@ -446,12 +446,16 @@ if p.Results.thresholdData ~= "Na"
     end
 end
 
+
+%[x_map, y_map] = pol2cart(results.ang*(pi/180), results.ecc);
+%[theta rho] = cart2pol(x_map,y_map)
+
 vector_length = length(results.ecc);
 x_map = [];
 y_map = [];
 for ii = 1:vector_length
     temporary_ecc = results.ecc(ii);
-    temporary_ang = angle_converted(ii);
+    temporary_ang = results.ang(ii); 
     x_map(ii) = temporary_ecc * cosd(temporary_ang);
     y_map(ii) = temporary_ecc * sind(temporary_ang);
 end
