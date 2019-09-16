@@ -48,35 +48,11 @@ left_y = ny.load(path_to_left_y_mgz)
 right_x = ny.load(path_to_right_x_mgz)
 right_y = ny.load(path_to_right_y_mgz)
 
-#left_angle_new_template = ny.load(path_to_left_x_mgz)
-#left_eccentricity_new_template = ny.load(path_to_left_x_mgz)
-#right_angle_new_template = ny.load(path_to_right_y_mgz)
-#right_eccentricity_new_template = ny.load(path_to_right_y_mgz)
+left_angle_new_template = np.rad2deg(np.mod(np.arctan2(left_y,left_x), 2*np.pi))
+left_eccentricity_new_template = np.sqrt(left_x**2 + left_y**2)
+right_angle_new_template = np.rad2deg(np.mod(np.arctan2(right_y,right_x), 2*np.pi))
+right_eccentricity_new_template = np.sqrt(right_x**2 + right_y**2)
 
-left_length = len(left_x)
-right_length = len(right_x)
-
-left_angle_new_template = np.array([], dtype='float32')
-right_angle_new_template = np.array([], dtype='float32')
-left_eccentricity_new_template = np.array([], dtype='float32')
-right_eccentricity_new_template = np.array([], dtype='float32')
-
-for i in range(left_length):
-    temp_x = left_x[i]
-    temp_y = left_y[i]
-    left_angle_new_template = np.append(left_angle_new_template, np.rad2deg(np.mod(math.atan2(temp_x,temp_y), 2*math.pi)))
-    left_eccentricity_new_template = np.append(left_eccentricity_new_template, math.sqrt(temp_x ** 2 + temp_y ** 2))
-    #left_angle_new_template[i] = np.rad2deg(np.mod(math.atan2(temp_x,temp_y), 2*math.pi))
-    #left_eccentricity_new_template[i] = math.sqrt(temp_x ** 2 + temp_y ** 2)
-
-for ii in range (right_length):
-    temp_x = right_x[ii]
-    temp_y = right_y[ii]
-    right_angle_new_template = np.append(right_angle_new_template, np.rad2deg(np.mod(math.atan2(temp_x,temp_y), 2*math.pi)))
-    right_eccentricity_new_template = np.append(right_eccentricity_new_template, math.sqrt(temp_x ** 2 + temp_y ** 2))
-    #right_angle_new_template[ii] = np.rad2deg(np.mod(math.atan2(temp_x,temp_y), 2*math.pi))
-    #right_eccentricity_new_template[ii] = math.sqrt(temp_x ** 2 + temp_y ** 2)  
-    
 ny.save("%s/L_new_angle.mgz"%output, left_angle_new_template)  
 ny.save("%s/L_new_eccen.mgz"%output, left_eccentricity_new_template)
 ny.save("%s/R_new_angle.mgz"%output, right_angle_new_template)  
