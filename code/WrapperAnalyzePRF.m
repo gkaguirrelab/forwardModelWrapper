@@ -254,13 +254,6 @@ if p.Results.maskFileName ~= "Na"    % Get the indices from mask if specified
     elseif dataFileType == "cifti"
         rawMask = ciftiopen(p.Results.maskFileName, workbenc_path); % Load mask
         mask = rawMask.cdata;
-        %mask = rmfield(rawMask, {'dimord','hdr', 'unit','brainstructure','brainstructurelabel','dim','pos','transform'}); %remove this and isolate the mask (needed because mask subfield changes names with different masks)
-        %maskfnames = fieldnames(mask);
-        %if numel(maskfnames) == 1
-        %    mask = mask.(maskfnames{1,1});  % Get only the volume
-        %    mask = single(mask); % Convert mask volume to single
-        %end
-        %mask(isnan(mask)) = 0; % Get rid of NaNs or find function will get their indices too
         vxs = find(mask)';
         vxs = single(vxs);    
     end
@@ -408,26 +401,44 @@ for zero_vals = zero_indices_ecc'
     results.ang(zero_vals) = NaN;
 end
 
+% Replace ecc values with NaN if they are larger than 90 pixels
+results.ecc(results.ecc > 90) = NaN;
+
 %%%Pixel to Degrees conversion. Changes the original output values
-if p.Results.pixelToDegree ~= 'Na'
+if p.Results.pixelToDegree ~= "Na"
     results.ecc = results.ecc ./ str2double(p.Results.pixelToDegree);
     results.rfsize = results.rfsize ./ str2double(p.Results.pixelToDegree);
 end
 
+vector_length = length(results.ecc);
+x_map = [];
+y_map = [];
+for ii = 1:vector_length
+    temporary_ecc = results.ecc(ii);
+    temporary_ang = results.ang(ii); 
+    x_map(ii) = temporary_ecc * cosd(temporary_ang);
+    y_map(ii) = temporary_ecc * sind(temporary_ang);
+end
+x_map = x_map';
+y_map = y_map';
+
+%~~~~~~~~COMMENTED OUT. WE DO THIS IN THE PYTHON SCRIPT NOW~~~~~~~~~~~~~ 
 %%% The output of this analysis will be used in Bayesian Analysis of  
 %%% Retinotopic Maps (Benson & Winawer,2018). Therefore the polar angle 
 %%% should be converted in a way that -90 and 90 degrees will correspond 
 %%% to left and right horizontal meridians and upper and lower vertical 
 %%% meridians will be 0 and ±180 degrees respectively.
-if p.Results.convertAngleForBayes ~= "0" 
-    angle_converted = wrapTo180(wrapTo360(abs(results.ang-360)+90));
-end
+%if p.Results.convertAngleForBayes ~= "0" 
+%    %angle_converted = wrapTo180(wrapTo360(abs(results.ang-360)+90));
+%    angle_converted = mod(abs(results.ang-360)+90,360);
+%    idx = (angle_converted < -180) | (180 < angle_converted);
+%    angle_converted(idx) = mod(angle_converted(idx) + 180,360) - 180; 
+%end
 
 %%% Divide R2 by 100 and set negative values to zero and values larger than
 %%% 1 to 1 - Changes the original output values.
 results.R2 = results.R2 ./ 100;
 results.R2(results.R2 < 0) = 0;
-
 
 %%% THRESHOLDING - Does not change the original output values. Creates another
 %%% variable for the thresholded values
@@ -445,22 +456,6 @@ if p.Results.thresholdData ~= "Na"
         results_thresh.converted_angle(ii) = 0;
     end
 end
-
-
-%[x_map, y_map] = pol2cart(results.ang*(pi/180), results.ecc);
-%[theta rho] = cart2pol(x_map,y_map)
-
-vector_length = length(results.ecc);
-x_map = [];
-y_map = [];
-for ii = 1:vector_length
-    temporary_ecc = results.ecc(ii);
-    temporary_ang = results.ang(ii); 
-    x_map(ii) = temporary_ecc * cosd(temporary_ang);
-    y_map(ii) = temporary_ecc * sind(temporary_ang);
-end
-x_map = x_map';
-y_map = y_map';
 
 %SAVE NIFTI or CIFTI results
 if dataFileType == "volumetric"
@@ -511,13 +506,17 @@ elseif dataFileType == "cifti"
     ciftisave(rawData, strcat(outpath,'R2_map.dtseries.nii'), workbench_path)
     rawData.cdata = results.gain;
     ciftisave(rawData, strcat(outpath,'gain_map.dtseries.nii'), workbench_path) 
+    rawData.cdata = x_map;
+    ciftisave(rawData, strcat(outpath,'x_map.dtseries.nii'), workbench_path)
+    rawData.cdata = y_map;
+    ciftisave(rawData, strcat(outpath,'y_map.dtseries.nii'), workbench_path) 
     if p.Results.convertAngleForBayes ~= "0"
         rawData.cdata = angle_converted;
         ciftisave(rawData, strcat(outpath,'converted_angle_map.dtseries.nii'), workbench_path)
-        rawData.cdata = x_map;
-        ciftisave(rawData, strcat(outpath,'x_map.dtseries.nii'), workbench_path)
-        rawData.cdata = y_map;
-        ciftisave(rawData, strcat(outpath,'y_map.dtseries.nii'), workbench_path)        
+        %rawData.cdata = x_map;
+        %ciftisave(rawData, strcat(outpath,'x_map.dtseries.nii'), workbench_path)
+        %rawData.cdata = y_map;
+        %ciftisave(rawData, strcat(outpath,'y_map.dtseries.nii'), workbench_path)        
     end
     
     if p.Results.thresholdData ~= "Na"
