@@ -47,7 +47,7 @@
 		"pathPlacement": "append",
 		"subfolder": "matlab",
 		"toolboxRoot": "",
-		"type": "include",
+		"type": "git",
 		"update": "",
 		"url": "https:\/\/github.com\/freesurfer\/freesurfer"
 	}

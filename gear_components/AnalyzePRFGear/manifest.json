@@ -1,0 +1,132 @@
+{
+	"name": "analyzePRF",
+	"label": "analyzePRF: A gear for population receptive field (pRF) analysis",
+	"description": "Built from a MATLAB wrapper written for Kendrick Kay's AnalyzePRF script, this gear performs pRF analysis and allows ICA-fix zip archieves to be used as direct inputs. The gear looks for the cifti files in each of the separate run folders located in the ica-fix output and analyze all of them outputting an averaged result.mat file along with raw brain maps. If a threshold is specified, the gear also creates thresholded brain maps. Analysis of volumetric data is NOT currently supported.",
+	"author": "Wrapper written by Ozenc Taskin based on Kendrick Kay's AnalyzePRF function",
+	"maintainer": "Ozenc Taskin <huseyinozenc.taskin@pennmedicine.upenn.edu>",
+	"source": "https://github.com/kendrickkay/analyzePRF",
+	"url": "https://github.com/gkaguirrelab/pRFCompileWrapper",
+	"version": "0.2.0",
+	"custom": {
+		"docker-image": ""
+	},
+	"license": "BSD-3-Clause",
+	"config": {
+		"dataFileType":  {
+  			"default": "cifti",
+  			"description": "Select the data type. Currently, only cifti surface files can be received from the ica-fix output",
+  			"type": "string"
+		},
+		"TR":  {
+  			"description": "Required. TR in seconds (e.g. 1.5).",
+  			"type": "string"
+		},
+		"prependDummyTRs":  {
+  			"default": "0",
+  			"description": "Used when the stimulus and data lengths are not equal and the inequality is due to the removal of dummy TRs from the sample. Calculates the mean along the time dimension for each voxel and adds that mean to the front of the data matrix (this procedure is repeated multiple times if required until data and stimulus sample lengths are exactly the same length. Don't use this option if the difference is due to sampling. 1 for true and 0 for false. Default = 0 (false)",
+  			"type": "string"
+		},
+		"thresholdData":  {
+  			"default": "10",
+  			"description": "Create brain maps thresholded with this percentage in addition to the raw maps. Default:10",
+  			"type": "string"
+		},
+		"pixelToDegree":  {
+			"default": "Na",
+  			"description": "Number. If a pixel to degree number is specified, eccentricity results are saved and represented on this scale (Warning: This affects the raw maps.)",
+			"type": "string"
+		},
+		"wantglmdenoise":  {
+  			"default": "0",
+  			"description": "is whether to use GLMdenoise to determine nuisance regressors to add into the PRF model. Note that in order to use this feature, there must be at least two runs (and conditions must repeat across runs). We automatically determine the GLM design matrix based on the contents of <stimulus>. Special case is to pass in the noise regressors directly (e.g. from a previous call). default: 0 ",
+  			"type": "string"
+		},
+		"maxpolydeg":  {
+			"default": "Na",
+  			"description": "Is a non-negative integer indicating the maximum polynomial degree to use for drift terms. Default is to use round(L/2) where L is the number of minutes in the duration of a given run.",
+			"type": "string"
+		},
+		"seedmode":  {
+  			"default": "[0 1 2]",
+  			"description": "Is a vector consisting of one or more of the following values (we automatically sort and ensure uniqueness): 0 means use generic large PRF seed - 1 means use generic small PRF seed - 2 means use best seed based on super-grid default: [0 1 2].",
+  			"type": "string"
+		},
+		"xvalmode":  {
+  			"default": "0",
+  			"description": "0 means just fit all the data - 1 means two-fold cross-validation (first half of runs; second half of runs) - 2 means two-fold cross-validation (first half of each run; second half of each run). default: 0. (note that we round when halving.) ",
+  			"type": "string"
+		},
+		"numperjob":  {
+  			"default": "Na",
+  			"description": "Number. Na means to run locally (not on the cluster) N where N is a positive integer indicating the number of voxels to analyze in each cluster job this option requires a customized computational setup! default: Na",
+			"type": "string"
+		},
+		"maxiter":  {
+  			"default": "500",
+  			"description": "Is the maximum number of iterations. Default: 500",
+  			"type": "string"
+		},
+		"display":  {
+  			"default": "iter",
+  			"description": "is iter | final | off. Default: iter",
+  			"type": "string"
+		},
+		"typicalgain":  {
+  			"default": "10",
+  			"description": "Is a typical value for the gain in each time-series. Default: 10.",
+  			"type": "string"
+		}
+	},
+	"inputs": {
+		"DataFile": {
+			"description": "ICA-fix output archives (.zip)",
+			"base": "file",
+			"optional": false,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"StimulusFile": {
+			"description": "Stimulus file (.mat cell). provides the apertures as a cell vector of RxCxtime. values should be in [0,1]. The number of time points can differ across runs. If you have n number of runs in the ica-fix output, stimulus needs to be organized in a nx1 cell too. However, if you are using the same stimulus for all of the runs you can just put the stimulus in a 1x1 cell and the script will create the required nx1 cell automatically by populating the remaining cells with the same stimulus vector.",
+			"base": "file",
+			"optional": false,
+			"type": {
+				"enum": [
+					"MATLAB data"
+				]
+			}
+		},
+		"HCPstruct": {
+			"description": "Inputting HCP-struct zip archive generates extra maps in subject's native space. Required by the Bayesian Analysis gear ",
+			"base": "file",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"HRF": {
+			"description": "is a column vector with the hemodynamic response function (HRF) to use in the model. The first value of hrf should be coincident with the onset of the stimulus, and the HRF should indicate the timecourse of the response to a stimulus that lasts for one TR. Default is to use a canonical HRF (calculated using getcanonicalhrf(tr,tr)'). A different model can be used by inputting a 1xn MATLAB matrix",
+			"base": "file",
+			"optional": true,
+			"type": {
+				"enum": [
+					"MATLAB data"
+				]
+			}
+		},
+		"MaskFileName":  {
+  			"description": "Use a nifti FSLR mask to specify which voxels to analyze. If empty, analyze the whole brain. Using a mask significantly decreases the analysis time depending on the region. Has to be a surface cifti mask",
+			"base": "file",
+			"optional": true,
+			"type": {
+				"enum": [
+					"nifti"
+				]
+			}
+		}
+	}
+}

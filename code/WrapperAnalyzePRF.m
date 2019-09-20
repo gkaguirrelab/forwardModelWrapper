@@ -161,7 +161,7 @@ p.addParameter('maskFileName','Na', @isstr);
 p.addParameter('prependDummyTRs',"0", @isstr)
 p.addParameter('thresholdData',"10", @isstr)
 p.addParameter('pixelToDegree',"Na", @isstr)
-p.addParameter('convertAngleForBayes',"1", @isstr)
+%p.addParameter('convertAngleForBayes',"1", @isstr)
 
 % parse
 p.parse(workbench_path, stimFileName, dataFileName, dataFileType, tr, outpath, varargin{:})
@@ -174,8 +174,8 @@ p.parse(workbench_path, stimFileName, dataFileName, dataFileType, tr, outpath, v
 % all runs which is usually the first folder in the ica results.
 if dataFileName(end-1:end) ~= "gz" & dataFileName(end-2:end) ~= "nii"
     
-    %d = dir('/flywheel/v0/input/DataFile/*/*/MNINonLinear/Results'); % Find the acquisitions in gear
-    d = dir('/*/*/*/TOME_3043/TOME_3043_ICAFIX_multi_tfMRI_RETINO_PA_run1_tfMRI_RETINO_PA_run2_tfMRI_RETINO_AP_run3_tfMRI_RETINO_AP_run4_hcpicafix/TOME_3043/MNINonLinear/Results'); % Find the acquisitions      
+    d = dir('/opt/data/*/*/MNINonLinear/Results'); % Find the acquisitions in gear
+    %d = dir('/*/*/*/TOME_3040/TOME_3040_ICAFIX_multi_tfMRI_RETINO_PA_run1_tfMRI_RETINO_PA_run2_tfMRI_RETINO_AP_run3_tfMRI_RETINO_AP_run4_hcpicafix/TOME_3040/MNINonLinear/Results'); % Find the acquisitions      
     %d = dir('/home/ozzy/Desktop/area_experimentalis/*/*/MNINonLinear/Results'); % Find the acquisitions for hcp-func
     d = d(~ismember({d.name},{'.','..'})); % get rid of "." and ".." items in the cell containing path names
     d(1) = []; % Get rid of the first folder which is that first large folder we don't want
@@ -410,6 +410,7 @@ if p.Results.pixelToDegree ~= "Na"
     results.rfsize = results.rfsize ./ str2double(p.Results.pixelToDegree);
 end
 
+% Create cartesian maps
 vector_length = length(results.ecc);
 x_map = [];
 y_map = [];
@@ -476,8 +477,6 @@ if dataFileType == "volumetric"
     MRIwrite(rawData, strcat(outpath,'x_map.nii.gz'))
     rawData.vol = y_map;
     MRIwrite(rawData, strcat(outpath,'y_map.nii.gz'))
-
-
     if p.Results.thresholdData ~= "Na"
         rawData.nframes = 1; %Set the 4th dimension 1
         rawData.vol = results_thresh.ecc;
@@ -493,7 +492,8 @@ if dataFileType == "volumetric"
         rawData.vol = results_thresh.gain;
         MRIwrite(rawData, strcat(outpath,'thresh_gain_map.nii.gz'))
     end
-elseif dataFileType == "cifti"   
+    
+elseif dataFileType == "cifti"
     rawData.cdata = results.ecc;
     ciftisave(rawData, strcat(outpath,'eccentricity_map.dtseries.nii'), workbench_path)
     rawData.cdata = results.ang;
@@ -510,15 +510,10 @@ elseif dataFileType == "cifti"
     ciftisave(rawData, strcat(outpath,'x_map.dtseries.nii'), workbench_path)
     rawData.cdata = y_map;
     ciftisave(rawData, strcat(outpath,'y_map.dtseries.nii'), workbench_path) 
-    if p.Results.convertAngleForBayes ~= "0"
-        rawData.cdata = angle_converted;
-        ciftisave(rawData, strcat(outpath,'converted_angle_map.dtseries.nii'), workbench_path)
-        %rawData.cdata = x_map;
-        %ciftisave(rawData, strcat(outpath,'x_map.dtseries.nii'), workbench_path)
-        %rawData.cdata = y_map;
-        %ciftisave(rawData, strcat(outpath,'y_map.dtseries.nii'), workbench_path)        
-    end
-    
+%     if p.Results.convertAngleForBayes ~= "0"
+%         rawData.cdata = angle_converted;
+%         ciftisave(rawData, strcat(outpath,'converted_angle_map.dtseries.nii'), workbench_path)     
+%     end    
     if p.Results.thresholdData ~= "Na"
         rawData.cdata = results_thresh.ecc;
         ciftisave(rawData, strcat(outpath,'thresh_eccentricity_map.dtseries.nii'), workbench_path)
@@ -532,10 +527,10 @@ elseif dataFileType == "cifti"
         ciftisave(rawData, strcat(outpath,'thresh_R2_map.dtseries.nii'), workbench_path)
         rawData.cdata = results_thresh.gain;
         ciftisave(rawData, strcat(outpath,'thresh_gain_map.dtseries.nii'), workbench_path)
-        if p.Results.convertAngleForBayes ~= "0"
-            rawData.cdata = results_thresh.converted_angle;
-            ciftisave(rawData, strcat(outpath,'thresh_converted_angle_map.dtseries.nii'), workbench_path)
-        end
+%         if p.Results.convertAngleForBayes ~= "0"
+%             rawData.cdata = results_thresh.converted_angle;
+%             ciftisave(rawData, strcat(outpath,'thresh_converted_angle_map.dtseries.nii'), workbench_path)
+%         end
     end
 end
 end
