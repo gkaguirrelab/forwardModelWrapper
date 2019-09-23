@@ -1,5 +1,4 @@
 import neuropythy as ny
-import math
 import numpy as np
 
 ###################### Set some paths #####################################################
@@ -43,7 +42,49 @@ for i in maps.keys():
     ny.save("%s/L_%s.mgz"%(output,i), native_result_left)
     ny.save("%s/R_%s.mgz"%(output,i), native_result_right)    
 
+# TRY THIS. IF IT WORKS, ADD SWITCH SIGN TO X 
+x_map = "%sx_map.dtseries.nii"%path_to_cifti_maps
+y_map = "%sy_map.dtseries.nii"%path_to_cifti_maps 
+
+original_x = ny.load(x_map)
+(orig_x_lhdat, orig_x_rhdat, orig_x_other) = ny.hcp.cifti_split(original_x)
+new_x_rhdat = orig_x_rhdat
+new_x_lhdat = orig_x_lhdat
+for i in range(len(orig_x_lhdat)):
+    new_x_rhdat[i] = orig_x_lhdat[i]
+    new_x_lhdat[i] = orig_x_rhdat[i]
+native_result_left = hem_from_left.interpolate(hem_to_left, new_x_lhdat)
+native_result_right = hem_from_right.interpolate(hem_to_right, new_x_rhdat)
+ny.save("%s/L_flipped_x_map.mgz"%output, native_result_left)
+ny.save("%s/R_flipped_x_map.mgz"%output, native_result_right)
+final_left = (orig_x_lhdat + new_x_lhdat)/2        #Add times minus one to new
+final_right = (orig_x_rhdat + new_x_rhdat)/2
+averaged_result_left = hem_from_left.interpolate(hem_to_left, final_left)
+averaged_result_right = hem_from_right.interpolate(hem_to_right, final_right)
+ny.save("%s/L_averaged_x_map.mgz"%output, final_left)
+ny.save("%s/R_averaged_x_map.mgz"%output, final_right)
+
+original_y = ny.load(y_map)
+(orig_y_lhdat, orig_y_rhdat, orig_y_other) = ny.hcp.cifti_split(original_y)
+new_y_rhdat = orig_y_rhdat
+new_y_lhdat = orig_y_lhdat
+for i in range(len(orig_y_lhdat)):
+    new_y_rhdat[i] = orig_y_lhdat[i]
+    new_y_lhdat[i] = orig_y_rhdat[i]
+native_result_left = hem_from_left.interpolate(hem_to_left, new_y_lhdat)
+native_result_right = hem_from_right.interpolate(hem_to_right, new_y_rhdat)
+ny.save("%s/L_flipped_y_map.mgz"%output, native_result_left)
+ny.save("%s/R_flipped_y_map.mgz"%output, native_result_right)
+final_left = (orig_y_lhdat + new_y_lhdat)/2
+final_right = (orig_y_rhdat + new_y_rhdat)/2
+averaged_result_left = hem_from_left.interpolate(hem_to_left, final_left)
+averaged_result_right = hem_from_right.interpolate(hem_to_right, final_right)
+ny.save("%s/L_averaged_y_map.mgz"%output, final_left)
+ny.save("%s/R_averaged_y_map.mgz"%output, final_right)
+
+
 ##################### Convert cartesian x-y maps to polar maps ############################      
+# MAKE THIS USE THE AVERAGED MAPS ONCE EVERYTHING WORKS 
 
 path_to_left_x_mgz = output + '/L_x_map.mgz'
 path_to_right_x_mgz = output + '/R_x_map.mgz'
