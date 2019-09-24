@@ -212,7 +212,6 @@ else   % This is used when a single acquisition is analyzed
     elseif dataFileType == "cifti"
         rawData = ciftiopen(p.Results.dataFileName, workbench_path);
         data = rawData.cdata;
-        %data = single(data);
     else
         fprintf("Scan type is not valid")
     end
@@ -329,8 +328,7 @@ if dataFileName(end-1:end) ~= "gz" % This part does it for multiple runs
                  error(errorMessage)
              end
          end
-     end
-     
+     end  
 else   %This one does it for single run
     datasizes = size(data{1});
     data_temporal_size = datasizes(2);

@@ -36,11 +36,11 @@ maps['rfsize_map'] = "%srfsize_map.dtseries.nii"%path_to_cifti_maps
 #maps['x_map'] = "%sx_map.dtseries.nii"%path_to_cifti_maps
 maps['y_map'] = "%sy_map.dtseries.nii"%path_to_cifti_maps
 
-############ Interpolate AnalyzePRF maps over subject's native surface ####################
+#### Interpolate AnalyzePRF maps over subject's native surface do the flip and average ####
 
 for i in maps.keys():
     im = ny.load(maps[i])
-    (orig_lhdat, orig_rhdat, orig_other) = ny.hcp.cifti_split(im)   # Separate left and right hemispheres
+    (orig_lhdat, orig_rhdat, orig_other) = ny.hcp.cifti_split(im)  
     original_result_left = hem_from_left.interpolate(hem_to_left, orig_lhdat)
     original_result_right = hem_from_right.interpolate(hem_to_right, orig_rhdat)
     ny.save("%s/L_original_%s.mgz"%(output,i), original_result_left)
@@ -70,7 +70,6 @@ for i in maps.keys():
     
  
 x_map = "%sx_map.dtseries.nii"%path_to_cifti_maps
-
 original_x = ny.load(x_map)
 (orig_x_lhdat, orig_x_rhdat, orig_x_other) = ny.hcp.cifti_split(original_x)
 new_x_rhdat = orig_x_rhdat.copy()
@@ -80,17 +79,14 @@ for i in range(len(orig_x_lhdat)):
     value_right = orig_x_rhdat[i]
     new_x_rhdat[i] = value_left
     new_x_lhdat[i] = value_right
-
 original_result_left = hem_from_left.interpolate(hem_to_left, orig_x_lhdat)
 original_result_right = hem_from_right.interpolate(hem_to_right, orig_x_rhdat)
 ny.save("%s/L_orig_x_map.mgz"%output, original_result_left)
 ny.save("%s/R_orig_x_map.mgz"%output, original_result_right)
-
 flipped_result_left = hem_from_left.interpolate(hem_to_left, new_x_lhdat)
 flipped_result_right = hem_from_right.interpolate(hem_to_right, new_x_rhdat)
 ny.save("%s/L_flipped_x_map.mgz"%output, flipped_result_left)
 ny.save("%s/R_flipped_x_map.mgz"%output, flipped_result_right)
-
 final_averaged_left_x = orig_x_lhdat.copy()
 final_averaged_right_x = orig_x_rhdat.copy()
 for i in range(len(orig_x_lhdat)):
@@ -98,7 +94,6 @@ for i in range(len(orig_x_lhdat)):
     final_value_right = (orig_x_rhdat[i] + (-1* new_x_rhdat[i]))/2
     final_averaged_left_x[i] = final_value_left
     final_averaged_right_x[i] = final_value_right
-
 averaged_result_left = hem_from_left.interpolate(hem_to_left, final_averaged_left_x)
 averaged_result_right = hem_from_right.interpolate(hem_to_right, final_averaged_right_x)
 ny.save("%s/L_averaged_x_map.mgz"%output, averaged_result_left)
