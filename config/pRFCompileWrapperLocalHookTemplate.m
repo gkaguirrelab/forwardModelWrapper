@@ -17,9 +17,6 @@ function pRFCompileWrapperLocalHook
 %% Define project
 projectName = 'pRFCompileWrapper';
  
-%% Say hello
-fprintf('Running % local hook\n',projectName);
- 
 %% Clear out old preferences
 if (ispref(projectName))
     rmpref(projectName);
@@ -50,7 +47,7 @@ end
 
 
 %% Set preferences for project output
-
 setpref(projectName,'dropboxBaseDir',dropboxBaseDir); % main directory path 
 setpref(projectName,'projectBaseDir',projectBaseDir); % main directory path 
+
 end
