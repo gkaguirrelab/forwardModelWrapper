@@ -1,16 +1,16 @@
 [
 	{
-	"flavor": "",
-	"hook": "",
-	"importance": "",
-	"localHookTemplate": "config/pRFCompileWrapperLocalHookTemplate.m",
-	"name": "pRFCompileWrapper",
-	"pathPlacement": "append",
-	"subfolder": ["code","demo"],
-	"toolboxRoot": "",
-	"type": "git",
-	"update": "",
-	"url": "https:\/\/github.com\/gkaguirrelab\/pRFCompileWrapper.git"
+		"flavor": "",
+		"hook": "",
+		"importance": "",
+		"localHookTemplate": "config/pRFCompileWrapperLocalHookTemplate.m",
+		"name": "pRFCompileWrapper",
+		"pathPlacement": "append",
+		"subfolder": ["code","demo"],
+		"toolboxRoot": "",
+		"type": "git",
+		"update": "",
+		"url": "https:\/\/github.com\/gkaguirrelab\/pRFCompileWrapper.git"
 	},
 	{
 		"flavor": "",
