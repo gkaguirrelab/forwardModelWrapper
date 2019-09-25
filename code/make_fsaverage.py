@@ -3,13 +3,13 @@ import numpy as np
 
 ###################### Set some paths #####################################################
 
-#path_to_cifti_maps = '/home/ozzy/Desktop/TOME_3043/artui1/'
-#path_to_subject = '/home/ozzy/Desktop/TOME_3043/TOME_3043_hcpstruct/TOME_3043'
-#output = '/home/ozzy/Desktop/TOME_3043/artui1/mgzed'
-
-path_to_cifti_maps = '/home/ozzy/Desktop/TOME_3043/everything/'
+path_to_cifti_maps = '/home/ozzy/Desktop/TOME_3043/results/'
 path_to_subject = '/home/ozzy/Desktop/TOME_3043/TOME_3043_hcpstruct/TOME_3043'
-output = '/home/ozzy/Desktop/TOME_3043/everything/mgzed'
+output = '/home/ozzy/Desktop/TOME_3043/results/mgzed'
+
+#path_to_cifti_maps = '/home/ozzy/Desktop/TOME_3043/everything/'
+#path_to_subject = '/home/ozzy/Desktop/TOME_3043/TOME_3043_hcpstruct/TOME_3043'
+#output = '/home/ozzy/Desktop/TOME_3043/everything/mgzed'
 #
 #path_to_cifti_maps = '/home/ozzy/Desktop/hcp_func_maps/'
 #path_to_subject = '/home/ozzy/Desktop/BENSON/Datasaver/DATA/TOME_3042_hcpstruct/TOME_3042'

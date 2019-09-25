@@ -1,4 +1,4 @@
-function [p, results] = WrapperAnalyzePRF(workbench_path,stimFileName,dataFileName,dataFileType,tr,outpath,varargin)
+function results = WrapperAnalyzePRF(stimulus, data, tr, varagin)
 % Wrapper to manage inputs to Kendrick Kay's analyze pRF code
 %
 % Syntax:
@@ -140,12 +140,9 @@ function [p, results] = WrapperAnalyzePRF(workbench_path,stimFileName,dataFileNa
 p = inputParser; p.KeepUnmatched = true;
 
 % Required  
-p.addRequired('workbench_path',@isstr);
-p.addRequired('stimFileName',@isstr);
-p.addRequired('dataFileName',@isstr);
-p.addRequired('dataFileType',@isstr);
+p.addRequired('stimulus', @iscell);
+p.addRequired('data', @iscell);
 p.addRequired('tr', @isstr);
-p.addRequired('outpath', @isstr);
 
 % Optional parameters
 p.addParameter('wantglmdenoise',"0",@isstr);
@@ -157,126 +154,14 @@ p.addParameter('numperjob',"Na",@isstr);
 p.addParameter('maxiter',"500",@isstr);
 p.addParameter('display',"iter",@isstr);
 p.addParameter('typicalgain',"10",@isstr);
-p.addParameter('maskFileName','Na', @isstr);
-p.addParameter('prependDummyTRs',"0", @isstr)
-p.addParameter('thresholdData',"10", @isstr)
-p.addParameter('pixelToDegree',"Na", @isstr)
-%p.addParameter('convertAngleForBayes',"1", @isstr)
 
 % parse
-p.parse(workbench_path, stimFileName, dataFileName, dataFileType, tr, outpath, varargin{:})
-
-%% Load Data
-
-% If the input does not end with gz then gear will extract the zip into a
-% folder and this part of the script will go to that folder, find all the
-% hp2000_clean volumes, and exclude the folder containing the avarage of 
-% all runs which is usually the first folder in the ica results.
-if dataFileName(end-1:end) ~= "gz" & dataFileName(end-2:end) ~= "nii"
-    
-    d = dir('/opt/data/*/*/MNINonLinear/Results'); % Find the acquisitions in gear
-    %d = dir('/*/*/*/TOME_3040/TOME_3040_ICAFIX_multi_tfMRI_RETINO_PA_run1_tfMRI_RETINO_PA_run2_tfMRI_RETINO_AP_run3_tfMRI_RETINO_AP_run4_hcpicafix/TOME_3040/MNINonLinear/Results'); % Find the acquisitions      
-    %d = dir('/home/ozzy/Desktop/area_experimentalis/*/*/MNINonLinear/Results'); % Find the acquisitions for hcp-func
-    d = d(~ismember({d.name},{'.','..'})); % get rid of "." and ".." items in the cell containing path names
-    d(1) = []; % Get rid of the first folder which is that first large folder we don't want
-    runNumber = length(d); % Get the number of runs
-    
-    if dataFileType == "volumetric"
-        for ii = 1:runNumber % This creates a data cell 1xrunNumber and populates the cells with the data
-            rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'hp2000_clean.nii.gz');
-            data{ii} = MRIread(rawName{ii});
-            data{ii} = data{ii}.vol;  %only get the volume
-            data{ii} = single(data{ii}); %convert to single
-            data{ii} = reshape(data{ii}, [size(data{ii},1)*size(data{ii},2)*size(data{ii},3), size(data{ii},4)]);
-            data{ii}(isnan(data{ii})) = 0; %NaN to 0
-        end
-    elseif dataFileType == "cifti"
-        for ii = 1:runNumber % This creates a data cell 1xrunNumber and populates the cells with the data
-            fprintf(strcat("Reading cifti number", ' ', num2str(ii), '\n'))
-            rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'Atlas_hp2000_clean.dtseries.nii');
-            %rawName{ii} = strcat(d(ii).folder,'/', d(ii).name, '/', d(ii).name, '_', 'Atlas.dtseries.nii');  %Foc hcpfunc
-            temporary = ciftiopen(rawName{ii}, workbench_path);
-            data{ii} = temporary.cdata; 
-        end 
-    else
-        fprintf("Scan type is not valid")
-    end
-    
-else   % This is used when a single acquisition is analyzed
-    runNumber = 1;
-    if dataFileType == "volumetric"
-        rawData = MRIread(p.Results.dataFileName);
-        data = rawData.vol;
-        data = single(data);
-        data = reshape(data, [size(data,1)*size(data,2)*size(data,3), size(data,4)]); % Convert 4D to 2D
-    elseif dataFileType == "cifti"
-        rawData = ciftiopen(p.Results.dataFileName, workbench_path);
-        data = rawData.cdata;
-    else
-        fprintf("Scan type is not valid")
-    end
-end
-
-%% Load the stimulus, convert to single, and copy it to the other cells
-%  so that the cell size of the stimulus matches the cell size of the data
-
-load(stimFileName,'stimulus');
-stimulus = single(stimulus); 
-dataLength = length(data);
-stimLength = length(stimulus);
-if dataLength ~= stimLength
-    temporarystim = stimulus;
-    stimulus = {};
-    for celvar = 1:dataLength
-        stimulus{celvar} = temporarystim;
-    end
-end
-
-% massage cell inputs
-if ~iscell(stimulus)
-  stimulus = {stimulus};
-end
-if ~iscell(data)
-  data = {data};
-end
-
-% determine how many voxels to analyze 
-
-if p.Results.maskFileName ~= "Na"    % Get the indices from mask if specified
-    if dataFileType == "volumetric"
-        rawMask = MRIread(p.Results.maskFileName); % Load mask
-        mask = rawMask.vol;  % Get only the volume
-        mask = single(mask); % Convert mask volume to single
-        mask = reshape(mask, [size(mask,1)*size(mask,2)*size(mask,3),1]); % Reshape
-        vxs = find(mask)';
-        vxs = single(vxs);
-    elseif dataFileType == "cifti"
-        rawMask = ciftiopen(p.Results.maskFileName, workbenc_path); % Load mask
-        mask = rawMask.cdata;
-        vxs = find(mask)';
-        vxs = single(vxs);    
-    end
-    
-else                                   % Analyze all voxels if no mask is specified 
-    is3d = size(data{1},4) > 1;
-    if is3d
-      dimdata = 3;
-      dimtime = 4;
-      xyzsize = sizefull(data{1},3);
-    else
-      dimdata = 1;
-      dimtime = 2;
-      xyzsize = size(data{1},1);
-    end
-    numvxs = prod(xyzsize);
-    vxs = 1:numvxs;
-end
+p.parse(stimulus, data, tr, varargin{:})
 
 % MCR only accepts strings. This part converts variables which are passed
 % as strings to vectors and numericals.
-
 tr = str2double(tr);
-listofnums = ['0','1','2','3','4','5','6','7','8','9'];
+
 new_seedmode = [];
 if p.Results.maxpolydeg ~= "Na"
     new_maxpolydeg = str2double(p.Results.maxpolyreg);
@@ -297,59 +182,12 @@ else
     new_hrf = [];
 end 
 
+listofnums = ['0','1','2','3','4','5','6','7','8','9'];
 for ii = p.Results.seedmode
     if ismember(ii, listofnums)
         new_seedmode = [new_seedmode,str2double(ii)];
     end
 end
-
-% Check that the stimulus and data are of the same temporal length. If they
-% are not same, but prependDummyTR command is issued, add the mean of the 
-% time series for each voxel at the beginning of the matrix until the data 
-% and stimulus matrix lengths become equal.
-
-if dataFileName(end-1:end) ~= "gz" % This part does it for multiple runs
-     for ii = 1:runNumber
-         datasizes = size(data{ii});
-         data_temporal_size = datasizes(2);
-         stimsizes = size(stimulus{ii});
-         stim_temporal_size = stimsizes(3);
-         if data_temporal_size < stim_temporal_size
-             if str2double(p.Results.prependDummyTRs) == 1
-                 warning("prependDummyTR function is enabled")
-                 difference = stim_temporal_size - data_temporal_size;
-                 means_of_rows = mean(data, 2);
-                 for change = 1:difference
-                     data = horzcat(means_of_rows, data);
-                 end
-             else
-                 errorMessage = "Sample lengths of the stimulus and data are not equal for the run number. Either resample your data or consider prependDummyTR option";
-                 errorMessage = insertAfter(errorMessage, 'number', num2str(ii)); 
-                 error(errorMessage)
-             end
-         end
-     end  
-else   %This one does it for single run
-    datasizes = size(data{1});
-    data_temporal_size = datasizes(2);
-    stimsizes = size(stimulus{1});
-    stim_temporal_size = stimsizes(3);
-
-    if data_temporal_size < stim_temporal_size
-        if str2double(p.Results.prependDummyTRs) == 1
-            warning("prependDummyTR function is enabled")
-            difference = stim_temporal_size - data_temporal_size;
-            means_of_rows = mean(data, 2);
-            for i = 1:difference
-                data = horzcat(means_of_rows, data);
-            end 
-        else
-            error("Sample lengths of the stimulus and data are not equal. Either resample your data or consider prependDummyTR option")
-        end
-    end
-end
-    
-    
 
 % Prepare the final structure and convert the remaining variables to
 % numerical
@@ -358,20 +196,7 @@ analysisStructure = struct('vxs',vxs,'wantglmdenoise',str2double(p.Results.wantg
     'numperjob',new_numperjob,'maxiter',str2double(p.Results.maxiter),'display',p.Results.display, ...
     'typicalgain',str2double(p.Results.typicalgain));
 
-% Get rid of the unwanted variables to save memory
-
-clear d 
-clear rawData
-clear temporarystim
-clear rawMask
-clear listofnums
-clear celvar
-clear datasizes 
-clear data_temporal_size
-clear stim_temporal_size
-clear mask
-
-% Run the function and save the results
+% Run the function and save the results.mat
 results = analyzePRF(stimulus,data,tr,analysisStructure);
 save(strcat(outpath,"retinotopy_results.mat"),'results')
 
