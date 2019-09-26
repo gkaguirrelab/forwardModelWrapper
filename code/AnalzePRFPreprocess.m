@@ -110,7 +110,7 @@ if verbose
 end
 
 % Uncompress the zip archive
-unzip(inputDataPath, tempDir)
+%unzip(inputDataPath, tempDir)
 
 % The ICA-FIX gear saves the output data within the MNINonLinear dir
 acquisitionList = dir(strcat(tempDir, '/*/MNINonLinear/Results'));
@@ -188,10 +188,22 @@ if strcmp(p.Results.averageAcquisitions,'1')
     if verbose
         fprintf('Averaging data acquisitions together\n')
     end
+        
+    % Check that all of the data cells have the same length
+    if length(unique(cellfun(@(x) length(x),data))) > 1
+            error('AnalyzePRFPreprocess:dataLengthDisagreement', 'Averaging of the acquisition data was requested, but the acquisitions are not of equal length');
+    end
+
+    % Perform the average
+    meanData = zeros(size(data{1}));
+    for ii=1:length(data)
+        meanData = meanData + data{ii};
+    end
+    meanData = meanData ./ length(data);
+    data = {meanData};
+    clear meanData
+    nAcquisitions = 1;
     
-    %% OZZY TO ADD SOME AVERAGING CODE HERE
-    % When done with this step, the data varibale should be a cell array
-    % with only one entry.
 end
 
 
