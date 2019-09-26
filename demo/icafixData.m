@@ -9,8 +9,8 @@ subjectName = 'TOME_3021';
 
 % Define a few variables
 outputFileSuffix = '_hcpicafix.zip';
-wbCommand = getpref('flywheelMRSupport','wbCommand');
-scratchSaveDir = getpref('flywheelMRSupport','flywheelScratchDir');
+wbCommand = getpref('pRFCompileWrapper','wbCommand');
+scratchSaveDir = getpref('pRFCompileWrapper','flywheelScratchDir');
 
 % Create the save dir if it does not exist
 if ~exist(scratchSaveDir,'dir')
@@ -21,13 +21,13 @@ end
 devNull = ' >/dev/null';
 
 % Create a flywheel object
-fw = flywheel.Flywheel(getpref('flywheelMRSupport','flywheelAPIKey'));
+fw = flywheel.Flywheel(getpref('pRFCompileWrapper','flywheelAPIKey'));
 
 % The ica-fix results for the RETINO data for one subject
 searchStruct = struct(...
     'returnType', 'analysis', ...
     'filters', {{...
-    struct('match', struct('analysis0x2elabel', 'hcp-icafix')), ...
+    struct('match', struct('analysis0x2elabel', 'icafix')), ...
     struct('match', struct('analysis0x2elabel', 'RETINO')), ...
     struct('match', struct('project0x2elabel', 'tome')), ...
     struct('match', struct('subject0x2ecode', subjectName)), ...
