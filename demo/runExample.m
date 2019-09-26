@@ -22,6 +22,7 @@ screenHeightCm = 39.2257;
 screenDistanceCm = 106.5;
 visualAngleDegOnePercent = atand((39.2257/100)/106.5);
 pixelToDegree = 108 / (visualAngleDegOnePercent*100);
+pixelToDegree = num2str(pixelToDegree);
 
 % Create a flywheel object
 fw = flywheel.Flywheel(getpref(projectName,'flywheelAPIKey'));
@@ -69,18 +70,43 @@ end
 workbenchPath = getpref(projectName,'wbCommand');
 inputDataPath = saveName;
 stimFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','pRFStimulus_108x108x420.mat');
+maskFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','lh.V1mask.dscalar.nii');
 tempDir = scratchSaveDir;
 
 % Call AnalyzePRFPreprocess
 [stimulus, data, vxs, templateImage] = ...
     AnalzePRFPreprocess(workbenchPath, inputDataPath, stimFilePath, tempDir, ...
+    'maskFilePath',maskFilePath, ...
     'averageAcquisitions','1');
 
 % Set the TR
 tr = 0.8;
 
+% If one wishes to analyze a single vertex, this is a good one:
+%{
+    vxs = 51789;
+%}
+
 % Call the analyzePRF wrapper
 results = WrapperAnalyzePRF(stimulus, data, tr, vxs);
 
 % Process and save the results
-AnalzePRFPostprocess(results, templateImage, tempDir, workbenchPath, 'pixelToDegree', pixelToDegree)
+modifiedResults = AnalzePRFPostprocess(...
+    results, templateImage, tempDir, workbenchPath,...
+    'pixelToDegree', pixelToDegree);
+
+% Plot a voxel time series
+[~,idx] = max(modifiedResults.R2);
+figure
+plot(data{1}(idx,:));
+
+% Visualize the location of each voxel's pRF
+figure; hold on;
+set(gcf,'Units','points','Position',[100 100 400 400]);
+cmap = jet(size(length(vxs),1));
+h1 = scatter(modifiedResults.cartX(vxs),modifiedResults.cartY(vxs),modifiedResults.rfsize(vxs)*200,'o');
+f1.MarkerFaceColor = 'red';
+f1.MarkerFaceAlpha = 0.01;
+xlabel('X-position (deg)');
+ylabel('Y-position (deg)');
+
