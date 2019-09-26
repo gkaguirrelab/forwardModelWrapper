@@ -95,18 +95,16 @@ modifiedResults = AnalzePRFPostprocess(...
     results, templateImage, tempDir, workbenchPath,...
     'pixelToDegree', pixelToDegree);
 
-% Plot a voxel time series
-[~,idx] = max(modifiedResults.R2);
-figure
-plot(data{1}(idx,:));
-
 % Visualize the location of each voxel's pRF
 figure; hold on;
 set(gcf,'Units','points','Position',[100 100 400 400]);
 cmap = jet(size(length(vxs),1));
-h1 = scatter(modifiedResults.cartX(vxs),modifiedResults.cartY(vxs),modifiedResults.rfsize(vxs)*200,'o');
-f1.MarkerFaceColor = 'red';
-f1.MarkerFaceAlpha = 0.01;
+scatter(modifiedResults.cartX(vxs),modifiedResults.cartY(vxs),...
+    modifiedResults.rfsize(vxs)*200,...
+    'o','filled', ...
+    'MarkerFaceAlpha',1/8,'MarkerFaceColor','red');
 xlabel('X-position (deg)');
 ylabel('Y-position (deg)');
 
+% Create a plot of the best-fitted voxel
+showModelFit
