@@ -3,14 +3,14 @@
 % This routine downloads a set of ICAFIX data from flywheel and then
 % submits the files to pRF analysis.
 
+projectName = 'pRFCompileWrapper';
 
 % Which subject to process?
 subjectName = 'TOME_3021';
 
 % Define a few variables
 outputFileSuffix = '_hcpicafix.zip';
-wbCommand = getpref('pRFCompileWrapper','wbCommand');
-scratchSaveDir = getpref('pRFCompileWrapper','flywheelScratchDir');
+scratchSaveDir = getpref(projectName,'flywheelScratchDir');
 
 % Create the save dir if it does not exist
 if ~exist(scratchSaveDir,'dir')
@@ -21,7 +21,7 @@ end
 devNull = ' >/dev/null';
 
 % Create a flywheel object
-fw = flywheel.Flywheel(getpref('pRFCompileWrapper','flywheelAPIKey'));
+fw = flywheel.Flywheel(getpref(projectName,'flywheelAPIKey'));
 
 % The ica-fix results for the RETINO data for one subject
 searchStruct = struct(...
@@ -59,55 +59,28 @@ if ~exist(saveName,'file')
     
     % Download the matching file to the rootSaveDir. This can take a while
     fw.downloadOutputFromAnalysis(thisAnalysis.id,thisName,saveName);
-    
-    % Inform the user
-    fprintf('  Unzipping\n');
-    
-    % Unzip the downloaded file; overwright existing; pipe the terminal
-    % output to dev/null
-    command = ['unzip -o -a ' saveName ' -d ' saveName '_unzip' devNull];
-    system(command);
-    
+        
 end
 
-% Find the acquisition directories within the unzipped file directory
-subjectID = thisAnalysis.job.config.config.Subject;
-acquisitionDir = fullfile([saveName '_unzip'],subjectID,'MNINonLinear','Results');
-acquisitionList = dir(acquisitionDir);
+% Assemble variables for the call to AnalyzePRFPreprocess
+workbenchPath = getpref(projectName,'wbCommand');
+inputDataPath = saveName;
+stimFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','pRFStimulus_108x108x420.mat');
+tempDir = scratchSaveDir;
 
-% Remove the dir itself, the enclosing dir, and the ICAFIX concat dir
-acquisitionList = acquisitionList(3:end);
-acquisitionList = acquisitionList(...
-    cellfun(@(x) ~startsWith(x,'ICAFIX'),extractfield(acquisitionList,'name')) ...
-    );
+% Call AnalyzePRFPreprocess
+[stimulus, data, ~, templateImageDims] = ...
+    AnalzePRFPreprocess(workbenchPath, inputDataPath, stimFilePath, tempDir);
 
-% Identify the CIFTI files
-ciftiPathList = {};
-for ii=1:length(acquisitionList)
-    path = fullfile(acquisitionDir,acquisitionList(ii).name);
-    name = dir(fullfile(path,'*_clean.dtseries.nii'));
-    ciftiPathList(ii) = {fullfile(path,name.name)};
-end
+% Create a dummy "vxs" mask with only two voxels to allow for a speedy test
+% of the demo
+vxs = [100 101];
 
-% Identify the NIFTI files
-niftiPathList = {};
-for ii=1:length(acquisitionList)
-    path = fullfile(acquisitionDir,acquisitionList(ii).name);
-    name = dir(fullfile(path,'*_clean.nii.gz'));
-    niftiPathList(ii) = {fullfile(path,name.name)};
-end
-
-% Set the path to the stimulus; assume it is in the same directory as this
-% script
-demoDir = mfilename('fullpath');
-demoDir = demoDir(1:find(demoDir == filesep, 1, 'last'));
-stimFileName = fullfile(demoDir,'pRFStimulus_108x108x420.mat');
-
-% Set the TR to 0.8 seconds
+% Set the TR
 tr = 0.8;
 
-% Call the pRF analysis wrapper
-fprintf('  Calling the pRF routine\n');
-% call wrapper here
+% Call the analyzePRF wrapper
+results = WrapperAnalyzePRF(stimulus, data, tr, vxs);
 
-
+% Process and save the results
+AnalzePRFPostprocess(results, templateImageDims, tempDir, workbenchPath)

@@ -1,11 +1,16 @@
-function [data, stimulus, vxs, templateImage] = AnalzePRFPreprocess(workbench_path, inputDataPath, stimFilePath, tempDir, varargin)
+function [stimulus, data, vxs, templateImageDims] = AnalzePRFPreprocess(workbenchPath, inputDataPath, stimFilePath, tempDir, varargin)
 % This function prepares the data, stimulus and mask inputs for AnalyzePRF
 %
 % Syntax:
-%  [data, stimulus, dataFileType, vxs, templateImage] = AnalzePRFPreprocess(workbench_path, inputDir, stimFileName, tempWorkingDir, dataFileType)
+%  [stimulus, data, vxs, templateImage] = AnalzePRFPreprocess(workbench_path, inputDataPath, stimFilePath, tempDir)
+%
+% Description:
+%   This routine takes the inputs as specified by (e.g.) a Flywheel gear
+%   call and assembles the data and stimulus files for subsequent
+%   processing by the pRF Wrapper stage.
 %
 % Inputs:
-%   workbench_path        - String. path to workbench_command
+%   workbenchPath         - String. path to workbench_command
 %   inputDataPath         - String. Provides the path to a zip archive that
 %                           has been produced by either hcp-icafix or
 %                           hcp-func.
@@ -40,6 +45,12 @@ function [data, stimulus, vxs, templateImage] = AnalzePRFPreprocess(workbench_pa
 %   averageAcquisitions   - String. Logical.
 %
 % Outputs:
+%   stimulus              - Stimulus is a cell vector of R x C x time. 
+%                           If the cell size of input stimulus does not 
+%                           match the cell size of input data, the first 
+%                           cell is duplicated until they match. Be aware 
+%                           of this duplication if your stimulus time
+%                           points are different accross runs.
 %   data                  - If an ICAfix directory is specified, timeseries 
 %                           are extracted from all of the runs in the 
 %                           directory and reconstructed in a 1 x Run cell.
@@ -47,27 +58,23 @@ function [data, stimulus, vxs, templateImage] = AnalzePRFPreprocess(workbench_pa
 %                           voxels x time matrices. If a single file is 
 %                           specified, result is a similar matrix put in a
 %                           1x1 cell.
-%   stimulus              - Stimulus is a cell vector of R x C x time. 
-%                           If the cell size of input stimulus does not 
-%                           match the cell size of input data, the first 
-%                           cell is duplicated until they match. Be aware 
-%                           of this duplication if your stimulus time
-%                           points are different accross runs.
-%   vxs                   - 1 x k vector, where k is the product of the
-%                           sizes of the non-time dimensions of the data
-%                           files.
-%   templateImage         - NEED THIS
+%   vxs                   - Vector. Identifies the indices of the data to
+%                           be analyzed. This is the implementation of a
+%                           mask.
+%   templateImageDims     - Vector. These are the dimensions of the source
+%                           acquisition data.
 %
 % Examples:
 %{
-    [data, stimulus, dataFileType, vxs, templateImage] = AnalzePRFPreprocess(workbench_path, inputDir, stimFileName, tempWorkingDir, 'dataFileType', 'cifti')
+    [stimulus, data, vxs, templateImage] = AnalzePRFPreprocess(workbench_path, inputDataPath, stimFilePath, tempDir);
 %}
+
 
 %% Parse inputs
 p = inputParser; p.KeepUnmatched = false;
 
 % Required
-p.addRequired('workbench_path',@isstr);
+p.addRequired('workbenchPath',@isstr);
 p.addRequired('inputDataPath',@isstr);
 p.addRequired('stimFilePath',@isstr);
 p.addRequired('tempDir',@isstr);
@@ -81,7 +88,7 @@ p.addParameter('dataSourceType', 'icafix', @isstr)
 p.addParameter('averageAcquisitions', '0', @isstr)
 
 % Parse
-p.parse(workbench_path, inputDataPath, stimFilePath, tempDir, varargin{:})
+p.parse(workbenchPath, inputDataPath, stimFilePath, tempDir, varargin{:})
 
 % Set up a logical verbose flag
 verbose = strcmp(p.Results.verbose,'1');
@@ -90,31 +97,36 @@ verbose = strcmp(p.Results.verbose,'1');
 %% Process data
 
 % Ensure that we have been passed a zip file
-if ~endsWith(inputDataPaths,'zip')
+if ~endsWith(inputDataPath,'zip')
     error('AnalyzePRFPreprocess:notAZip','fMRI data should be passed as the path to a zip archive');
 end
 if ~strcmp(p.Results.dataSourceType,'icafix')
     error('AnalyzePRFPreprocess:notICAFIX','We have only implemented processing of ICAFIX archives so far');
 end
 
+% Inform the user
+if verbose
+    fprintf('  Unzipping\n');
+end
+    
 % Uncompress the zip archive
-mkdir(tempDir)
-unzip(inputDataPaths, tempDir)
+% mkdir(tempDir)
+% unzip(inputDataPath, tempDir)
 
 % The ICA-FIX gear saves the output data within the MNINonLinear dir
-dataPaths = dir(strcat(tempDir, '/*/MNINonLinear/Results'));
+acquisitionList = dir(strcat(tempDir, '/*/MNINonLinear/Results'));
 
 % Remove the entries returned by dir that are the dir itself and the
 % enclosing dir
-dataPaths = dataPaths(~ismember({dataPaths.name},{'.','..'}));
+acquisitionList = acquisitionList(~ismember({acquisitionList.name},{'.','..'}));
 
-% ICAFIX has an initial (?) directory that has the average results across
-% runs. We want to remove this here. Right now this seems like a "magic"
-% assumption that may not generally hold.
-dataPaths(1) = [];
+% Remove the ICAFIX concat dir
+acquisitionList = acquisitionList(...
+    cellfun(@(x) ~startsWith(x,'ICAFIX'),extractfield(acquisitionList,'name')) ...
+    );
 
 % Each entry left in dataPaths is a different fMRI acquisition
-nAcquisitions = length(dataPaths);
+nAcquisitions = length(acquisitionList);
 
 % Pre-allocate the data cell array
 data = cell(1,nAcquisitions);
@@ -126,15 +138,15 @@ for ii = 1:nAcquisitions
     % varies for CIFIT and volumetric data
     switch p.Results.dataFileType
         case 'volumetric'
-            rawName = strcat(dataPaths(ii).folder, filesep, dataPaths(ii).name, filesep, dataPaths(ii).name, '_', 'hp2000_clean.nii.gz');
+            rawName = strcat(acquisitionList(ii).folder, filesep, acquisitionList(ii).name, filesep, acquisitionList(ii).name, '_', 'hp2000_clean.nii.gz');
             thisAcqData = MRIread(rawName);
             thisAcqData = thisAcqData.vol;
             thisAcqData = single(thisAcqData);
             thisAcqData = reshape(thisAcqData, [size(thisAcqData',1)*size(thisAcqData',2)*size(thisAcqData',3), size(thisAcqData',4)]);
             thisAcqData(isnan(thisAcqData)) = 0;
         case 'cifti'
-            rawName = strcat(dataPaths(ii).folder, filesep, dataPaths(ii).name,filesep, dataPaths(ii).name, '_', 'Atlas_hp2000_clean.dtseries.nii');
-            thisAcqData = ciftiopen(rawName{ii}, workbench_path);
+            rawName = strcat(acquisitionList(ii).folder, filesep, acquisitionList(ii).name,filesep, acquisitionList(ii).name, '_', 'Atlas_hp2000_clean.dtseries.nii');
+            thisAcqData = ciftiopen(rawName, workbenchPath);
             thisAcqData = thisAcqData.cdata;
         otherwise
             errorString = [p.Results.dataFileType ' is not a recognized dataFileType for this routine. Try, cifti or volumetric'];
@@ -143,6 +155,13 @@ for ii = 1:nAcquisitions
 
     % Store the acquisition data in a cell array
     data{ii} = thisAcqData;
+
+    % Check if this is the first acquisition. If so, retain the dimensions
+    % of the volume/CIFTI acquisition. This will be used by later routines
+    % to place vectorized data back into the original data space
+    if ii == 1
+        templateImageDims = size(thisAcqData);
+    end
     
     % Alert the user
     if verbose
@@ -157,7 +176,7 @@ end
 % stimulus, then it may be desirable to average the fMRI data prior to
 % model fitting. This has the property of increasing the informativeness of
 % the R^2 fitting values, and making the analysis run more quickly.
-if strmcmp(p.Results.averageAcquisitions,'1')
+if strcmp(p.Results.averageAcquisitions,'1')
     
     % Alert the user
     if verbose
@@ -170,14 +189,25 @@ if strmcmp(p.Results.averageAcquisitions,'1')
 end
 
 
-%% Process stimulus 
+%% Process stimulus
+
+% Alert the user
+if verbose
+    fprintf('Preparing the stimulus files\n')
+end
+
+% Load
 load(stimFilePath,'stimulus');
 
-% Sanity check the stimulus input
+% If the stimulus is just a single matrix, package it in a cell. This
+% allows the user to supply a stimulus specification that is the matrix
+% alone, and then have this apply to all acquisitions.
 if ~iscell(stimulus)
-	error('AnalyzePRFPreprocess:stimulusNotACell','The stimulus file must contain a cell array');
+    stimulus = {stimulus};
 end
-if length(stimulus)~=1 || length(stimulus)~=nAcquisitions
+
+% Check the compatability of stimulus and data lengths
+if length(stimulus)~=1 && length(stimulus)~=nAcquisitions
 	error('AnalyzePRFPreprocess:stimulusWrongNumCells','The stimulus file must contain a cell array with one entry, or as many entries as data acquisitions');
 end
 
@@ -218,6 +248,11 @@ end
 %% Process masks if specified
 % The mask file is passed as an optional path to a mask file.
 
+% Alert the user
+if verbose
+    fprintf('Checking for an optional mask file\n')
+end
+
 % If set to 'Na', then the entire data array is analyzed.
 if strcmp(p.Results.maskFile,'Na')
     sizer = size(data{1});
@@ -242,9 +277,4 @@ else
     end
 end
 
-
-%% FIX THIS
-% Return a template image for saving maps later
-templateImage = rawName{1};
-%Delete the temporary work folder
-rmdir(tempDir)
+end % Main Function
