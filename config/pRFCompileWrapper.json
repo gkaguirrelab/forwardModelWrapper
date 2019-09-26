@@ -30,13 +30,13 @@
 		"hook": "",
 		"importance": "",
 		"localHookTemplate": "",
-		"name": "HCPpipelines",
+		"name": "fw_sdk_matlab",
 		"pathPlacement": "append",
-		"subfolder": "global",
+		"subfolder": "",
 		"toolboxRoot": "",
-		"type": "git",
+		"type": "include",
 		"update": "",
-		"url": "https:\/\/github.com\/Washington-University\/HCPpipelines.git"
+		"url": ""
 	},
 	{
 		"flavor": "",
@@ -56,13 +56,13 @@
 		"hook": "",
 		"importance": "",
 		"localHookTemplate": "",
-		"name": "fw_sdk_matlab",
-		"pathPlacement": "append",
-		"subfolder": "",
+		"name": "HCPpipelines",
+		"pathPlacement": "prepend",
+		"subfolder": "global",
 		"toolboxRoot": "",
-		"type": "include",
+		"type": "git",
 		"update": "",
-		"url": ""
+		"url": "https:\/\/github.com\/Washington-University\/HCPpipelines.git"
 	}
 ]
 
