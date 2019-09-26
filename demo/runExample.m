@@ -17,8 +17,11 @@ if ~exist(scratchSaveDir,'dir')
     mkdir(scratchSaveDir);
 end
 
-% This is the dev-null path for Mac OSX
-devNull = ' >/dev/null';
+% Define the pixels / deg
+screenHeightCm = 39.2257;
+screenDistanceCm = 106.5;
+visualAngleDegOnePercent = atand((39.2257/100)/106.5);
+pixelToDegree = 108 / (visualAngleDegOnePercent*100);
 
 % Create a flywheel object
 fw = flywheel.Flywheel(getpref(projectName,'flywheelAPIKey'));
@@ -69,12 +72,9 @@ stimFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','pRFStimulu
 tempDir = scratchSaveDir;
 
 % Call AnalyzePRFPreprocess
-[stimulus, data, ~, templateImage] = ...
-    AnalzePRFPreprocess(workbenchPath, inputDataPath, stimFilePath, tempDir);
-
-% Create a dummy "vxs" mask with only two voxels to allow for a speedy test
-% of the demo
-vxs = [100 101];
+[stimulus, data, vxs, templateImage] = ...
+    AnalzePRFPreprocess(workbenchPath, inputDataPath, stimFilePath, tempDir, ...
+    'averageAcquisitions','1');
 
 % Set the TR
 tr = 0.8;
@@ -83,5 +83,4 @@ tr = 0.8;
 results = WrapperAnalyzePRF(stimulus, data, tr, vxs);
 
 % Process and save the results
-pixelToDegree = '5.18';
 AnalzePRFPostprocess(results, templateImage, tempDir, workbenchPath, 'pixelToDegree', pixelToDegree)
