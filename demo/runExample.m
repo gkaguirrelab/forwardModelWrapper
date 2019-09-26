@@ -69,7 +69,7 @@ stimFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','pRFStimulu
 tempDir = scratchSaveDir;
 
 % Call AnalyzePRFPreprocess
-[stimulus, data, ~, templateImageDims] = ...
+[stimulus, data, ~, templateImage] = ...
     AnalzePRFPreprocess(workbenchPath, inputDataPath, stimFilePath, tempDir);
 
 % Create a dummy "vxs" mask with only two voxels to allow for a speedy test
@@ -83,4 +83,5 @@ tr = 0.8;
 results = WrapperAnalyzePRF(stimulus, data, tr, vxs);
 
 % Process and save the results
-AnalzePRFPostprocess(results, templateImageDims, tempDir, workbenchPath)
+pixelToDegree = '5.18';
+AnalzePRFPostprocess(results, templateImage, tempDir, workbenchPath, 'pixelToDegree', pixelToDegree)

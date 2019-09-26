@@ -1,4 +1,4 @@
-function [stimulus, data, vxs, templateImageDims] = AnalzePRFPreprocess(workbenchPath, inputDataPath, stimFilePath, tempDir, varargin)
+function [stimulus, data, vxs, templateImage] = AnalzePRFPreprocess(workbenchPath, inputDataPath, stimFilePath, tempDir, varargin)
 % This function prepares the data, stimulus and mask inputs for AnalyzePRF
 %
 % Syntax:
@@ -23,7 +23,7 @@ function [stimulus, data, vxs, templateImageDims] = AnalzePRFPreprocess(workbenc
 %                           present in the input data zip file, or length
 %                           1, in which case the cell vector is assumed to
 %                           apply to every acquisition.
-%   tempDir               - String. This file is created for unzipping the 
+%   tempDir               - String. This file is created for unzipping the
 %                           purposes. Deleted automatically when the
 %                           function finishes.
 %
@@ -45,24 +45,24 @@ function [stimulus, data, vxs, templateImageDims] = AnalzePRFPreprocess(workbenc
 %   averageAcquisitions   - String. Logical.
 %
 % Outputs:
-%   stimulus              - Stimulus is a cell vector of R x C x time. 
-%                           If the cell size of input stimulus does not 
-%                           match the cell size of input data, the first 
-%                           cell is duplicated until they match. Be aware 
+%   stimulus              - Stimulus is a cell vector of R x C x time.
+%                           If the cell size of input stimulus does not
+%                           match the cell size of input data, the first
+%                           cell is duplicated until they match. Be aware
 %                           of this duplication if your stimulus time
 %                           points are different accross runs.
-%   data                  - If an ICAfix directory is specified, timeseries 
-%                           are extracted from all of the runs in the 
+%   data                  - If an ICAfix directory is specified, timeseries
+%                           are extracted from all of the runs in the
 %                           directory and reconstructed in a 1 x Run cell.
 %                           Each image data is organized in those cells as
-%                           voxels x time matrices. If a single file is 
+%                           voxels x time matrices. If a single file is
 %                           specified, result is a similar matrix put in a
 %                           1x1 cell.
 %   vxs                   - Vector. Identifies the indices of the data to
 %                           be analyzed. This is the implementation of a
 %                           mask.
-%   templateImageDims     - Vector. These are the dimensions of the source
-%                           acquisition data.
+%   templateImage         - Type dependent upon the nature of the input
+%                           data
 %
 % Examples:
 %{
@@ -105,13 +105,12 @@ if ~strcmp(p.Results.dataSourceType,'icafix')
 end
 
 % Inform the user
-% if verbose
-%     fprintf('  Unzipping\n');
-% end
-    
+if verbose
+    fprintf('  Unzipping\n');
+end
+
 % Uncompress the zip archive
-% mkdir(tempDir)
-% unzip(inputDataPath, tempDir)
+unzip(inputDataPath, tempDir)
 
 % The ICA-FIX gear saves the output data within the MNINonLinear dir
 acquisitionList = dir(strcat(tempDir, '/*/MNINonLinear/Results'));
@@ -133,13 +132,19 @@ data = cell(1,nAcquisitions);
 
 % Loop through the acquisitions
 for ii = 1:nAcquisitions
-
+    
     % The name of the acquisition, the loading, and the initial processing
     % varies for CIFIT and volumetric data
     switch p.Results.dataFileType
         case 'volumetric'
             rawName = strcat(acquisitionList(ii).folder, filesep, acquisitionList(ii).name, filesep, acquisitionList(ii).name, '_', 'hp2000_clean.nii.gz');
             thisAcqData = MRIread(rawName);
+            % Check if this is the first acquisition. If so, retain an
+            % example of the source data to be used as a template to format
+            % the output files.
+            if ii == 1
+                templateImage = thisAcqData;
+            end
             thisAcqData = thisAcqData.vol;
             thisAcqData = single(thisAcqData);
             thisAcqData = reshape(thisAcqData, [size(thisAcqData',1)*size(thisAcqData',2)*size(thisAcqData',3), size(thisAcqData',4)]);
@@ -147,21 +152,22 @@ for ii = 1:nAcquisitions
         case 'cifti'
             rawName = strcat(acquisitionList(ii).folder, filesep, acquisitionList(ii).name,filesep, acquisitionList(ii).name, '_', 'Atlas_hp2000_clean.dtseries.nii');
             thisAcqData = ciftiopen(rawName, workbenchPath);
+            % Check if this is the first acquisition. If so, retain an
+            % example of the source data to be used as a template to format
+            % the output files.
+            if ii == 1
+                templateImage = thisAcqData;
+                % Make the time dimension a singleton
+                templateImage.cdata = templateImage.cdata(:,1);
+            end
             thisAcqData = thisAcqData.cdata;
         otherwise
             errorString = [p.Results.dataFileType ' is not a recognized dataFileType for this routine. Try, cifti or volumetric'];
             error('AnalyzePRFPreprocess:notICAFIX', errorString);
     end
-
+    
     % Store the acquisition data in a cell array
     data{ii} = thisAcqData;
-
-    % Check if this is the first acquisition. If so, retain the dimensions
-    % of the volume/CIFTI acquisition. This will be used by later routines
-    % to place vectorized data back into the original data space
-    if ii == 1
-        templateImageDims = size(thisAcqData);
-    end
     
     % Alert the user
     if verbose
@@ -208,7 +214,7 @@ end
 
 % Check the compatability of stimulus and data lengths
 if length(stimulus)~=1 && length(stimulus)~=nAcquisitions
-	error('AnalyzePRFPreprocess:stimulusWrongNumCells','The stimulus file must contain a cell array with one entry, or as many entries as data acquisitions');
+    error('AnalyzePRFPreprocess:stimulusWrongNumCells','The stimulus file must contain a cell array with one entry, or as many entries as data acquisitions');
 end
 
 % If the stimulus contains a single cell, then replicate this to be the
@@ -236,7 +242,7 @@ for ii = 1:nAcquisitions
             % Let the user know that some trimming went on!
             warnString = ['Stim file for acquisition ' num2str(ii) ' was trimmed at the start by ' num2str() ' TRs'];
             warning('AnalyzePRFPreprocess:stimulusTRTrim', warnString);
-
+            
         else
             errorString = ['Acquisition ' num2str(ii) ' of ' num2str(nAcquisitions) ' has a mismatched number of TRs with its stimulus'];
             error('AnalyzePRFPreprocess:notICAFIX', errorString);

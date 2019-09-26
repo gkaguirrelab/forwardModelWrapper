@@ -1,8 +1,8 @@
-function AnalzePRFPostprocess(results, templateImageDims, outpath, workbenchPath, varargin)
+function AnalzePRFPostprocess(results, templateImage, outpath, workbenchPath, varargin)
 % Produce maps from the analyzePRF results
 %
 % Syntax:
-%  AnalzePRFPostprocess(results, templateImageDims, outpath, workbenchPath)
+%  AnalzePRFPostprocess(results, templateImage, outpath, workbenchPath)
 %
 % Description:
 %   This routine produces maps from the results structure returned by
@@ -11,8 +11,8 @@ function AnalzePRFPostprocess(results, templateImageDims, outpath, workbenchPath
 % Inputs:
 %   results               - Structure. Contains the results produced by
 %                           the analyzePRF routine. 
-%   templateImageDims     - Vector. These are the dimensions of the source
-%                           acquisition data.
+%   templateImage         - Type dependent upon the nature of the input
+%                           data
 %   outpath               - String. Path to the directory in which ouput
 %                           files are to be saved
 %   workbenchPath         - String. path to workbench_command
@@ -32,7 +32,7 @@ p = inputParser; p.KeepUnmatched = true;
 
 % Required
 p.addRequired('results', @isstruct);
-p.addRequired('templateImageDims', @isnumeric);
+p.addRequired('templateImage', @(x)(isobject(x) | isnumeric(x)));
 p.addRequired('outpath', @isstr);
 p.addRequired('workbenchPath', @isstr);
 
@@ -41,7 +41,7 @@ p.addParameter('dataFileType', 'cifti', @isstr)
 p.addParameter('pixelToDegree', 'Na', @isstr)
 
 % Parse
-p.parse(results, templateImageDims, outpath, workbenchPath, varargin{:})
+p.parse(results, templateImage, outpath, workbenchPath, varargin{:})
 
 
 
@@ -50,12 +50,15 @@ p.parse(results, templateImageDims, outpath, workbenchPath, varargin{:})
 % Copy the results variable over to a modified results
 modifiedResults = results;
 
-% Reshape the results to have the dimensions defined by the
-% templateImageDims
+% For volumetric results, we need to reshape the data to have the dimensions defined by the
+% templateImage
 fieldsToAdjust = {'ang','ecc','expt','rfsize','R2','gain'};
-for ii = 1:length(fieldsToAdjust)
-    modifiedResults.(fieldsToAdjust{ii}) = ...
-        reshape(results.(fieldsToAdjust{ii}),[templateImageDims(1:end-1) 1]);
+if strcmp(p.Results.dataFileType','volumetric')
+    sizer = size(templateImage);
+    for ii = 1:length(fieldsToAdjust)
+        modifiedResults.(fieldsToAdjust{ii}) = ...
+            reshape(results.(fieldsToAdjust{ii}),[sizer(1:end-1) 1]);
+    end
 end
 
 % We find that the eccentricity map contains values of exactly zero at
@@ -110,17 +113,22 @@ save(fullfile(outpath,'modified_retinotopy_results.mat'),'modifiedResults')
 % Save retintopy maps
 fieldsToSave = {'ang','ecc','expt','rfsize','R2','gain','cartX','cartY'};
 
+% Create a maps directory
+dirName = fullfile('outPath','maps');
+mkdir(dirName);
+
 for ii = 1:length(fieldsToSave)
     outData = struct();
     switch p.Results.dataFileType
         case 'volumetric'
-            fileName = fullfile(outpath,[fieldsToSave{ii} '_map.nii.gz']);
+            fileName = fullfile(outpath,'maps',[fieldsToSave{ii} '_map.nii.gz']);
             outData.vol = modifiedResults.(fieldsToSave{ii});
             outData.nframes = 1;
             MRIwrite(outData, fileName);
         case 'cifti'
-            fileName = fullfile(outpath,[fieldsToSave{ii} '_map.dtseries.nii']);
-            outData.cdata = modifiedResults.(fieldsToSave{ii});
+            fileName = fullfile(outpath,'maps',[fieldsToSave{ii} '_map.dtseries.nii']);
+            outData = templateImage;
+            outData.cdata = single(modifiedResults.(fieldsToSave{ii}));
             ciftisave(outData, fileName, workbenchPath)
         otherwise
             error('not a recognized dataFileType')
