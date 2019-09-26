@@ -69,11 +69,13 @@ end
 workbenchPath = getpref(projectName,'wbCommand');
 inputDataPath = saveName;
 stimFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','pRFStimulus_108x108x420.mat');
+maskFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','lh.V1mask.dscalar.nii');
 tempDir = scratchSaveDir;
 
 % Call AnalyzePRFPreprocess
 [stimulus, data, vxs, templateImage] = ...
     AnalzePRFPreprocess(workbenchPath, inputDataPath, stimFilePath, tempDir, ...
+    'maskFilePath',maskFilePath, ...
     'averageAcquisitions','1');
 
 % Set the TR
