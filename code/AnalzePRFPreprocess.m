@@ -105,9 +105,9 @@ if ~strcmp(p.Results.dataSourceType,'icafix')
 end
 
 % Inform the user
-if verbose
-    fprintf('  Unzipping\n');
-end
+% if verbose
+%     fprintf('  Unzipping\n');
+% end
     
 % Uncompress the zip archive
 % mkdir(tempDir)

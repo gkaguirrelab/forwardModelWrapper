@@ -102,10 +102,10 @@ modifiedResults.R2(modifiedResults.R2<0) = 0;
 %% Save output
 
 % Save raw retinotopy results
-save(strcat(outpath,'raw_retinotopy_results.mat'),'results')
+save(fullfile(outpath,'raw_retinotopy_results.mat'),'results')
 
 % Save modified retinotopy results
-save(strcat(outpath,'modified_retinotopy_results.mat'),'modifiedResults')
+save(fullfile(outpath,'modified_retinotopy_results.mat'),'modifiedResults')
 
 % Save retintopy maps
 fieldsToSave = {'ang','ecc','expt','rfsize','R2','gain','cartX','cartY'};
