@@ -17,37 +17,44 @@ function pRFCompileWrapperLocalHook
 %% Define project
 projectName = 'pRFCompileWrapper';
  
+
 %% Clear out old preferences
 if (ispref(projectName))
     rmpref(projectName);
 end
- 
-%% Specify project location
+
+
+%% Specify and save project location
 projectBaseDir = tbLocateProject(projectName);
+setpref(toolboxName,'projectBaseDir',projectBaseDir);
 
-% Obtain the Dropbox path
-[~,hostname] = system('hostname');
-hostname = strtrim(lower(hostname));
 
-% handle hosts with custom dropbox locations
-switch hostname
-    case 'seele.psych.upenn.edu'
-        dropboxBaseDir = '/Volumes/seeleExternalDrive/Dropbox (Aguirre-Brainard Lab)';
-    case 'magi-1-melchior.psych.upenn.edu'
-        dropboxBaseDir = '/Volumes/melchiorBayTwo/Dropbox (Aguirre-Brainard Lab)';
-    case 'magi-2-balthasar.psych.upenn.edu'
-        dropboxBaseDir = '/Volumes/balthasarExternalDrive/Dropbox (Aguirre-Brainard Lab)';
-    otherwise
-        [~, userName] = system('whoami');
-        userName = strtrim(userName);
-        dropboxBaseDir = ...
-            fullfile('/Users', userName, ...
-            'Dropbox (Aguirre-Brainard Lab)');
+%% Set flywheel API key as a preference
+flywheelAPIKey='Copy this value from flywheel and paste here';
+setpref(toolboxName,'flywheelAPIKey',flywheelAPIKey);
+
+
+%% Set the workbench command path
+if ismac
+setpref(toolboxName,'wbCommand','/Applications/workbench/bin_macosx64/wb_command');
 end
 
 
-%% Set preferences for project output
-setpref(projectName,'dropboxBaseDir',dropboxBaseDir); % main directory path 
-setpref(projectName,'projectBaseDir',projectBaseDir); % main directory path 
+%% Paths to store flywheel data and scratch space
+if ismac
+    % Code to run on Mac plaform
+    setpref(toolboxName,'flywheelScratchDir','/tmp/flywheel');
+    setpref(toolboxName,'flywheelRootDir',fullfile('/Users/',userID,'/Documents/flywheel'));
+elseif isunix
+    % Code to run on Linux plaform
+    setpref(toolboxName,'flywheelScratchDir','/tmp/flywheel');
+    setpref(toolboxName,'flywheelRootDir',fullfile('/home/',userID,'/Documents/flywheel'));
+elseif ispc
+    % Code to run on Windows platform
+    warning('No supported for PC')
+else
+    disp('What are you using?')
+end
+
 
 end
