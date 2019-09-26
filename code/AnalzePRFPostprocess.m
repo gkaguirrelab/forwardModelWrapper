@@ -1,8 +1,8 @@
-function AnalzePRFPostprocess(results, templateImage, outpath, workbenchPath, varargin)
+function modifiedResults = AnalzePRFPostprocess(results, templateImage, outPath, workbenchPath, varargin)
 % Produce maps from the analyzePRF results
 %
 % Syntax:
-%  AnalzePRFPostprocess(results, templateImage, outpath, workbenchPath)
+%  modifiedResults = AnalzePRFPostprocess(results, templateImage, outPath, workbenchPath)
 %
 % Description:
 %   This routine produces maps from the results structure returned by
@@ -13,7 +13,7 @@ function AnalzePRFPostprocess(results, templateImage, outpath, workbenchPath, va
 %                           the analyzePRF routine. 
 %   templateImage         - Type dependent upon the nature of the input
 %                           data
-%   outpath               - String. Path to the directory in which ouput
+%   outPath               - String. Path to the directory in which ouput
 %                           files are to be saved
 %   workbenchPath         - String. path to workbench_command
 %
@@ -23,7 +23,8 @@ function AnalzePRFPostprocess(results, templateImage, outpath, workbenchPath, va
 %   pixelToDegree         - String. Fill this in
 %
 % Outputs:
-%   None. Saves files.
+%   modifiedResults       - Structure. Contains the results after post-
+%                           processing.
 %
 
 
@@ -33,7 +34,7 @@ p = inputParser; p.KeepUnmatched = true;
 % Required
 p.addRequired('results', @isstruct);
 p.addRequired('templateImage', @(x)(isobject(x) | isnumeric(x)));
-p.addRequired('outpath', @isstr);
+p.addRequired('outPath', @isstr);
 p.addRequired('workbenchPath', @isstr);
 
 % Optional
@@ -41,7 +42,7 @@ p.addParameter('dataFileType', 'cifti', @isstr)
 p.addParameter('pixelToDegree', 'Na', @isstr)
 
 % Parse
-p.parse(results, templateImage, outpath, workbenchPath, varargin{:})
+p.parse(results, templateImage, outPath, workbenchPath, varargin{:})
 
 
 
@@ -105,28 +106,28 @@ modifiedResults.R2(modifiedResults.R2<0) = 0;
 %% Save output
 
 % Save raw retinotopy results
-save(fullfile(outpath,'raw_retinotopy_results.mat'),'results')
+save(fullfile(outPath,'raw_retinotopy_results.mat'),'results')
 
 % Save modified retinotopy results
-save(fullfile(outpath,'modified_retinotopy_results.mat'),'modifiedResults')
+save(fullfile(outPath,'modified_retinotopy_results.mat'),'modifiedResults')
 
 % Save retintopy maps
 fieldsToSave = {'ang','ecc','expt','rfsize','R2','gain','cartX','cartY'};
 
 % Create a maps directory
-dirName = fullfile('outPath','maps');
+dirName = fullfile(outPath,'maps');
 mkdir(dirName);
 
 for ii = 1:length(fieldsToSave)
     outData = struct();
     switch p.Results.dataFileType
         case 'volumetric'
-            fileName = fullfile(outpath,'maps',[fieldsToSave{ii} '_map.nii.gz']);
+            fileName = fullfile(outPath,'maps',[fieldsToSave{ii} '_map.nii.gz']);
             outData.vol = modifiedResults.(fieldsToSave{ii});
             outData.nframes = 1;
             MRIwrite(outData, fileName);
         case 'cifti'
-            fileName = fullfile(outpath,'maps',[fieldsToSave{ii} '_map.dtseries.nii']);
+            fileName = fullfile(outPath,'maps',[fieldsToSave{ii} '_map.dtseries.nii']);
             outData = templateImage;
             outData.cdata = single(modifiedResults.(fieldsToSave{ii}));
             ciftisave(outData, fileName, workbenchPath)
