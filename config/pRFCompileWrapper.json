@@ -50,6 +50,19 @@
 		"type": "git",
 		"update": "",
 		"url": "https:\/\/github.com\/freesurfer\/freesurfer"
+	},
+	{
+		"flavor": "",
+		"hook": "",
+		"importance": "",
+		"localHookTemplate": "",
+		"name": "flywheelMRSupport",
+		"pathPlacement": "append",
+		"subfolder": "",
+		"toolboxRoot": "",
+		"type": "include",
+		"update": "",
+		"url": ""
 	}
 ]
 
