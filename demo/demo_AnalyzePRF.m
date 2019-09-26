@@ -1,6 +1,6 @@
-% DEMO pRF analysis
+% DEMO_AnalyzePRF
 %
-% This routine downloads a set of ICAFIX data from flywheel and then
+% This routine downloads ICAFIX and hcp-struct data from flywheel and then
 % submits the files to pRF analysis.
 
 projectName = 'pRFCompileWrapper';
@@ -82,11 +82,6 @@ tempDir = scratchSaveDir;
 % Set the TR
 tr = 0.8;
 
-% If one wishes to analyze a single vertex, this is a good one:
-%{
-    vxs = 51789;
-%}
-
 % Call the analyzePRF wrapper
 results = WrapperAnalyzePRF(stimulus, data, tr, vxs);
 
@@ -94,17 +89,3 @@ results = WrapperAnalyzePRF(stimulus, data, tr, vxs);
 modifiedResults = AnalzePRFPostprocess(...
     results, templateImage, tempDir, workbenchPath,...
     'pixelToDegree', pixelToDegree);
-
-% Visualize the location of each voxel's pRF
-figure; hold on;
-set(gcf,'Units','points','Position',[100 100 400 400]);
-cmap = jet(size(length(vxs),1));
-scatter(modifiedResults.cartX(vxs),modifiedResults.cartY(vxs),...
-    modifiedResults.rfsize(vxs)*200,...
-    'o','filled', ...
-    'MarkerFaceAlpha',1/8,'MarkerFaceColor','red');
-xlabel('X-position (deg)');
-ylabel('Y-position (deg)');
-
-% Create a plot of the best-fitted voxel
-showModelFit

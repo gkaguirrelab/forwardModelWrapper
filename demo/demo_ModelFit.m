@@ -1,4 +1,5 @@
-
+%% demo_ModelFit
+% Run this after demo_AnalyzePRF to visualize some of the results
 
 % Define some variables
 res = [108 108];                    % row x column resolution of the stimuli
@@ -47,7 +48,7 @@ for p=1:length(data)
   modelts{p} = polymatrix{p}*modelfun(results.params(1,:,vx),stimulusPP{p});
 end
 
-% Visualize the results
+% Visualize the model fit
 figure; hold on;
 set(gcf,'Units','points','Position',[100 100 1000 100]);
 plot(cat(1,datats{:}),'r-');
@@ -57,3 +58,14 @@ ylabel('BOLD signal');
 ax = axis;
 axis([.5 size(datats{1},1)+.5 ax(3:4)]);
 title(['Time-series data, CIFTI vertex ' num2str(vxs(vx))]);
+
+% Visualize the location of each voxel's pRF
+figure; hold on;
+set(gcf,'Units','points','Position',[100 100 400 400]);
+cmap = jet(size(length(vxs),1));
+scatter(modifiedResults.cartX(vxs),modifiedResults.cartY(vxs),...
+    modifiedResults.rfsize(vxs)*200,...
+    'o','filled', ...
+    'MarkerFaceAlpha',1/8,'MarkerFaceColor','red');
+xlabel('X-position (deg)');
+ylabel('Y-position (deg)');
