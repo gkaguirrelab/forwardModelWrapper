@@ -29,7 +29,7 @@ function [stimulus, data, vxs, templateImage] = AnalzePRFPreprocess(workbenchPat
 %
 % Optional key/value pairs:
 %   verbose               - String. Defaults to true
-%   maskFile              - NEED THIS ENTRY
+%   maskFilePath          - String. Path to a mask file for the data.
 %   trimDummyStimTRs      - String. Defaults to 0. On occasion "dummy" TRs
 %                           at the beginning of a scan are trimmed off by
 %                           the pre-processing routine. This causes the
@@ -81,7 +81,7 @@ p.addRequired('tempDir',@isstr);
 
 % Optional
 p.addParameter('verbose', '1', @isstr)
-p.addParameter('maskFile', 'Na', @isstr)
+p.addParameter('maskFilePath', 'Na', @isstr)
 p.addParameter('trimDummyStimTRs', '0', @isstr)
 p.addParameter('dataFileType', 'cifti', @isstr)
 p.addParameter('dataSourceType', 'icafix', @isstr)
@@ -272,20 +272,20 @@ if verbose
 end
 
 % If set to 'Na', then the entire data array is analyzed.
-if strcmp(p.Results.maskFile,'Na')
+if strcmp(p.Results.maskFilePath,'Na')
     sizer = size(data{1});
     vxs = 1:prod(sizer(1:end-1));
 else
     switch p.Results.dataFileType
         case 'volumetric'
-            mask = MRIread(p.Results.maskFileName);
+            mask = MRIread(p.Results.maskFilePath);
             mask = mask.vol;
             mask = single(mask);
             mask = reshape(mask, [size(mask,1)*size(mask,2)*size(mask,3),1]);
             vxs = find(mask)';
             vxs = single(vxs);
         case 'cifti'
-            rawMask = ciftiopen(p.Results.maskFileName, workbenc_path);
+            rawMask = ciftiopen(p.Results.maskFilePath, workbenchPath);
             mask = rawMask.cdata;
             vxs = find(mask)';
             vxs = single(vxs);
