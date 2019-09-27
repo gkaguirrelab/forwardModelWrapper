@@ -1,5 +1,5 @@
-%% demo_ModelFit
-% Run this after demo_AnalyzePRF to visualize some of the results
+%% modelPlotPRF
+% Visualize some results
 
 % Define some variables
 res = [108 108];                    % row x column resolution of the stimuli
