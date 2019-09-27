@@ -9,6 +9,11 @@
 clear
 
 
+% Set this to true to quickly process a single voxel (seconds), vs.
+% analyzing the entire V1 region (minutes)
+doOneVoxel = true;
+
+
 %% Variable declaration
 projectName = 'pRFCompileWrapper';
 scratchSaveDir = getpref(projectName,'flywheelScratchDir');
@@ -138,8 +143,15 @@ averageAcquisitions = '1';
 workbenchPath = getpref(projectName,'wbCommand');
 outDir = scratchSaveDir;
 
-% If you wish to analyze only one voxel, then uncomment this line
-vxsPass = 51789;
+% Setup processing one or all voxels
+if doOneVoxel
+    % Process one voxel that has a great fit
+    vxsPass = 51789;
+else
+    % We process all voxels, but indicate to plotPRF that we want to show
+    % this one voxel that has a great fit
+    vx = 34;
+end
 
 
 %% Call the main routine

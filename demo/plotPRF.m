@@ -35,8 +35,11 @@ end
 
 %% Inspect the data and the model fit
 
-% Which voxel of the vxs should we inspect? 
-vx = 34;
+% Which voxel of the vxs should we inspect? If not defined, pick one at
+% random
+if ~exist('vx','var')
+    vx = randsample(1:length(vxs),1);
+end
 
 % For each run, collect the data and the model fit.  We project out polynomials
 % from both the data and the model fit.  This deals with the problem of
