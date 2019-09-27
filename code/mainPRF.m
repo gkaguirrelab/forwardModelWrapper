@@ -124,7 +124,7 @@ hcpStructPath = fullfile(fileList.folder,fileList.name);
 % Assemble variables for python external call
 ciftiMapsPath = fullfile(p.Results.outPath,'maps');
 
-command =  ['python3 ' p.Results.externalMGZMakerPath ' ' ciftiMapsPath '' hcpStructPath ' ' p.Results.RegName ' ' fullfile(p.Results.outPath,'nativeMaps')];
+command =  ['python3 ' p.Results.externalMGZMakerPath ' ' ciftiMapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' fullfile(p.Results.outPath,'nativeMaps')];
 %system(command);
 fprintf([command,'/n']);
 
