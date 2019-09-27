@@ -1,8 +1,8 @@
-function results = WrapperAnalyzePRF(stimulus, data, tr, vxs, varargin)
+function results = wrapperPRF(stimulus, data, vxs, varargin)
 % Wrapper to manage inputs to Kendrick Kay's analyze pRF code
 %
 % Syntax:
-%  results = WrapperAnalyzePRF(stimulus, data, tr, vxs)
+%  results = wrapperPRF(stimulus, data, vxs)
 %
 % Description:
 %   Wrapper around the analyzePRF function written by Kendrick Kay. The
@@ -23,12 +23,12 @@ function results = WrapperAnalyzePRF(stimulus, data, tr, vxs, varargin)
 %                           voxels x time matrices. If a single file is
 %                           specified, result is a similar matrix put in a
 %                           1x1 cell.
-%   tr                    - Scalar. The TR in seconds (e.g. 1.5)
 %   vxs                   - Vector. Identifies the indices of the data to
 %                           be analyzed. This is the implementation of a
 %                           mask.
 %
 % Optional key/value pairs (text taken from analyzePRF):
+%   tr                    - String. The TR in seconds (e.g. 1.5)
 %  'wantglmdenoise'       - String. (optional) is whether to use GLMdenoise
 %                           to determine nuisance regressors to add into
 %                           the PRF model.  note that in order to use this
@@ -38,7 +38,7 @@ function results = WrapperAnalyzePRF(stimulus, data, tr, vxs, varargin)
 %                           matrix based on the contents of <stimulus>.
 %                           Special case is to pass in the noise regressors
 %                           directly (e.g. from a previous call).default: 0
-%  'hrf'                  - String. (optional) is a column vector with the
+%  'hrf'                  - Numeric. (optional) A column vector with the
 %                           hemodynamic response function (HRF) to use in
 %                           the model. The first value of <hrf> should be
 %                           coincident with the onset of the stimulus, and
@@ -90,12 +90,12 @@ p = inputParser; p.KeepUnmatched = true;
 % Required
 p.addRequired('stimulus', @iscell);
 p.addRequired('data', @iscell);
-p.addRequired('tr', @isnumeric);
 p.addRequired('vxs', @isnumeric);
 
 % Optional parameters
+p.addParameter('tr',[],@isstr);
+p.addParameter('hrf',[],@isnumeric);
 p.addParameter('wantglmdenoise','0',@isstr);
-p.addParameter('hrf','Na',@isstr);
 p.addParameter('maxpolydeg','Na',@isstr);
 p.addParameter('seedmode','[0 1 2]',@isstr);
 p.addParameter('xvalmode','0',@isstr);
@@ -105,13 +105,13 @@ p.addParameter('display','off',@isstr);
 p.addParameter('typicalgain','10',@isstr);
 
 % parse
-p.parse(stimulus, data, tr, vxs, varargin{:})
+p.parse(stimulus, data, vxs, varargin{:})
 
 
 % We handle all key-value pairs as char vectors as this will be the form of
 % input from the external call to the compiled code. We convert the strings
 % here to numeric values as needed.
-numericTypes = {'wantglmdenoise','hrf','maxpolydeg','seedmode','xvalmode','numperjob','maxiter','typicalgain'};
+numericTypes = {'tr','wantglmdenoise','maxpolydeg','seedmode','xvalmode','numperjob','maxiter','typicalgain'};
 for ii = 1:length(numericTypes)
     keyVal = p.Results.(numericTypes{ii});
     if strcmp(keyVal,'Na')
@@ -122,7 +122,7 @@ for ii = 1:length(numericTypes)
 end
 
 % analyzePRF is called with an struct variable that contains the options
-analysisStructure = struct('vxs',vxs,'wantglmdenoise',wantglmdenoise,'hrf',hrf, ...
+analysisStructure = struct('vxs',vxs,'wantglmdenoise',wantglmdenoise,'hrf',p.Results.hrf, ...
     'maxpolydeg',maxpolydeg,'seedmode',seedmode,'xvalmode',xvalmode, ...
     'numperjob',numperjob,'maxiter',maxiter,'display',p.Results.display, ...
     'typicalgain',typicalgain);

@@ -1,8 +1,8 @@
-function modifiedResults = AnalzePRFPostprocess(results, templateImage, outPath, workbenchPath, varargin)
+function modifiedResults = postprocessPRF(results, templateImage, outPath, workbenchPath, varargin)
 % Produce maps from the analyzePRF results
 %
 % Syntax:
-%  modifiedResults = AnalzePRFPostprocess(results, templateImage, outPath, workbenchPath)
+%  modifiedResults = postprocessPRF(results, templateImage, outPath, workbenchPath)
 %
 % Description:
 %   This routine produces maps from the results structure returned by
@@ -20,7 +20,7 @@ function modifiedResults = AnalzePRFPostprocess(results, templateImage, outPath,
 % Optional key/value pairs:
 %   dataFileType          - String. Select whether the data is volumetric
 %                           or surface (CIFTI). Options: volumetric/cifti
-%   pixelToDegree         - String. Fill this in
+%   pixelsPerDegree       - String. Fill this in
 %
 % Outputs:
 %   modifiedResults       - Structure. Contains the results after post-
@@ -39,7 +39,7 @@ p.addRequired('workbenchPath', @isstr);
 
 % Optional
 p.addParameter('dataFileType', 'cifti', @isstr)
-p.addParameter('pixelToDegree', 'Na', @isstr)
+p.addParameter('pixelsPerDegree', 'Na', @isstr)
 
 % Parse
 p.parse(results, templateImage, outPath, workbenchPath, varargin{:})
@@ -70,17 +70,17 @@ for ii = 1:length(fieldsToAdjust)
     modifiedResults.(fieldsToAdjust{ii})(zeroIdx) = nan;
 end
 
-% If supplied, use the pixelToDegree value to convert the result data to
+% If supplied, use the pixelsPerDegree value to convert the result data to
 % units of visual angle in degrees
-if ~strcmp(p.Results.pixelToDegree,'Na')
-    modifiedResults.ecc = modifiedResults.ecc ./ str2double(p.Results.pixelToDegree);
-    modifiedResults.rfsize = modifiedResults.rfsize ./ str2double(p.Results.pixelToDegree);
+if ~strcmp(p.Results.pixelsPerDegree,'Na')
+    modifiedResults.ecc = modifiedResults.ecc ./ str2double(p.Results.pixelsPerDegree);
+    modifiedResults.rfsize = modifiedResults.rfsize ./ str2double(p.Results.pixelsPerDegree);
 end
 
 % We sometimes find unnaturally large eccentricity values (>90 degrees of
 % visual angle). We presume that these are the result of model fitting
 % failures. Remove these.
-if strcmp(p.Results.pixelToDegree,'Na')
+if strcmp(p.Results.pixelsPerDegree,'Na')
     bigAngleIdx = modifiedResults.ecc > 90;
 else
     bigAngleIdx = [];

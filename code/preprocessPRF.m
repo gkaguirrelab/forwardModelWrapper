@@ -1,8 +1,8 @@
-function [stimulus, data, vxs, templateImage] = AnalzePRFPreprocess(workbenchPath, inputDataPath, stimFilePath, tempDir, varargin)
+function [stimulus, data, vxs, templateImage] = preprocessPRF(workbenchPath, funcZipPath, stimFilePath, tempDir, varargin)
 % This function prepares the data, stimulus and mask inputs for AnalyzePRF
 %
 % Syntax:
-%  [stimulus, data, vxs, templateImage] = AnalzePRFPreprocess(workbench_path, inputDataPath, stimFilePath, tempDir)
+%  [stimulus, data, vxs, templateImage] = preprocessPRF(workbench_path, funcZipPath, stimFilePath, tempDir)
 %
 % Description:
 %   This routine takes the inputs as specified by (e.g.) a Flywheel gear
@@ -11,7 +11,7 @@ function [stimulus, data, vxs, templateImage] = AnalzePRFPreprocess(workbenchPat
 %
 % Inputs:
 %   workbenchPath         - String. path to workbench_command
-%   inputDataPath         - String. Provides the path to a zip archive that
+%   funcZipPath           - String. Provides the path to a zip archive that
 %                           has been produced by either hcp-icafix or
 %                           hcp-func.
 %   stimFilePath          - String. Full path to a .mat file that contains
@@ -66,7 +66,7 @@ function [stimulus, data, vxs, templateImage] = AnalzePRFPreprocess(workbenchPat
 %
 % Examples:
 %{
-    [stimulus, data, vxs, templateImage] = AnalzePRFPreprocess(workbench_path, inputDataPath, stimFilePath, tempDir);
+    [stimulus, data, vxs, templateImage] = AnalzePRFPreprocess(workbench_path, funcZipPath, stimFilePath, tempDir);
 %}
 
 
@@ -75,7 +75,7 @@ p = inputParser; p.KeepUnmatched = false;
 
 % Required
 p.addRequired('workbenchPath',@isstr);
-p.addRequired('inputDataPath',@isstr);
+p.addRequired('funcZipPath',@isstr);
 p.addRequired('stimFilePath',@isstr);
 p.addRequired('tempDir',@isstr);
 
@@ -88,7 +88,7 @@ p.addParameter('dataSourceType', 'icafix', @isstr)
 p.addParameter('averageAcquisitions', '0', @isstr)
 
 % Parse
-p.parse(workbenchPath, inputDataPath, stimFilePath, tempDir, varargin{:})
+p.parse(workbenchPath, funcZipPath, stimFilePath, tempDir, varargin{:})
 
 % Set up a logical verbose flag
 verbose = strcmp(p.Results.verbose,'1');
@@ -97,7 +97,7 @@ verbose = strcmp(p.Results.verbose,'1');
 %% Process data
 
 % Ensure that we have been passed a zip file
-if ~endsWith(inputDataPath,'zip')
+if ~endsWith(funcZipPath,'zip')
     error('AnalyzePRFPreprocess:notAZip','fMRI data should be passed as the path to a zip archive');
 end
 if ~strcmp(p.Results.dataSourceType,'icafix')
@@ -110,21 +110,26 @@ if verbose
 end
 
 % Uncompress the zip archive
-%unzip(inputDataPath, tempDir)
+unzip(funcZipPath, tempDir)
 
 % The ICA-FIX gear saves the output data within the MNINonLinear dir
 acquisitionList = dir(strcat(tempDir, '/*/MNINonLinear/Results'));
 
-% Remove the entries returned by dir that are the dir itself and the
-% enclosing dir
+% Remove the entries returned by dir that are 
 acquisitionList = acquisitionList(~ismember({acquisitionList.name},{'.','..'}));
+
+% Remove any entries that have a dot prefix, including the dir itself and the
+% enclosing dir
+acquisitionList = acquisitionList(...
+    cellfun(@(x) ~startsWith(x,'.'),extractfield(acquisitionList,'name')) ...
+    );
 
 % Remove the ICAFIX concat dir
 acquisitionList = acquisitionList(...
     cellfun(@(x) ~startsWith(x,'ICAFIX'),extractfield(acquisitionList,'name')) ...
     );
 
-% Each entry left in dataPaths is a different fMRI acquisition
+% Each entry left in funcZipPaths is a different fMRI acquisition
 nAcquisitions = length(acquisitionList);
 
 % Pre-allocate the data cell array
