@@ -121,7 +121,6 @@ fileList = fileList(...
 fileList = fileList(cell2mat(extractfield(fileList,'isdir')));
 hcpStructPath = fullfile(fileList.folder,fileList.name);
 
-
 % Assemble variables for python external call
 ciftiMapsPath = fullfile(p.Results.outPath,'maps');
 
