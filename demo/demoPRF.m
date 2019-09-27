@@ -132,7 +132,7 @@ averageAcquisitions = '1';
 
 % Internal paths
 workbenchPath = getpref(projectName,'wbCommand');
-tempDir = scratchSaveDir;
+outDir = scratchSaveDir;
 
 
 %% Call the main routine

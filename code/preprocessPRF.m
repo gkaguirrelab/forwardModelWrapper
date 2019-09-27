@@ -1,8 +1,8 @@
-function [stimulus, data, vxs, templateImage] = preprocessPRF(workbenchPath, funcZipPath, stimFilePath, tempDir, varargin)
+function [stimulus, data, vxs, templateImage] = preprocessPRF(workbenchPath, funcZipPath, stimFilePath, varargin)
 % This function prepares the data, stimulus and mask inputs for AnalyzePRF
 %
 % Syntax:
-%  [stimulus, data, vxs, templateImage] = preprocessPRF(workbench_path, funcZipPath, stimFilePath, tempDir)
+%  [stimulus, data, vxs, templateImage] = preprocessPRF(workbench_path, funcZipPath, stimFilePath)
 %
 % Description:
 %   This routine takes the inputs as specified by (e.g.) a Flywheel gear
@@ -23,9 +23,6 @@ function [stimulus, data, vxs, templateImage] = preprocessPRF(workbenchPath, fun
 %                           present in the input data zip file, or length
 %                           1, in which case the cell vector is assumed to
 %                           apply to every acquisition.
-%   tempDir               - String. This file is created for unzipping the
-%                           purposes. Deleted automatically when the
-%                           function finishes.
 %
 % Optional key/value pairs:
 %   verbose               - String. Defaults to true
@@ -77,7 +74,6 @@ p = inputParser; p.KeepUnmatched = false;
 p.addRequired('workbenchPath',@isstr);
 p.addRequired('funcZipPath',@isstr);
 p.addRequired('stimFilePath',@isstr);
-p.addRequired('tempDir',@isstr);
 
 % Optional
 p.addParameter('verbose', '1', @isstr)
@@ -88,7 +84,7 @@ p.addParameter('dataSourceType', 'icafix', @isstr)
 p.addParameter('averageAcquisitions', '0', @isstr)
 
 % Parse
-p.parse(workbenchPath, funcZipPath, stimFilePath, tempDir, varargin{:})
+p.parse(workbenchPath, funcZipPath, stimFilePath, varargin{:})
 
 % Set up a logical verbose flag
 verbose = strcmp(p.Results.verbose,'1');
@@ -109,11 +105,11 @@ if verbose
     fprintf('  Unzipping\n');
 end
 
-% Uncompress the zip archive
-unzip(funcZipPath, tempDir)
+% Uncompress the zip archive into the dir that holds the zip
+unzip(funcZipPath,fileparts(funcZipPath));
 
 % The ICA-FIX gear saves the output data within the MNINonLinear dir
-acquisitionList = dir(strcat(tempDir, '/*/MNINonLinear/Results'));
+acquisitionList = dir(strcat(fileparts(funcZipPath), '/*/MNINonLinear/Results'));
 
 % Remove the entries returned by dir that are 
 acquisitionList = acquisitionList(~ismember({acquisitionList.name},{'.','..'}));
