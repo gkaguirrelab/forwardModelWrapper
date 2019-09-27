@@ -90,7 +90,7 @@ p.parse(workbenchPath, funcZipPath, stimFilePath, varargin{:})
 verbose = strcmp(p.Results.verbose,'1');
 
 
-%% Process data
+%% Check inputs
 
 % Ensure that we have been passed a zip file
 if ~endsWith(funcZipPath,'zip')
@@ -100,13 +100,22 @@ if ~strcmp(p.Results.dataSourceType,'icafix')
     error('AnalyzePRFPreprocess:notICAFIX','We have only implemented processing of ICAFIX archives so far');
 end
 
+
+%% Unzip the functional data
+
 % Inform the user
 if verbose
     fprintf('  Unzipping\n');
 end
 
-% Uncompress the zip archive into the dir that holds the zip
-unzip(funcZipPath,fileparts(funcZipPath));
+% Uncompress the zip archive into the dir that holds the zip. We do this
+% with a system call so that we can prevent over-writing a prior unzipped
+% version of the data (which can happen in demo mode).
+command = ['unzip -n ' funcZipPath ' -d ' fileparts(funcZipPath)];
+system(command);
+
+
+%% Find the files
 
 % The ICA-FIX gear saves the output data within the MNINonLinear dir
 acquisitionList = dir(strcat(fileparts(funcZipPath), '/*/MNINonLinear/Results'));
