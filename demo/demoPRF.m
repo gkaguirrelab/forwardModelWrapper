@@ -15,7 +15,7 @@ subjectName = 'TOME_3021';
 outputFileSuffix = '_hcpicafix.zip';
 
 % Create the functional tmp save dir if it does not exist
-saveDir = fullfile(scratchSaveDir,'v0','input','funcZipPath');
+saveDir = fullfile(scratchSaveDir,'v0','input','funcZip');
 if ~exist(saveDir,'dir')
     mkdir(saveDir);
 end
@@ -69,7 +69,7 @@ funcZipPath = saveName;
 outputFileSuffix = '_hcpstruct.zip';
 
 % Create the save dir if it does not exist
-saveDir = fullfile(scratchSaveDir,'v0','input','structZipPath');
+saveDir = fullfile(scratchSaveDir,'v0','input','structZip');
 if ~exist(saveDir,'dir')
     mkdir(saveDir);
 end

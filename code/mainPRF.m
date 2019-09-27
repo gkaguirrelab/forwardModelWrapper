@@ -9,13 +9,16 @@
 
 %% Required inputs
 if ~exist('funcZipPath','var')
-    foo = 1;
+	dirTmp = dir('/flywheel/v0/input/funcZip/*.zip');
+    funcZipPath = fullfile(dir.folder,dir.name);
 end
 if ~exist('stimFilePath','var')
-    foo = 1;
+	dirTmp = dir('/flywheel/v0/input/funcFile/*.m');
+    stimFilePath = fullfile(dir.folder,dir.name);
 end
 if ~exist('structZipPath','var')
-    foo = 1;
+	dirTmp = dir('/flywheel/v0/input/structZip/*.zip');
+    structZipPath = fullfile(dir.folder,dir.name);
 end
 
 
