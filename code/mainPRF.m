@@ -85,6 +85,12 @@ end
     'maskFilePath',maskFilePath, ...
     'averageAcquisitions',averageAcquisitions);
 
+% If vxsPass has been defined (perhaps by the demo routine), substitute
+% this value for vxs
+if exist('vxsPass','var')
+    vxs = vxsPass;
+end
+
 % Call the analyzePRF wrapper
 results = wrapperPRF(stimulus, data, vxs, ...
     'tr',tr,...

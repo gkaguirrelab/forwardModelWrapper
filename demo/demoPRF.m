@@ -3,7 +3,11 @@
 % This routine downloads ICAFIX and hcp-struct data from flywheel and then
 % submits the files for analysis
 
+
+% Clear out variables from the workspace, as we will be passing these
+% within the workspace to mainPRF
 clear
+
 
 %% Variable declaration
 projectName = 'pRFCompileWrapper';
@@ -134,10 +138,13 @@ averageAcquisitions = '1';
 workbenchPath = getpref(projectName,'wbCommand');
 outDir = scratchSaveDir;
 
+% If you wish to analyze only one voxel, then uncomment this line
+vxsPass = 51789;
+
 
 %% Call the main routine
 mainPRF
 
 
-%% Do some plotting
+%% Plot
 plotPRF
