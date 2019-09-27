@@ -1,3 +1,6 @@
+function plotPRF(results,modifiedResults,data,stimulus,vxs)
+
+
 %% modelPlotPRF
 % Visualize some results
 
@@ -72,3 +75,5 @@ scatter(modifiedResults.cartX(vxs),modifiedResults.cartY(vxs),...
     'MarkerFaceAlpha',1/8,'MarkerFaceColor','red');
 xlabel('X-position (deg)');
 ylabel('Y-position (deg)');
+
+end

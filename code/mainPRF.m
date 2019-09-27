@@ -1,114 +1,134 @@
-% This script assembles filepaths and hands off processing to various
-% functions
+function mainPRF(funcZipPath, stimFilePath, structZipPath, varargin)
+% When compiled, is called by the python run function in the gear
+%
+% Syntax:
+%  mainPRF
+%
+% Description
 
 
-% This routine may be called de-novo, or in the setting of an example
-% script that has pre-defined some of the variables that are set below. We
-% only define those variables that do not yet exist
+
+%% Parse inputs
+p = inputParser; p.KeepUnmatched = false;
+
+% Required
+p.addRequired('funcZipPath',@isstr);
+p.addRequired('stimFilePath',@isstr);
+p.addRequired('structZipPath',@isstr);
+
+% Optional inputs
+p.addParameter('maskFilePath', 'Na', @isstr)
+p.addParameter('hrfFilePath', 'Na', @isstr)
+
+% Config options - multiple
+p.addParameter('verbose', '1', @isstr)
+p.addParameter('dataFileType', 'cifti', @isstr)
+
+% Config options - pre-process
+p.addParameter('dataSourceType', 'icafix', @isstr)
+p.addParameter('trimDummyStimTRs', '0', @isstr)
+p.addParameter('averageAcquisitions', '0', @isstr)
+
+% Config options - wrapper
+p.addParameter('tr',[],@isstr);
+p.addParameter('wantglmdenoise','0',@isstr);
+p.addParameter('maxpolydeg','Na',@isstr);
+p.addParameter('seedmode','[0 1 2]',@isstr);
+p.addParameter('xvalmode','0',@isstr);
+p.addParameter('numperjob','Na',@isstr);
+p.addParameter('maxiter','500',@isstr);
+p.addParameter('display','off',@isstr);
+p.addParameter('typicalgain','10',@isstr);
+
+% Config options - post-process
+p.addParameter('pixelsPerDegree', 'Na', @isstr)
+
+% Config options - convert to mgz
+p.addParameter('externalMGZMakerPath', '/foo/bar/make_fsaverage.py', @isstr)
+p.addParameter('RegName', 'FS', @isstr)
+
+% Config options - demo over-ride
+p.addParameter('demoMode', false, @islogical)
+p.addParameter('vxsPass', [], @isnumeric)
+
+% Internal paths
+p.addParameter('workbenchPath', '', @isstr);
+p.addParameter('outPath', '', @isstr);
 
 
-%% Required inputs
-if ~exist('funcZipPath','var')
-	dirTmp = dir('/flywheel/v0/input/funcZip/*.zip');
-    funcZipPath = fullfile(dir.folder,dir.name);
-end
-if ~exist('stimFilePath','var')
-	dirTmp = dir('/flywheel/v0/input/funcFile/*.m');
-    stimFilePath = fullfile(dir.folder,dir.name);
-end
-if ~exist('structZipPath','var')
-	dirTmp = dir('/flywheel/v0/input/structZip/*.zip');
-    structZipPath = fullfile(dir.folder,dir.name);
-end
+% Parse
+p.parse(funcZipPath, stimFilePath, structZipPath, varargin{:})
 
 
-%% Optional inputs
-if ~exist('maskFilePath','var')
-    maskFilePath = 1;
-end
-if ~exist('hrfFilePath','var')
-    hrf = [];
-end
 
-
-%% Config options
-if ~exist('tr','var')
-    tr = '0.8';
-end
-if ~exist('trimDummyStimTRs','var')
-    trimDummyStimTRs = '0';
-end
-if ~exist('dataFileType','var')
-    dataFileType = 'cifti';
-end
-if ~exist('dataSourceType','var')
-    dataSourceType = 'icafix';
-end
-if ~exist('averageAcquisitions','var')
-    averageAcquisitions = '0';
-end
-if ~exist('wantglmdenoise','var')
-    wantglmdenoise = '0';
-end
-if ~exist('maxpolydeg','var')
-    maxpolydeg = 'Na';
-end
-if ~exist('seedmode','var')
-    seedmode = '[0 1 2]';
-end
-if ~exist('xvalmode','var')
-    xvalmode = '0';
-end
-if ~exist('numperjob','var')
-    numperjob = 'Na';
-end
-if ~exist('maxiter','var')
-    maxiter = '500';
-end
-if ~exist('typicalgain','var')
-    typicalgain = '10';
-end
-
-
-%% Internal paths
-if ~exist('workbenchPath','var')
-    foo = 1;
-end
-if ~exist('outDir','var')
-    outDir = '/flywheel/v0/input';
-end
-
-
+%% PRF analysis
 % Call AnalyzePRFPreprocess
 [stimulus, data, vxs, templateImage] = ...
-    preprocessPRF(workbenchPath, funcZipPath, stimFilePath, ...
-    'maskFilePath',maskFilePath, ...
-    'averageAcquisitions',averageAcquisitions);
+    preprocessPRF(p.Results.workbenchPath, funcZipPath, stimFilePath, ...
+    'maskFilePath',p.Results.maskFilePath, ...
+    'averageAcquisitions',p.Results.averageAcquisitions);
 
 % If vxsPass has been defined (perhaps by the demo routine), substitute
 % this value for vxs
-if exist('vxsPass','var')
-    vxs = vxsPass;
+if ~isempty(p.Results.vxsPass)
+    vxs = p.Results.vxsPass;
+end
+
+% If the hrfFilePath has been defined, load it
+if ~strcmp(p.Results.hrfFilePath,'Na')
+    load(p.Results.hrfFilePath,'hrf');
+else
+    hrf = [];
 end
 
 % Call the analyzePRF wrapper
 results = wrapperPRF(stimulus, data, vxs, ...
-    'tr',tr,...
+    'tr',p.Results.tr,...
     'hrf',hrf,...
-    'wantglmdenoise',wantglmdenoise,...
-    'maxpolydeg',maxpolydeg,...
-    'seedmode',seedmode,...
-    'xvalmode',xvalmode,...
-    'numperjob',numperjob,...
-    'maxiter',maxiter,...
-    'typicalgain',typicalgain);
+    'wantglmdenoise',p.Results.wantglmdenoise,...
+    'maxpolydeg',p.Results.maxpolydeg,...
+    'seedmode',p.Results.seedmode,...
+    'xvalmode',p.Results.xvalmode,...
+    'numperjob',p.Results.numperjob,...
+    'maxiter',p.Results.maxiter,...
+    'typicalgain',p.Results.typicalgain);
 
 % Process and save the results
 modifiedResults = postprocessPRF(...
-    results, templateImage, outDir, workbenchPath,...
-    'dataFileType', dataFileType, ...
-    'pixelsPerDegree', pixelsPerDegree);
+    results, templateImage, p.Results.outPath, p.Results.workbenchPath,...
+    'dataFileType', p.Results.dataFileType, ...
+    'pixelsPerDegree', p.Results.pixelsPerDegree);
 
-% Call the python routine here
+% If we are in demo mode, show some plots
+if p.Results.demoMode
+    plotPRF(results,modifiedResults,data,stimulus,vxs)
+end
 
 
+%% Convert to MGZ
+
+% Uncompress the structZip into the dir that holds the zip. We do this
+% with a system call so that we can prevent over-writing a prior unzipped
+% version of the data (which can happen in demo mode).
+command = ['unzip -n ' structZipPath ' -d ' fileparts(structZipPath)];
+system(command);
+
+% Find the directory that is produced by this unzip operation
+fileList = dir(fileparts(structZipPath));
+fileList = fileList(...
+    cellfun(@(x) ~startsWith(x,'.'),extractfield(fileList,'name')) ...
+    );
+fileList = fileList(cell2mat(extractfield(fileList,'isdir')));
+hcpStructPath = fullfile(fileList.folder,fileList.name);
+
+
+% Assemble variables for python external call
+ciftiMapsPath = fullfile(p.Results.outPath,'maps');
+
+command =  ['python3 ' p.Results.externalMGZMakerPath ' ' ciftiMapsPath '' hcpStructPath ' ' p.Results.RegName ' ' fullfile(p.Results.outPath,'nativeMaps')];
+%system(command);
+fprintf([command,'/n']);
+
+
+
+end % Main function
