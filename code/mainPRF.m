@@ -44,7 +44,8 @@ p.addParameter('typicalgain','10',@isstr);
 p.addParameter('pixelsPerDegree', 'Na', @isstr)
 
 % Config options - convert to mgz
-p.addParameter('externalMGZMakerPath', '/foo/bar/make_fsaverage.py', @isstr)
+p.addParameter('externalMGZMakerPath',...
+    fullfile(getpref('pRFCompileWrapper','projectBaseDir'),'code','make_fsaverage.py'), @isstr)
 p.addParameter('RegName', 'FS', @isstr)
 
 % Config options - demo over-ride
@@ -124,10 +125,7 @@ hcpStructPath = fullfile(fileList.folder,fileList.name);
 % Assemble variables for python external call
 ciftiMapsPath = fullfile(p.Results.outPath,'maps');
 
-command =  ['python3 ' p.Results.externalMGZMakerPath ' ' ciftiMapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' fullfile(p.Results.outPath,'nativeMaps')];
+command =  ['python ' p.Results.externalMGZMakerPath ' ' ciftiMapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' fullfile(p.Results.outPath, 'nativeMaps')];
 %system(command);
-fprintf([command,'/n']);
-
-
 
 end % Main function
