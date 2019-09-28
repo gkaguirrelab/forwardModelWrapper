@@ -147,10 +147,6 @@ outDir = scratchSaveDir;
 if doOneVoxel
     % Process one voxel that has a great fit
     vxsPass = 51789;
-else
-    % We process all voxels, but indicate to plotPRF that we want to show
-    % this one voxel that has a great fit
-    vx = 34;
 end
 
 
