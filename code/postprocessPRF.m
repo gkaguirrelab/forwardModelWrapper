@@ -112,7 +112,7 @@ save(fullfile(outPath,'raw_retinotopy_results.mat'),'results')
 save(fullfile(outPath,'modified_retinotopy_results.mat'),'modifiedResults')
 
 % Save retintopy maps
-fieldsToSave = {'ang','ecc','expt','rfsize','R2','gain','cartX','cartY'};
+fieldsToSave = {'ang','ecc','expt','rfsize','R2','gain','hrfshift','cartX','cartY'};
 
 % Create a maps directory
 dirName = fullfile(outPath,'maps');
