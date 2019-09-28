@@ -4,6 +4,7 @@
 		"hook": "",
 		"importance": "",
 		"localHookTemplate": "config/pRFCompileWrapperLocalHookTemplate.m",
+	        "printLocalHookOutput": "1",
 		"name": "pRFCompileWrapper",
 		"pathPlacement": "append",
 		"subfolder": ["code","demo"],
@@ -23,7 +24,7 @@
 		"toolboxRoot": "",
 		"type": "git",
 		"update": "",
-		"url": "https:\/\/github.com\/kendrickkay\/analyzePRF.git"
+		"url": "https:\/\/github.com\/gkaguirrelab\/analyzePRF.git"
 	},
 	{
 		"flavor": "",
