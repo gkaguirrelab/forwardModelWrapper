@@ -27,7 +27,7 @@ end
 % 2D Gaussian, crop it to <res>, compute the dot-product between the stimuli and the
 % Gaussian, raise the result to an exponent, and then convolve the result with the HRF,
 % taking care to not bleed over run boundaries.
-modelfun = @(pp,dd) conv2run(posrect(pp(4)) * (dd*[vflatten(placematrix(zeros(res),makegaussian2d(resmx,pp(1),pp(2),abs(pp(3)),abs(pp(3)),xx,yy,0,0) / (2*pi*abs(pp(3))^2))); 0]) .^ posrect(pp(5)),hrf,dd(:,prod(res)+1));
+modelfun = @(pp,dd) modelCore(pp,dd,xx,yy,res,resmx,hrf);
 
 % Construct projection matrices that fit and remove the polynomials.
 % Note that a separate projection matrix is constructed for each run.
