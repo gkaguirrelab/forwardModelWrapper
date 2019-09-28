@@ -102,7 +102,7 @@ modifiedResults = postprocessPRF(...
 
 % If we are in demo mode, show some plots
 if p.Results.demoMode
-    plotPRF(results,modifiedResults,data,stimulus,vxs)
+    plotPRF(modifiedResults,data,stimulus)
 end
 
 

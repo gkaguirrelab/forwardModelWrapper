@@ -1,4 +1,4 @@
-function plotPRF(results,modifiedResults,data,stimulus,vxs)
+function plotPRF(results,data,stimulus)
 
 
 %% modelPlotPRF
@@ -9,6 +9,7 @@ res = [108 108];                    % row x column resolution of the stimuli
 resmx = 108;                        % maximum resolution (along any dimension)
 hrf = results.options.hrf;          % HRF that was used in the model
 degs = results.options.maxpolydeg;  % vector of maximum polynomial degrees used in the model
+vxs = results.options.vxs;
 
 % Pre-compute cache for faster execution
 [d,xx,yy] = makegaussian2d(resmx,2,2,2,2);
@@ -38,11 +39,8 @@ end
 
 %% Inspect the data and the model fit
 
-% Which voxel of the vxs should we inspect? If not defined, pick one at
-% random
-if ~exist('vx','var')
-    vx = randsample(1:length(vxs),1);
-end
+% Pick the voxel with the best model fit
+[~,vx]=max(results.R2);
 
 % For each run, collect the data and the model fit.  We project out polynomials
 % from both the data and the model fit.  This deals with the problem of
@@ -50,7 +48,7 @@ end
 datats = {};
 modelts = {};
 for p=1:length(data)
-  datats{p} =  polymatrix{p}*data{p}(vxs(vx),:)';
+  datats{p} =  polymatrix{p}*data{p}(vx,:)';
   modelts{p} = polymatrix{p}*modelfun(results.params(1,:,vx),stimulusPP{p});
 end
 
@@ -63,16 +61,19 @@ xlabel('Time (s)');
 ylabel('BOLD signal');
 ax = axis;
 axis([.5 size(datats{1},1)+.5 ax(3:4)]);
-title(['Time-series data, CIFTI vertex ' num2str(vxs(vx))]);
+title(['Time-series data, CIFTI vertex ' num2str(vx)]);
 
 % Visualize the location of each voxel's pRF
+goodIdx = results.R2>0.1;
 figure; hold on;
 set(gcf,'Units','points','Position',[100 100 400 400]);
 cmap = jet(size(length(vxs),1));
-scatter(modifiedResults.cartX(vxs),modifiedResults.cartY(vxs),...
-    modifiedResults.rfsize(vxs)*200,...
+scatter(results.cartX(goodIdx),results.cartY(goodIdx),...
+    results.rfsize(goodIdx)*200,...
     'o','filled', ...
     'MarkerFaceAlpha',1/8,'MarkerFaceColor','red');
+xlim([-20 20]);
+ylim([-20 20]);
 xlabel('X-position (deg)');
 ylabel('Y-position (deg)');
 
