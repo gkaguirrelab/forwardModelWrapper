@@ -40,6 +40,7 @@ p.addRequired('workbenchPath', @isstr);
 % Optional
 p.addParameter('dataFileType', 'cifti', @isstr)
 p.addParameter('pixelsPerDegree', 'Na', @isstr)
+p.addParameter('screenMagnification', 'Na', @isstr)
 
 % Parse
 p.parse(results, templateImage, outPath, workbenchPath, varargin{:})
@@ -76,6 +77,13 @@ if ~strcmp(p.Results.pixelsPerDegree,'Na')
     modifiedResults.ecc = modifiedResults.ecc ./ str2double(p.Results.pixelsPerDegree);
     modifiedResults.rfsize = modifiedResults.rfsize ./ str2double(p.Results.pixelsPerDegree);
 end
+
+% The stimulus screen is subject to magnification / minification if the
+% subject is wearing corrective lenses. We account for this effect here.
+% While in principle this could be rolled into the pixelsPerDegree
+% variable, we prefer to keep these separate to aid clear book-keeping.
+modifiedResults.ecc = modifiedResults.ecc .* screenMagnification;
+modifiedResults.ecc = modifiedResults.rfsize .* screenMagnification;
 
 % We sometimes find unnaturally large eccentricity values (>90 degrees of
 % visual angle). We presume that these are the result of model fitting
