@@ -62,4 +62,38 @@ else
 end
 
 
+%% Check for required Matlab toolboxes
+requiredAddOns = {...
+    'Optimization Toolbox',...                   % optimization_toolbox
+    'Statistics and Machine Learning Toolbox'... % statistics_toolbox
+    };
+% Given this hard-coded list of add-on toolboxes, we then check for the
+% presence of each and issue a warning if absent.
+V = ver;
+VName = {V.Name};
+warnState = warning();
+warning off backtrace
+for ii=1:length(requiredAddOns)
+    if ~any(strcmp(VName, requiredAddOns{ii}))
+        warnString = ['The Matlab ' requiredAddOns{ii} ' is missing. ' projectName ' may not function properly.'];
+        warning('localHook:requiredMatlabToolboxCheck',warnString);
+    end
+end
+warning(warnState);
+
+
+%% Ensure that python3 and neuopythy are installed
+
+% Check for some flavor of Python v3
+if floor(str2double(pyversion)) ~= 3
+	warning('localHook:pythonVersion',['The routines expect Python v3, but v' pyversion ' is installed']);
+end
+
+% Make sure that numpy and neuropythy are present
+% Make sure that numpy and neuropythy are present
+fprintf('Installing numpy and neuropythy\n');
+command = 'pip install neuropythy > /dev/null';
+system(command);
+
+
 end
