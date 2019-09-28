@@ -49,7 +49,7 @@ datats = {};
 modelts = {};
 for p=1:length(data)
   datats{p} =  polymatrix{p}*data{p}(vx,:)';
-  modelts{p} = polymatrix{p}*modelfun(results.params(1,:,vx),stimulusPP{p});
+  modelts{p} = polymatrix{p}*modelfun(results.params(1,:,vxs==vx),stimulusPP{p});
 end
 
 % Visualize the model fit

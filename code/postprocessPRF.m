@@ -82,8 +82,8 @@ end
 % subject is wearing corrective lenses. We account for this effect here.
 % While in principle this could be rolled into the pixelsPerDegree
 % variable, we prefer to keep these separate to aid clear book-keeping.
-modifiedResults.ecc = modifiedResults.ecc .* screenMagnification;
-modifiedResults.ecc = modifiedResults.rfsize .* screenMagnification;
+modifiedResults.ecc = modifiedResults.ecc .* str2num(p.Results.screenMagnification);
+modifiedResults.rfsize = modifiedResults.rfsize .* str2num(p.Results.screenMagnification);
 
 % We sometimes find unnaturally large eccentricity values (>90 degrees of
 % visual angle). We presume that these are the result of model fitting

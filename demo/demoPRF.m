@@ -19,11 +19,29 @@ projectName = 'pRFCompileWrapper';
 scratchSaveDir = getpref(projectName,'flywheelScratchDir');
 subjectName = 'TOME_3021';
 
+% Specify the number of pixels *in the downsampled stimulus* per nominal
+% degree of visual angle. The stimulus file in this demo is 108x108 pixels.
+%{
+    stimulusHeightDeg = 20.8692;
+    stimulusHeightPixels = 108;
+    pixelsPerDegree = 108 / 20.8692;
+%}
+pixelsPerDegree = '5.1751';
+
 % The subject was wearing a -5.25 D contact lens during scanning. This
 % causes the screen to appear minified by a small amount. This effect is
 % computed by the routine calcScreenMagnification in the mriTOMEAnalysis
 % repo.
 screenMagnification = '0.96';
+
+% TR of the acquisition in seconds
+tr = '0.8';
+
+% Flag to average the acquisitions together before computing pRF
+% parameters. This makes the operation faster.
+averageAcquisitions = '1';
+
+
 
 %% Download the functional data
 outputFileSuffix = '_hcpicafix.zip';
@@ -138,11 +156,6 @@ stimFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','pRFStimulu
 
 % Optional input
 maskFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','lh.V1mask.dscalar.nii');
-
-% Config settings
-pixelsPerDegree = '5.1178';
-tr = '0.8';
-averageAcquisitions = '1';
 
 % Internal paths
 workbenchPath = getpref(projectName,'wbCommand');
