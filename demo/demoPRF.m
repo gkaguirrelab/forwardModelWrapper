@@ -11,7 +11,7 @@ clear
 
 % Set this to true to quickly process a single voxel (seconds), vs.
 % analyzing the entire V1 region (minutes)
-doOneVoxel = true;
+doOneVoxel = false;
 
 
 %% Variable declaration
@@ -147,6 +147,8 @@ outDir = scratchSaveDir;
 if doOneVoxel
     % Process one voxel that has a great fit
     vxsPass = 51789;
+else
+    vxsPass = [];
 end
 
 
