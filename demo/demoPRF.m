@@ -11,7 +11,7 @@ clear
 
 % Set this to true to quickly process a single voxel (seconds), vs.
 % analyzing the entire V1 region (minutes)
-doOneVoxel = false;
+doOneVoxel = true;
 
 
 %% Variable declaration
@@ -159,7 +159,11 @@ maskFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','lh.V1mask.
 
 % Internal paths
 workbenchPath = getpref(projectName,'wbCommand');
-outDir = scratchSaveDir;
+outPath = fullfile(scratchSaveDir,'v0','output');
+if ~exist(outPath,'dir')
+    mkdir(outPath);
+end
+
 
 % Setup processing one or all voxels
 if doOneVoxel
@@ -178,7 +182,7 @@ mainPRF(funcZipPath, stimFilePath, structZipPath, ...
     'pixelsPerDegree',pixelsPerDegree, ...
     'screenMagnification',screenMagnification,...
     'workbenchPath',workbenchPath, ...
-    'outPath',scratchSaveDir, ...
+    'outPath',outPath, ...
     'typicalgain','50', ...
     'vxsPass', vxsPass,'demoMode',true);
 

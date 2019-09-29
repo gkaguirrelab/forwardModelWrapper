@@ -123,19 +123,21 @@ save(fullfile(outPath,'modified_retinotopy_results.mat'),'modifiedResults')
 fieldsToSave = {'ang','ecc','expt','rfsize','R2','gain','hrfshift','cartX','cartY'};
 
 % Create a maps directory
-dirName = fullfile(outPath,'maps');
-mkdir(dirName);
+outDirName = fullfile(outPath,['maps_' p.Results.dataFileType]);
+if ~exist(outDirName,'dir')
+    mkdir(outDirName);
+end
 
 for ii = 1:length(fieldsToSave)
     outData = struct();
     switch p.Results.dataFileType
         case 'volumetric'
-            fileName = fullfile(outPath,'maps',[fieldsToSave{ii} '_map.nii.gz']);
+            fileName = fullfile(outDirName,[fieldsToSave{ii} '_map.nii.gz']);
             outData.vol = modifiedResults.(fieldsToSave{ii});
             outData.nframes = 1;
             MRIwrite(outData, fileName);
         case 'cifti'
-            fileName = fullfile(outPath,'maps',[fieldsToSave{ii} '_map.dtseries.nii']);
+            fileName = fullfile(outDirName,[fieldsToSave{ii} '_map.dtseries.nii']);
             outData = templateImage;
             outData.cdata = single(modifiedResults.(fieldsToSave{ii}));
             ciftisave(outData, fileName, workbenchPath)
