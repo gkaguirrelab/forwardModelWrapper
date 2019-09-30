@@ -25,6 +25,7 @@ def make_fsaverage(path_to_cifti_maps, path_to_hcp, alignment_type, output):
     maps['rfsize_map'] = os.path.join(path_to_cifti_maps, 'rfsize_map.dtseries.nii')
     maps['x_map'] = os.path.join(path_to_cifti_maps, 'cartX_map.dtseries.nii')
     maps['y_map'] = os.path.join(path_to_cifti_maps, 'cartY_map.dtseries.nii')
+    maps['hrfshift_map'] = os.path.join(path_to_cifti_maps, 'hrfshift_map.dtseries.nii')
     
 #### Interpolate AnalyzePRF maps over subject's native surface do the flip and average ####   
     print('Starting: Left-Right averaging and interpolation')
