@@ -128,14 +128,18 @@ if strcmp(p.Results.dataFileType,'cifti')
     fileList = fileList(cell2mat(extractfield(fileList,'isdir')));
     hcpStructPath = fullfile(fileList.folder,fileList.name);
     
-    % Create a directory for the output files
-    nativeSpaceDirPath = fullfile(p.Results.outPath, 'nativeMaps');
+    % Create directories for the output files
+    nativeSpaceDirPath = fullfile(p.Results.outPath, 'maps_nativeMGZ');
     if ~exist(nativeSpaceDirPath,'dir')
         mkdir(nativeSpaceDirPath);
     end
+    pseudoHemiDirPath = fullfile(p.Results.outPath, 'maps_nativeMGZ_pseudoHemisphere');
+    if ~exist(pseudoHemiDirPath,'dir')
+        mkdir(pseudoHemiDirPath);
+    end
     
     % Perform the call and report if an error occurred
-    command =  ['python3 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath];
+    command =  ['python3 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
     callErrorStatus = system(command);
     if callErrorStatus
         warning('An error occurred during execution of the external Python function for map conversion');
