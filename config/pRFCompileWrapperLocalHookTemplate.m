@@ -90,8 +90,7 @@ if floor(str2double(pyversion)) ~= 3
 end
 
 % Make sure that numpy and neuropythy are present
-% Make sure that numpy and neuropythy are present
-fprintf('Installing numpy and neuropythy\n');
+fprintf('Installing neuropythy\n');
 command = 'pip install neuropythy > /dev/null';
 system(command);
 
