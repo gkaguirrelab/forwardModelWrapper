@@ -96,7 +96,7 @@ results = wrapperPRF(stimulus, data, vxs, ...
     'typicalgain',p.Results.typicalgain);
 
 % Process and save the results
-modifiedResults = postprocessPRF(...
+[modifiedResults, mapsPath] = postprocessPRF(...
     results, templateImage, p.Results.outPath, p.Results.workbenchPath,...
     'dataFileType', p.Results.dataFileType, ...
     'pixelsPerDegree', p.Results.pixelsPerDegree, ...
@@ -109,25 +109,37 @@ end
 
 
 %% Convert to MGZ
+% If we are working with CIFTI files, convert the resulting maps to
+% native-space MGZ images. These files can then serve as input to the
+% neuropythy Bayesian fitting routine.
 
-% Uncompress the structZip into the dir that holds the zip. We do this
-% with a system call so that we can prevent over-writing a prior unzipped
-% version of the data (which can happen in demo mode).
-command = ['unzip -n ' structZipPath ' -d ' fileparts(structZipPath)];
-system(command);
-
-% Find the directory that is produced by this unzip operation
-fileList = dir(fileparts(structZipPath));
-fileList = fileList(...
-    cellfun(@(x) ~startsWith(x,'.'),extractfield(fileList,'name')) ...
-    );
-fileList = fileList(cell2mat(extractfield(fileList,'isdir')));
-hcpStructPath = fullfile(fileList.folder,fileList.name);
-
-% Assemble variables for python external call
-ciftiMapsPath = fullfile(p.Results.outPath,'maps');
-
-command =  ['python ' p.Results.externalMGZMakerPath ' ' ciftiMapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' fullfile(p.Results.outPath, 'nativeMaps')];
-%system(command);
+if strcmp(p.Results.dataFileType,'cifti')
+    % Uncompress the structZip into the dir that holds the zip. We do this
+    % with a system call so that we can prevent over-writing a prior unzipped
+    % version of the data (which can happen in demo mode).
+    command = ['unzip -n ' structZipPath ' -d ' fileparts(structZipPath)];
+    system(command);
+    
+    % Find the directory that is produced by this unzip operation
+    fileList = dir(fileparts(structZipPath));
+    fileList = fileList(...
+        cellfun(@(x) ~startsWith(x,'.'),extractfield(fileList,'name')) ...
+        );
+    fileList = fileList(cell2mat(extractfield(fileList,'isdir')));
+    hcpStructPath = fullfile(fileList.folder,fileList.name);
+    
+    % Create a directory for the output files
+    nativeSpaceDirPath = fullfile(p.Results.outPath, 'nativeMaps');
+    if ~exist(nativeSpaceDirPath,'dir')
+        mkdir(nativeSpaceDirPath);
+    end
+    
+    % Perform the call and report if an error occurred
+    command =  ['python3 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath];
+    callErrorStatus = system(command);
+    if callErrorStatus
+        warning('An error occurred during execution of the external Python function for map conversion');
+    end
+end
 
 end % Main function

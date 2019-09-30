@@ -1,4 +1,4 @@
-function modifiedResults = postprocessPRF(results, templateImage, outPath, workbenchPath, varargin)
+function [modifiedResults, outDirName] = postprocessPRF(results, templateImage, outPath, workbenchPath, varargin)
 % Produce maps from the analyzePRF results
 %
 % Syntax:
