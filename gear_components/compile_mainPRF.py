@@ -19,18 +19,22 @@ def compile_mainPRF(path_to_matlab_documents, output_folder):
     # Create the output folder if doesn't exist
     if not os.path.exists(output_folder):
         os.system("mkdir %s"%output_folder)
-        
-    mcc_call = 'mcc -m -R -nodisplay %s -a %s -a %s -a %s -a %s -a %s \
-    -a %s -d %s'%(os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/mainPRF.m'),
+    
+    #mcc_path = '/usr/local/MATLAB/R2018b/bin/mcc'
+    mcc_path = 'mcc'
+    mcc_call = '%s -m -R -nodisplay %s -a %s -a %s -a %s -a %s -a %s \
+    -a %s -a %s -d %s'%(mcc_path, os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/mainPRF.m'),
     os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/preprocessPRF.m'),
     os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/postprocessPRF.m'),
     os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/wrapperPRF.m'),
     os.path.join(path_to_matlab_documents,'toolboxes/analyzePRF/'),
     os.path.join(path_to_matlab_documents,'toolboxes/HCPpipelines/global/matlab/'),
     os.path.join(path_to_matlab_documents,'toolboxes/freesurferMatlab/matlab/MRIwrite.m'),
+    os.path.join(path_to_matlab_documents,'toolboxes/freesurferMatlab/matlab/MRIread.m'),
     output_folder)
     
     print('Compiling mainPRF.m')
     os.system(mcc_call)
     
 compile_mainPRF(*sys.argv[1:])
+
