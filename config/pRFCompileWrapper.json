@@ -19,7 +19,7 @@
 		"importance": "",
 		"localHookTemplate": "",
 		"name": "analyzePRF",
-		"pathPlacement": "append",
+		"pathPlacement": "prepend",
 		"subfolder": "",
 		"toolboxRoot": "",
 		"type": "git",
