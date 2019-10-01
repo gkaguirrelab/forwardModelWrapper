@@ -45,8 +45,9 @@ p.addParameter('pixelsPerDegree', 'Na', @isstr)
 p.addParameter('screenMagnification', '1.0', @isstr)
 
 % Config options - convert to mgz
-p.addParameter('externalMGZMakerPath',...
-    fullfile(getpref('pRFCompileWrapper','projectBaseDir'),'code','make_fsaverage.py'), @isstr)
+p.addParameter('externalMGZMakerPath', [], @isstr)
+% p.addParameter('externalMGZMakerPath',...
+%     fullfile(getpref('pRFCompileWrapper','projectBaseDir'),'code','make_fsaverage.py'), @isstr)
 p.addParameter('RegName', 'FS', @isstr)
 
 % Config options - demo over-ride
@@ -139,11 +140,12 @@ if strcmp(p.Results.dataFileType,'cifti')
     end
     
     % Perform the call and report if an error occurred
-    command =  ['python3 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
-    callErrorStatus = system(command);
-    if callErrorStatus
-        warning('An error occurred during execution of the external Python function for map conversion');
-    end
+    if ~isempty(p.Results.externalMGZMakerPath)
+        command =  ['python3 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
+        callErrorStatus = system(command);
+        if callErrorStatus
+            warning('An error occurred during execution of the external Python function for map conversion');
+        end
 end
 
 end % Main function
