@@ -8,12 +8,13 @@ MAINTAINER Ozzy(ozenctaskin@hotmail.com)
 ENV FLYWHEEL /flywheel/v0/
 RUN mkdir -p ${FLYWHEEL}
 COPY manifest.json run ${FLYWHEEL}
-COPY /home/ozzy/Desktop/func_input/ /opt/func_input 
+COPY make_fsaverage.py /opt/make_fsaverage.py
+COPY func_input/ /opt/func_input 
 RUN chmod +x /flywheel/v0/run
-RUN chmod +x /opt/func_input/WrapperAnalyzePRF/*/*            
+RUN chmod +x /opt/func_input/*          
 
 # Set the entrypoint  
-ENTRYPOINT /flywheel/v0/run
+#ENTRYPOINT /flywheel/v0/run
 
 
 

@@ -20,8 +20,8 @@ def compile_mainPRF(path_to_matlab_documents, output_folder):
     if not os.path.exists(output_folder):
         os.system("mkdir %s"%output_folder)
     
-    #mcc_path = '/usr/local/MATLAB/R2018b/bin/mcc'
-    mcc_path = 'mcc'
+    mcc_path = '/usr/local/MATLAB/R2018b/bin/mcc'
+    #mcc_path = 'mcc'
     mcc_call = '%s -m -R -nodisplay %s -a %s -a %s -a %s -a %s -a %s \
     -a %s -a %s -d %s'%(mcc_path, os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/mainPRF.m'),
     os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/preprocessPRF.m'),

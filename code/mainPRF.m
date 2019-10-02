@@ -141,7 +141,8 @@ if strcmp(p.Results.dataFileType,'cifti')
     
     % Perform the call and report if an error occurred
     if ~isempty(p.Results.externalMGZMakerPath)
-        command =  ['python3 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
+        %command =  ['python3 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
+        command =  ['python ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
         callErrorStatus = system(command);
         if callErrorStatus
             warning('An error occurred during execution of the external Python function for map conversion');

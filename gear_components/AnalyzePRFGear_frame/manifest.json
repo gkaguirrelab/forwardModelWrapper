@@ -81,7 +81,7 @@
   			"description": "Is a typical value for the gain in each time-series. Default: 10.",
   			"type": "string"
 		},
-		"pixelToDegree":  {
+		"pixelsPerDegree":  {
 			"default": "Na",
   			"description": "Number. If a pixel to degree number is specified, eccentricity results are saved and represented on this scale",
 			"type": "string"
@@ -89,6 +89,11 @@
 		"screenMagnification":  {
 			"default": "1.0",
   			"description": "The stimulus screen is subject to magnification / minification if the subject is wearing corrective lenses. We account for this effect here. While in principle this could be rolled into the pixelsPerDegree variable, we prefer to keep these separate to aid clear book-keeping.",
+			"type": "string"
+		},
+		"RegName":  {
+			"default": "FS",
+  			"description": "Registration type used for creating your hcp-struct archive. FS or MSMSulc. Default:FS",
 			"type": "string"
 		}
 	},
@@ -116,7 +121,7 @@
 		"structZipPath": {
 			"description": "Inputting HCP-struct zip archive generates extra mgz maps in subject's native space. Resulting output file is required by the Bayesian Analysis gear",
 			"base": "file",
-			"optional": true,
+			"optional": false,
 			"type": {
 				"enum": [
 					"archive"

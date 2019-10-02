@@ -1,0 +1,155 @@
+{
+	"name": "analyzeprf",
+	"label": "analyzePRF",
+	"description": "Built from a MATLAB wrapper written for Kendrick Kay's AnalyzePRF script, this gear performs pRF analysis and allows ICA-fix zip archieves to be used as direct inputs. The gear looks for the cifti files in each of the separate run folders located in the ica-fix archive and analyzes all of them outputting an averaged results.mat file along with raw brain maps. Analysis of volumetric data is NOT currently supported.",
+	"version": "0.2.0",
+	"inputs": {
+		"funcZipPath": {
+			"base": "file",
+			"description": "Provides the path to a zip archive that has been produced by either hcp-icafix or hcp-func.",
+			"optional": false,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"hrfFilePath": {
+			"base": "file",
+			"description": "is a column vector with the hemodynamic response function (HRF) to use in the model. The first value of hrf should be coincident with the onset of the stimulus, and the HRF should indicate the timecourse of the response to a stimulus that lasts for one TR. Default is to use a canonical HRF (calculated using getcanonicalhrf(tr,tr)'). A different model can be used by inputting a 1xn MATLAB matrix",
+			"optional": true,
+			"type": {
+				"enum": [
+					"MATLAB data"
+				]
+			}
+		},
+		"maskFilePath": {
+			"base": "file",
+			"description": "Use a nifti FSLR mask to specify which voxels to analyze. If empty, analyze the whole brain. Using a mask significantly decreases the analysis time depending on the region. Has to be a surface cifti mask",
+			"optional": true,
+			"type": {
+				"enum": [
+					"nifti"
+				]
+			}
+		},
+		"stimFilePath": {
+			"base": "file",
+			"description": "Full path to a .mat file that contains the stimulus apertures, which is a cell vector of R x C x time. Values should be in [0,1]. The number of time points can differ across runs. The cell vector should either be of length n, where n is the number of acquisitions that are present in the input data zip file, or length 1, in which case the cell vector is assumed to apply to every acquisition.",
+			"optional": false,
+			"type": {
+				"enum": [
+					"MATLAB data"
+				]
+			}
+		},
+		"structZipPath": {
+			"base": "file",
+			"description": "Inputting HCP-struct zip archive generates extra mgz maps in subject's native space. Resulting output file is required by the Bayesian Analysis gear",
+			"optional": false,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		}
+	},
+	"config": {
+		"RegName": {
+			"default": "FS",
+			"description": "Registration type used for creating your hcp-struct archive. FS or MSMSulc. Default:FS",
+			"type": "string"
+		},
+		"averageAcquisitions": {
+			"default": "0",
+			"description": "If used, averages the runs in the icafix directory before the pRF analysis. 1 for true and 0 for false. Default = 0 (false)",
+			"type": "string"
+		},
+		"dataFileType": {
+			"default": "cifti",
+			"description": "Select the data type. Currently, only cifti surface files can be received from the ica-fix output",
+			"type": "string"
+		},
+		"dataSourceType": {
+			"default": "icafix",
+			"description": "Input archive type. Currently, only icafix archives are supported",
+			"type": "string"
+		},
+		"display": {
+			"default": "iter",
+			"description": "is iter | final | off. Default: iter",
+			"type": "string"
+		},
+		"maxiter": {
+			"default": "500",
+			"description": "Is the maximum number of iterations. Default: 500",
+			"type": "string"
+		},
+		"maxpolydeg": {
+			"default": "Na",
+			"description": "Is a non-negative integer indicating the maximum polynomial degree to use for drift terms. Default is to use round(L/2) where L is the number of minutes in the duration of a given run.",
+			"type": "string"
+		},
+		"numperjob": {
+			"default": "Na",
+			"description": "Number. Na means to run locally (not on the cluster) N where N is a positive integer indicating the number of voxels to analyze in each cluster job this option requires a customized computational setup! default: Na",
+			"type": "string"
+		},
+		"pixelsPerDegree": {
+			"default": "Na",
+			"description": "Number. If a pixel to degree number is specified, eccentricity results are saved and represented on this scale",
+			"type": "string"
+		},
+		"screenMagnification": {
+			"default": "1.0",
+			"description": "The stimulus screen is subject to magnification / minification if the subject is wearing corrective lenses. We account for this effect here. While in principle this could be rolled into the pixelsPerDegree variable, we prefer to keep these separate to aid clear book-keeping.",
+			"type": "string"
+		},
+		"seedmode": {
+			"default": "[0 1 2]",
+			"description": "Is a vector consisting of one or more of the following values (we automatically sort and ensure uniqueness): 0 means use generic large PRF seed - 1 means use generic small PRF seed - 2 means use best seed based on super-grid default: [0 1 2].",
+			"type": "string"
+		},
+		"tr": {
+			"description": "Required. TR in seconds (e.g. 1.5).",
+			"type": "string"
+		},
+		"trimDummyStimTRs": {
+			"default": "0",
+			"description": "Used when the stimulus and data lengths are not equal and the inequality is due to the removal of dummy TRs from the sample. Calculates the mean along the time dimension for each voxel and adds that mean to the front of the data matrix (this procedure is repeated multiple times if required until data and stimulus sample lengths are exactly the same length. Don't use this option if the mismatch is due to sampling. 1 for true and 0 for false. Default = 0 (false)",
+			"type": "string"
+		},
+		"typicalgain": {
+			"default": "10",
+			"description": "Is a typical value for the gain in each time-series. Default: 10.",
+			"type": "string"
+		},
+		"verbose": {
+			"default": "1",
+			"description": "Verbose. 1 or 0. Default: 1",
+			"type": "string"
+		},
+		"wantglmdenoise": {
+			"default": "0",
+			"description": "is whether to use GLMdenoise to determine nuisance regressors to add into the PRF model. Note that in order to use this feature, there must be at least two runs (and conditions must repeat across runs). We automatically determine the GLM design matrix based on the contents of \u003cstimulus\u003e. Special case is to pass in the noise regressors directly (e.g. from a previous call). default: 0 ",
+			"type": "string"
+		},
+		"xvalmode": {
+			"default": "0",
+			"description": "0 means just fit all the data - 1 means two-fold cross-validation (first half of runs; second half of runs) - 2 means two-fold cross-validation (first half of each run; second half of each run). default: 0. (note that we round when halving.) ",
+			"type": "string"
+		}
+	},
+	"author": "Ozenc Taskin",
+	"maintainer": "Ozenc Taskin",
+	"license": "Other",
+	"source": "https://github.com/kendrickkay/analyzePRF",
+	"url": "https://github.com/gkaguirrelab/pRFCompileWrapper",
+	"custom": {
+		"gear-builder": {
+			"category": "analysis",
+			"image": "analyzeprfgear"
+		}
+	}
+}
