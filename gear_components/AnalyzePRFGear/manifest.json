@@ -1,7 +1,7 @@
 {
 	"name": "analyzePRF",
 	"label": "analyzePRF: A gear for population receptive field (pRF) analysis",
-	"description": "Built from a MATLAB wrapper written for Kendrick Kay's AnalyzePRF script, this gear performs pRF analysis and allows ICA-fix zip archieves to be used as direct inputs. The gear looks for the cifti files in each of the separate run folders located in the ica-fix output and analyze all of them outputting an averaged result.mat file along with raw brain maps. If a threshold is specified, the gear also creates thresholded brain maps. Analysis of volumetric data is NOT currently supported.",
+	"description": "Built from a MATLAB wrapper written for Kendrick Kay's AnalyzePRF script, this gear performs pRF analysis and allows ICA-fix zip archieves to be used as direct inputs. The gear looks for the cifti files in each of the separate run folders located in the ica-fix archive and analyzes all of them outputting an averaged results.mat file along with raw brain maps. Analysis of volumetric data is NOT currently supported.",
 	"author": "Wrapper written by Ozenc Taskin based on Kendrick Kay's AnalyzePRF function",
 	"maintainer": "Ozenc Taskin <huseyinozenc.taskin@pennmedicine.upenn.edu>",
 	"source": "https://github.com/kendrickkay/analyzePRF",
@@ -12,29 +12,34 @@
 	},
 	"license": "BSD-3-Clause",
 	"config": {
+		"verbose":  {
+  			"default": "1",
+  			"description": "Verbose. 1 or 0. Default: 1",
+  			"type": "string"
+		},
 		"dataFileType":  {
   			"default": "cifti",
   			"description": "Select the data type. Currently, only cifti surface files can be received from the ica-fix output",
   			"type": "string"
 		},
-		"TR":  {
+		"dataSourceType":  {
+  			"default": "icafix",
+  			"description": "Input archive type. Currently, only icafix archives are supported",
+  			"type": "string"
+		},
+		"trimDummyStimTRs":  {
+  			"default": "0",
+  			"description": "Used when the stimulus and data lengths are not equal and the inequality is due to the removal of dummy TRs from the sample. Calculates the mean along the time dimension for each voxel and adds that mean to the front of the data matrix (this procedure is repeated multiple times if required until data and stimulus sample lengths are exactly the same length. Don't use this option if the mismatch is due to sampling. 1 for true and 0 for false. Default = 0 (false)",
+  			"type": "string"
+		},
+		"averageAcquisitions":  {
+  			"default": "0",
+  			"description": "If used, averages the runs in the icafix directory before the pRF analysis. 1 for true and 0 for false. Default = 0 (false)",
+  			"type": "string"
+		},
+		"tr":  {
   			"description": "Required. TR in seconds (e.g. 1.5).",
   			"type": "string"
-		},
-		"prependDummyTRs":  {
-  			"default": "0",
-  			"description": "Used when the stimulus and data lengths are not equal and the inequality is due to the removal of dummy TRs from the sample. Calculates the mean along the time dimension for each voxel and adds that mean to the front of the data matrix (this procedure is repeated multiple times if required until data and stimulus sample lengths are exactly the same length. Don't use this option if the difference is due to sampling. 1 for true and 0 for false. Default = 0 (false)",
-  			"type": "string"
-		},
-		"thresholdData":  {
-  			"default": "10",
-  			"description": "Create brain maps thresholded with this percentage in addition to the raw maps. Default:10",
-  			"type": "string"
-		},
-		"pixelToDegree":  {
-			"default": "Na",
-  			"description": "Number. If a pixel to degree number is specified, eccentricity results are saved and represented on this scale (Warning: This affects the raw maps.)",
-			"type": "string"
 		},
 		"wantglmdenoise":  {
   			"default": "0",
@@ -75,6 +80,16 @@
   			"default": "10",
   			"description": "Is a typical value for the gain in each time-series. Default: 10.",
   			"type": "string"
+		},
+		"pixelToDegree":  {
+			"default": "Na",
+  			"description": "Number. If a pixel to degree number is specified, eccentricity results are saved and represented on this scale",
+			"type": "string"
+		},
+		"screenMagnification":  {
+			"default": "1.0",
+  			"description": "The stimulus screen is subject to magnification / minification if the subject is wearing corrective lenses. We account for this effect here. While in principle this could be rolled into the pixelsPerDegree variable, we prefer to keep these separate to aid clear book-keeping.",
+			"type": "string"
 		}
 	},
 	"inputs": {
