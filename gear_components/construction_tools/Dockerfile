@@ -9,23 +9,27 @@
 
 #################################################
 # Get the base flywheel image
-FROM flywheel/matlab-mcr:v95
+FROM ubuntu:latest
 
 # Update system
-RUN apt-get update
+RUN apt-get update -y
+RUN apt-get install wget -y
 
 # Install python and pip
-RUN apt-get install python -y
-RUN apt-get install python-pip -y
-RUN pip install --upgrade pip
+RUN apt-get install python3 -y
+RUN apt-get install python3-pip -y
 
 # Install git and zip
 RUN apt-get install zip unzip -y
 RUN apt-get install git -y
 
 # Install script dependencies
-RUN pip install git+https://github.com/noahbenson/neuropythy.git
-RUN pip install numpy
+RUN pip3 install git+https://github.com/noahbenson/neuropythy.git
+
+# Install MCR. Install path: usr/local/MATLAB/MATLAB_Runtime/v97
+RUN wget -O opt/mcr.zip http://ssd.mathworks.com/supportfiles/downloads/R2019b/Release/0/deployment_files/installer/complete/glnxa64/MATLAB_Runtime_R2019b_glnxa64.zip
+RUN unzip opt/mcr.zip -d opt/
+RUN opt/install -mode silent -agreeToLicense yes
 
 # Install workbench. Installed in usr/bin/ 
 RUN apt-get install connectome-workbench -y

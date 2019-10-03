@@ -2,7 +2,7 @@
 	"name": "analyzeprf",
 	"label": "analyzePRF",
 	"description": "Built from a MATLAB wrapper written for Kendrick Kay's AnalyzePRF script, this gear performs pRF analysis and allows ICA-fix zip archieves to be used as direct inputs. The gear looks for the cifti files in each of the separate run folders located in the ica-fix archive and analyzes all of them outputting an averaged results.mat file along with raw brain maps. Analysis of volumetric data is NOT currently supported.",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"inputs": {
 		"funcZipPath": {
 			"base": "file",

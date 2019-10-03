@@ -1,7 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import os
-os.system("mv /opt/mcr/v95/bin/glnxa64/libexpat.so.1 /opt/mcr/v95/bin/glnxa64/libexpat.so.1-appended")
+os.system("mv /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libexpat.so.1 /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libexpat.so.1-appended")
 import json
 
 # Flywheel path
@@ -36,7 +36,7 @@ config_path = os.path.join(flywheel_base, 'config.json')
 matlab_func = '/opt/func_input/run_mainPRF.sh'
 first_output_dir = '/firstOutput'
 final_output_dir = os.path.join(flywheel_base, 'output')
-mcr_path = '/opt/mcr/v95' #path to MATLAB runtime
+mcr_path = '/usr/local/MATLAB/MATLAB_Runtime/v97' #path to MATLAB runtime
 workbench_path = '/usr/bin/wb_command'
 path_to_python_func = '/opt/make_fsaverage.py'
 
