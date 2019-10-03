@@ -118,7 +118,7 @@ if strcmp(p.Results.dataFileType,'cifti')
     % Uncompress the structZip into the dir that holds the zip. We do this
     % with a system call so that we can prevent over-writing a prior unzipped
     % version of the data (which can happen in demo mode).
-    command = ['unzip -n ' structZipPath ' -d ' fileparts(structZipPath)];
+    command = ['unzip -q -n ' structZipPath ' -d ' fileparts(structZipPath)];
     system(command);
     
     % Find the directory that is produced by this unzip operation

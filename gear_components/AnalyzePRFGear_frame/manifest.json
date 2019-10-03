@@ -6,11 +6,11 @@
 	"maintainer": "Ozenc Taskin <huseyinozenc.taskin@pennmedicine.upenn.edu>",
 	"source": "https://github.com/kendrickkay/analyzePRF",
 	"url": "https://github.com/gkaguirrelab/pRFCompileWrapper",
-	"version": "0.2.0",
+	"version": "0.2.2",
 	"custom": {
 		"docker-image": ""
 	},
-	"license": "BSD-3-Clause",
+	"license": "Other",
 	"config": {
 		"verbose":  {
   			"default": "1",
