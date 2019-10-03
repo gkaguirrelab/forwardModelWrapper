@@ -16,6 +16,8 @@ def compile_mainPRF(path_to_matlab_documents, output_folder):
     # path_to_matlab_documents: Path to the MATLAB folder in Documents 
     # output_folder: Path to the save folder
     
+    # Run this script from the terminal: python <path_to_this_function> <path_to_matlab_documents> <output_folder>
+
     # Create the output folder if doesn't exist
     if not os.path.exists(output_folder):
         os.system("mkdir %s"%output_folder)

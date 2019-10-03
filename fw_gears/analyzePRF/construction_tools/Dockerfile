@@ -1,9 +1,10 @@
+# analyzePRF
 # This script builds a docker image constructed on flywheel's mcr image.
 
 # Usage: 
 # cd into the directory that contains this directory and run "docker build -t analyzeprfbase ."
 
-# If you want to bash into the image run "docker run -ti analyzeprfbase" after the configuration  # is done. 
+# If you want to bash into the image run "docker run -ti analyzeprfbase" after the configuration is done. 
 
 # To upload first login with "docker login" then tag your image with "docker tag <imageID> <username>/<imagename>" and push with "docker push <username>/<imagename>"
 
