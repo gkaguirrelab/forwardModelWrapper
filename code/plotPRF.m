@@ -1,18 +1,20 @@
-function plotPRF(results,data,stimulus)
+function plotPRF(results,data,stimulus,outPath)
 
 
 %% modelPlotPRF
 % Visualize some results
 
 % Define some variables
-res = [108 108];                    % row x column resolution of the stimuli
-resmx = 108;                        % maximum resolution (along any dimension)
+sizer = size(stimulus{1});
+res = sizer(1:2);                   % row x column resolution of the stimuli
+resmx = max(res);                   % maximum resolution (along any dimension)
 hrf = results.options.hrf;          % HRF that was used in the model
 degs = results.options.maxpolydeg;  % vector of maximum polynomial degrees used in the model
-vxs = results.options.vxs;
+vxs = results.options.vxs;          % vector of analyzed vertices / voxels
+fitThresh = 0.1;                    % R^2 threshold to display
 
 % Pre-compute cache for faster execution
-[d,xx,yy] = makegaussian2d(resmx,2,2,2,2);
+[~,xx,yy] = makegaussian2d(resmx,2,2,2,2);
 
 % Prepare the stimuli for use in the model
 stimulusPP = {};
@@ -53,7 +55,12 @@ for p=1:length(data)
 end
 
 % Visualize the model fit
-figure; hold on;
+fig1 = figure('visible','off');
+set(fig1,'PaperOrientation','landscape');
+set(fig1,'PaperUnits','normalized');
+set(fig1,'PaperPosition', [0 0 1 1]);
+
+hold on;
 set(gcf,'Units','points','Position',[100 100 1000 100]);
 plot(cat(1,datats{:}),'r-');
 plot(cat(1,modelts{:}),'b-');
@@ -63,11 +70,17 @@ ax = axis;
 axis([.5 size(datats{1},1)+.5 ax(3:4)]);
 title(['Time-series data, CIFTI vertex ' num2str(vx)]);
 
+% Save the figure
+plotFileName = fullfile(outPath,'exampleTimeSeriesFit.pdf');
+print(fig1,plotFileName,'-dpdf','-fillpage')
+close(fig1);
+
 % Visualize the location of each voxel's pRF
-goodIdx = results.R2>0.1;
-figure; hold on;
+fig2 = figure('visible','off');
+hold on;
+
+goodIdx = results.R2 > fitThresh;
 set(gcf,'Units','points','Position',[100 100 400 400]);
-cmap = jet(size(length(vxs),1));
 scatter(results.cartX(goodIdx),results.cartY(goodIdx),...
     results.rfsize(goodIdx)*200,...
     'o','filled', ...
@@ -77,9 +90,13 @@ hold on
 scatter(results.cartX(vx),results.cartY(vx),...
     results.rfsize(vx)*200,...
     'o', 'MarkerEdgeColor','blue','MarkerFaceColor','none');
-xlim([-20 20]);
-ylim([-20 20]);
 xlabel('X-position (deg)');
 ylabel('Y-position (deg)');
+title('pRF centers and sizes in visual field degrees');
+
+% Save the figure
+plotFileName = fullfile(outPath,'visualFieldCoverage.pdf');
+saveas(fig2,plotFileName)
+close(fig2);
 
 end
