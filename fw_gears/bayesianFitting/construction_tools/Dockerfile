@@ -13,7 +13,6 @@ FROM ubuntu:latest
 
 # Update system
 RUN apt-get update -y
-RUN apt-get install wget -y
 
 # Install python and pip
 RUN apt-get install python3 -y

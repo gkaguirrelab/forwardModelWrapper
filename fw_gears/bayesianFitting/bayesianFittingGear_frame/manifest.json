@@ -1,6 +1,6 @@
 {
-	"name": "BayesianFitting",
-	"label": "NEUROPYTHY: Bayesian analysis of retinotopic maps (Benson & Winawer, 2018)",
+	"name": "bayesPRF",
+	"label": "bayesPRF: template fitting of retinotopic maps using neuropythy",
 	"description": "This gear utilizes the Neuropythy python package written by Noah C. Benson and fits a pre-calculated retinotopic model of V1, V2, and V3 to retinotopy data. maps_nativeMGZ.zip or maps_nativeMGZpseudoHemisphere.zip outputs obtained from the analyzePRF gear can be used here as input",
 	"author": "Noah C. Benson <nben@nyu.edu>",
 	"maintainer": "Ozenc Taskin <huseyinozenc.taskin@pennmedicine.upenn.edu>",
@@ -32,24 +32,9 @@
 			"description": "do not output reg file",
 			"type": "boolean"
 		},
-		"no-lh": {
-			"default": true,
-			"description": "left hemisphere should not be registered",
-			"type": "boolean"
-		},
-		"no-rh": {
-			"default": true,
-			"description": "right hemisphere should not be registered",
-			"type": "boolean"
-		},
 		"clean": {
 			"default": false,
 			"description": "Instructs the algorithm to clean the retinotopy with a basic smoothing routine before performing registration (EXPERIMENTAL !!).",
-			"type": "boolean"
-		},
-		"no-resample": {
-			"default": true,
-			"description": "Indicates that the cortical map should not be resampled to a uniform triangle grid immediately prior to registration. This is generally only a good idea when used when the subject being registered is the fsaverage or fsaverage_sym subject.",
 			"type": "boolean"
 		},
 		"partial-correction": {
@@ -62,15 +47,40 @@
 			"description": "Specifies that the model used should be a version of the Schira 2010 model as used in Benson et al. (2014) PLOS Comput Biol; this model is on the fsaverage_benson17 pseudo-hemisphere.",
 			"type": "boolean"
 		},
-		"no-invert-rh-angle": {
-			"default": true,
-			"description": "If the RH hemisphere polar angle values do not need to be negated in order to match the model, this option should be given. Note that both the standard and the fsaverage_sym model (see --model-sym option) encode the polar angle values as ranging from 0 degrees (upper vertical meridian) to 180 degrees (lower vertical meridian). Therefore, this option should generally not be used unless your RH data has already been inverted.",
-			"type": "boolean"
-		},
 		"weight-min": {
 			"default": 0.1,
 			"description": " The cutoff value to use for the weight; 0.1 by default. Weights less than this will be truncated to 0.",
 			"type": "number"
+		},
+		"scale": {
+			"default": 20.0,
+			"description": "Specifies the strength of the functional forces relative to anatomical forces during the registration; higher values will generally result in more warping while lower values will result in less warping. The default value is 20.",
+			"type": "number"
+		},
+		"field-sign-weight": {
+			"default": 1.0,
+			"description": "The strength of the field-sign-based. Both the field-sign and the pRF radius are used to modify the\n   weights on the individual vertices prior to the registration. Values of 0 indicate that this part of the weight should be ignored while values of 1 indicate that the weight should be relatively strong (default is 1 for both).",
+			"type": "number"
+		},
+		"radius-weight": {
+			"default": 1.0,
+			"description": "The strength of the radius-based-matching. Both the field-sign and the pRF radius are used to modify the weights on the individual vertices prior to the registration. Values of 0 indicate that this part of the weight should be ignored while values of 1 indicate that the weight should be relatively strong (default is 1 for both).",
+			"type": "number"
+		},
+		"max-steps": {
+			"default": 2500,
+			"description": "This option specifies the maximum number of steps to run the registration; by default this is 2000.",
+			"type": "number"
+		},
+		"max-step-size": {
+			"default": 0.02,
+			"description": "This specifies the max step-size for any single vertex; by default this is 0.05.",
+			"type": "number"
+		},
+		"prior": {
+			"default": "benson17",
+			"description": "This specifies the name of the prior registration to use in the fsaverage or fsaverage_sym subject; by default this is 'benson17'",
+			"type": "string"
 		}
 	},
 
