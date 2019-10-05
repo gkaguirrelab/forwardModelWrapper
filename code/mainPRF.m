@@ -64,8 +64,7 @@ p.parse(funcZipPath, stimFilePath, structZipPath, varargin{:})
 
 
 
-%% PRF analysis
-% Call AnalyzePRFPreprocess
+%% AnalyzePRFPreprocess
 [stimulus, data, vxs, templateImage] = ...
     preprocessPRF(p.Results.workbenchPath, funcZipPath, stimFilePath, ...
     'maskFilePath',p.Results.maskFilePath, ...
@@ -84,7 +83,12 @@ else
     hrf = [];
 end
 
-% Call the analyzePRF wrapper
+
+%% Start the parpool
+startParpool;
+
+
+%% wrapperPRF
 results = wrapperPRF(stimulus, data, vxs, ...
     'tr',p.Results.tr,...
     'hrf',hrf,...
@@ -103,10 +107,8 @@ results = wrapperPRF(stimulus, data, vxs, ...
     'pixelsPerDegree', p.Results.pixelsPerDegree, ...
     'screenMagnification', p.Results.screenMagnification);
 
-% If we are in demo mode, show some plots
-if p.Results.demoMode
-    plotPRF(modifiedResults,data,stimulus)
-end
+% Create and save some plots
+plotPRF(modifiedResults,data,stimulus,p.Results.outPath)
 
 
 %% Convert to MGZ
@@ -141,12 +143,15 @@ if strcmp(p.Results.dataFileType,'cifti')
     
     % Perform the call and report if an error occurred
     if ~isempty(p.Results.externalMGZMakerPath)
-        command =  ['python3 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
-        %command =  ['python ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
+        if floor(str2double(pyversion)) == 3
+            command =  ['python3 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
+        else
+            command =  ['python ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
+        end
         callErrorStatus = system(command);
         if callErrorStatus
             warning('An error occurred during execution of the external Python function for map conversion');
         end
-end
-
+    end
+    
 end % Main function

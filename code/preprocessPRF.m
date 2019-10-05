@@ -105,7 +105,7 @@ end
 
 % Inform the user
 if verbose
-    fprintf('  Unzipping\n');
+    fprintf('  Unzipping funcZip\n');
 end
 
 % Uncompress the zip archive into the dir that holds the zip. We do this
