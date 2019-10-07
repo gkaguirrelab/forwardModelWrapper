@@ -143,10 +143,11 @@ if strcmp(p.Results.dataFileType,'cifti')
     
     % Perform the call and report if an error occurred
     if ~isempty(p.Results.externalMGZMakerPath)
-        if floor(str2double(pyversion)) == 3
-            command =  ['python3 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
-        else
-            command =  ['python ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
+        %if floor(str2double(pyversion)) == 3
+            %command =  ['python3 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
+        %else
+            %command =  ['python ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
+        command =  ['python3 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
         end
         callErrorStatus = system(command);
         if callErrorStatus

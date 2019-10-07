@@ -82,6 +82,8 @@ os.system(cmd)
 ################## Zip everything and output ##################################
 os.system('mv %s %s'%(os.path.join(first_output_dir,'raw_retinotopy_results.mat'), os.path.join(final_output_dir,'raw_retinotopy_results.mat'))) 
 os.system('mv %s %s'%(os.path.join(first_output_dir,'modified_retinotopy_results.mat'), os.path.join(final_output_dir,'modified_retinotopy_results.mat')))
+os.system('mv %s %s'%(os.path.join(first_output_dir,'exampleTimeSeriesFit.pdf'), os.path.join(final_output_dir,'exampleTimeSeriesFit.pdf')))
+os.system('mv %s %s'%(os.path.join(first_output_dir,'visualFieldCoverage.pdf'), os.path.join(final_output_dir,'visualFieldCoverage.pdf')))
  
 os.system('zip -r %s %s'%(os.path.join(final_output_dir,'maps_cifti.zip'), os.path.join(first_output_dir,'maps_cifti')))
 os.system('zip -r %s %s'%(os.path.join(final_output_dir,'maps_nativeMGZ.zip'), os.path.join(first_output_dir,'maps_nativeMGZ')))
