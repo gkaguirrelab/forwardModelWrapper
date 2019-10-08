@@ -40,11 +40,8 @@ def make_fsaverage(path_to_cifti_maps, path_to_hcp, alignment_type, native_mgz, 
         (orig_lhdat, orig_rhdat, orig_other) = ny.hcp.cifti_split(tempim)  
         original_result_left = hem_from_left.interpolate(hem_to_left, orig_lhdat)
         original_result_right = hem_from_right.interpolate(hem_to_right, orig_rhdat)
-        if amap == maps['x_map'] or amap == maps['y_map']:
-            pass
-        else:
-            ny.save(os.path.join(native_mgz,'L_original_%s.mgz'%amap), original_result_left)
-            ny.save(os.path.join(native_mgz,'R_original_%s.mgz'%amap), original_result_right)
+        ny.save(os.path.join(native_mgz,'L_original_%s.mgz'%amap), original_result_left)
+        ny.save(os.path.join(native_mgz,'R_original_%s.mgz'%amap), original_result_right)
         
         # Get a copy of the unprocessed hemispheres and overwrite them with the
         # flipped versions
@@ -59,7 +56,7 @@ def make_fsaverage(path_to_cifti_maps, path_to_hcp, alignment_type, native_mgz, 
         final_averaged_left = orig_lhdat.copy()
         final_averaged_right = orig_rhdat.copy()
         for length in range(len(orig_lhdat)):
-            if amap == maps['x_map']:
+            if amap == 'x_map':
                 final_averaged_left[length] = (orig_lhdat[length] + (-1 * flipped_lhdat[length]))/2
                 final_averaged_right[length] = (orig_rhdat[length] + (-1 * flipped_rhdat[length]))/2
             else:
