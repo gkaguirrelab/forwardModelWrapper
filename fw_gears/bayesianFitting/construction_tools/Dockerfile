@@ -24,4 +24,7 @@ RUN apt-get install git -y
 
 # Install script dependencies
 RUN pip3 install git+https://github.com/noahbenson/neuropythy.git
+RUN apt-get install default-jre -y
+RUN apt-get install default-jdk -y
+
 

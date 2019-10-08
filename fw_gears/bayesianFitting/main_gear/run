@@ -7,8 +7,8 @@ import json
 flywheel_base ='/flywheel/v0/'
 
 # Path to input folder 
-native_mgz_maps_folder = os.path.join(flywheel_base, 'input/NativeMgzMaps')
-struct_zip_folder = os.path.join(flywheel_base, 'input/structZipPath')
+native_mgz_maps_folder = os.path.join(flywheel_base, 'input', 'NativeMgzMaps')
+struct_zip_folder = os.path.join(flywheel_base, 'input', 'structZipPath')
 
 # Set path to required inputs
 native_mgz_maps_zip_path = os.path.join(native_mgz_maps_folder, os.listdir(native_mgz_maps_folder)[0])
@@ -17,22 +17,22 @@ struct_zip_path = os.path.join(struct_zip_folder, os.listdir(struct_zip_folder)[
 # Set other paths
 manifest_file = os.path.join(flywheel_base, 'manifest.json')
 config_path = os.path.join(flywheel_base, 'config.json')
-first_output_dir = '/firstOutput'
+first_output_dir = os.path.join('/opt', 'firstOutput')
 final_output_dir = os.path.join(flywheel_base, 'output')
 
 os.system('mkdir %s'%first_output_dir)
 
 ################### Unzip and set more paths ##################################
 
-unzipped_maps = '/unzipped_maps'
+unzipped_maps = os.path.join('/opt' , 'unzipped_maps')
 if not os.path.exists(unzipped_maps):
     os.system('mkdir %s'%unzipped_maps)
-unzipped_hcp = '/unzipped_hcp'
+unzipped_hcp = os.path.join('/opt', 'unzipped_hcp')
 if not os.path.exists(unzipped_hcp):
     os.system('mkdir %s'%unzipped_hcp)
 
-os.system('unzip %s -d %s'%(native_mgz_maps_zip_path, unzipped_maps))
-os.system('unzip %s -d %s'%(struct_zip_path, unzipped_hcp))
+os.system('unzip -q %s -d %s'%(native_mgz_maps_zip_path, unzipped_maps))
+os.system('unzip -q %s -d %s'%(struct_zip_path, unzipped_hcp))
 unzipped_map_folder = os.path.join(unzipped_maps, os.listdir(unzipped_maps)[0])
 unzipped_map_folder = os.path.join(unzipped_maps, os.listdir(unzipped_maps)[0], os.listdir(unzipped_map_folder)[0])
 unzipped_hcp_folder = os.path.join(unzipped_hcp, os.listdir(unzipped_hcp)[0])
@@ -79,7 +79,7 @@ else:
 ###################Run Algorithm################################
 
 cmd = '''python3 -m neuropythy register_retinotopy %s \
---surf-outdir=.%s --vol-outdir=.%s --surf-format=mgz --weight-min=%s --scale=%s \
+--surf-outdir=%s --vol-outdir=%s --surf-format=mgz --weight-min=%s --scale=%s \
 --field-sign-weight=%s --radius-weight=%s --max-steps=%s --max-step-size=%s \
 --prior=%s \
 --lh-angle=%s --rh-angle=%s \
@@ -111,5 +111,6 @@ os.system(cmd)
 
 ################## Zip everything and output ##################################
 
-os.system('zip -r %s %s'%(os.path.join(final_output_dir,'inferences.zip'), os.path.join(first_output_dir,'*')))
+os.system('cd %s; zip -r %s *'%(first_output_dir, os.path.join(final_output_dir,'inferences.zip')))
+
 

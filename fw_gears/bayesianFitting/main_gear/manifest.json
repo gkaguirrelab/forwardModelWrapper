@@ -2,7 +2,7 @@
 	"name": "bayesprf",
 	"label": "bayesPRF: template fitting of retinotopic maps using neuropythy",
 	"description": "This gear utilizes the Neuropythy python package written by Noah C. Benson and fits a pre-calculated retinotopic model of V1, V2, and V3 to retinotopy data. maps_nativeMGZ.zip or maps_nativeMGZpseudoHemisphere.zip outputs obtained from the analyzePRF gear can be used here as input",
-	"version": "0",
+	"version": "0.1.0",
 	"inputs": {
 		"NativeMgzMaps": {
 			"base": "file",
@@ -38,12 +38,12 @@
 		},
 		"max-step-size": {
 			"default": 0.02,
-			"description": "This specifies the max step-size for any single vertex; by default this is 0.05.",
+			"description": "This specifies the max step-size for any single vertex; by default this is 0.02.",
 			"type": "number"
 		},
 		"max-steps": {
 			"default": 2500,
-			"description": "This option specifies the maximum number of steps to run the registration; by default this is 2000.",
+			"description": "This option specifies the maximum number of steps to run the registration; by default this is 2500.",
 			"type": "number"
 		},
 		"model-sym": {
@@ -93,19 +93,19 @@
 		},
 		"weight-min": {
 			"default": 0.1,
-			"description": " The cutoff value to use for the weight; 0.1 by default. Weights less than this will be truncated to 0.",
+			"description": " The cutoff value to use for the weight; 0.1 by default. Weights less than this will be truncated to 0.1",
 			"type": "number"
 		}
 	},
-	"author": "Ozzy Taskin",
-	"maintainer": "Ozzy Taskin",
+	"author": "Ozenc Taskin",
+	"maintainer": "Ozenc Taskin",
 	"license": "Other",
 	"source": "https://github.com/noahbenson/neuropythy",
 	"url": "",
 	"custom": {
 		"gear-builder": {
 			"category": "analysis",
-			"image": "gkaguirrelab/bayesianfittinggear:0.1.0"
+			"image": "bayesiangear"
 		}
 	}
 }
