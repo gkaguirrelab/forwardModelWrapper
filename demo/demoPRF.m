@@ -173,6 +173,9 @@ else
     vxsPass = [];
 end
 
+% Path to the external python routine that converts map formats
+externalMGZMakerPath = fullfile(getpref('pRFCompileWrapper','projectBaseDir'),'code','make_fsaverage.py');
+
 
 %% Call the main routine
 mainPRF(funcZipPath, stimFilePath, structZipPath, ...
