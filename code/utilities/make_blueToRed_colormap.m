@@ -1,4 +1,4 @@
-function [mycolormap] = make_rbco_colormap(mapres,show)
+function [mycolormap] = make_blueToRed_colormap(mapres,show)
 
 %   Creates a matrix useful for plotting pRF and ccRF correlation maps
 %
