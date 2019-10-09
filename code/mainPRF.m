@@ -49,7 +49,6 @@ p.addParameter('externalMGZMakerPath', [], @isstr)
 p.addParameter('RegName', 'FS', @isstr)
 
 % Config options - demo over-ride
-p.addParameter('demoMode', false, @islogical)
 p.addParameter('vxsPass', [], @isnumeric)
 
 % Internal paths
@@ -128,6 +127,7 @@ if strcmp(p.Results.dataFileType,'cifti')
         );
     fileList = fileList(cell2mat(extractfield(fileList,'isdir')));
     hcpStructPath = fullfile(fileList.folder,fileList.name);
+    subjectName = fileList.name;
     
     % Create directories for the output files
     nativeSpaceDirPath = fullfile(p.Results.outPath, 'maps_nativeMGZ');
@@ -146,5 +146,22 @@ if strcmp(p.Results.dataFileType,'cifti')
         warning('An error occurred during execution of the external Python function for map conversion');
     end
 end
+
+
+%% Save map images
+mapSet = {'eccentricity','angle','R2','rfsize','hrfshift'};
+mapTypes = {'ecc','pol','rsquared','sigma','hrfshift'};
+surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
+maxEccentricity = ceil((size(stimulus{1},1)/str2double(p.Results.pixelsPerDegree))/5)*5;
+for mm = 1:length(mapSet)
+    dataPath = fullfile(pseudoHemiDirPath,['R_processed_' mapSet{mm} '_map.mgz']);
+    fig = saveSurfMap(dataPath,surfPath, ...
+        'mapType',mapTypes{mm}, ...
+        'maxEccentricity',maxEccentricity, ...
+        'hemisphere','rh','visible',false);
+    plotFileName = fullfile(p.Results.outPath,['rh.' mapSet{mm} '.png']);
+    print(fig,plotFileName,'-dpng')
+end
+
 
 end % Main function
