@@ -6,9 +6,12 @@
 	"maintainer": "Ozenc Taskin <huseyinozenc.taskin@pennmedicine.upenn.edu>",
 	"source": "https://github.com/kendrickkay/analyzePRF",
 	"url": "https://github.com/gkaguirrelab/pRFCompileWrapper",
-	"version": "0.2.2",
+	"version": "0.2.5",
 	"custom": {
-		"docker-image": ""
+		"flywheel": {
+			"suite": "GKAguirreLab"
+		},
+		"docker-image": "gkaguirrelab/analyzeprfgear:0.2.5"
 	},
 	"license": "Other",
 	"config": {
