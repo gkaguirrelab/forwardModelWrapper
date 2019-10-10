@@ -149,12 +149,12 @@ end
 
 
 %% Save map images
-mapSet = {'eccentricity','angle','R2','rfsize','hrfshift'};
-mapTypes = {'ecc','pol','rsquared','sigma','hrfshift'};
+mapSet = {'eccentricity','angle','R2','rfsize','hrfshift','gain','exponent'};
+mapTypes = {'ecc','pol','rsquared','sigma','hrfshift','gain','exponent'};
 surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
-maxEccentricity = ceil((size(stimulus{1},1)/str2double(p.Results.pixelsPerDegree))/5)*5;
+maxEccentricity = ceil(((size(stimulus{1},1)/2)/str2double(p.Results.pixelsPerDegree))/5)*5;
 for mm = 1:length(mapSet)
-    dataPath = fullfile(pseudoHemiDirPath,['R_processed_' mapSet{mm} '_map.mgz']);
+    dataPath = fullfile(pseudoHemiDirPath,['R_' mapSet{mm} '_map.mgz']);
     fig = saveSurfMap(dataPath,surfPath, ...
         'mapType',mapTypes{mm}, ...
         'maxEccentricity',maxEccentricity, ...

@@ -76,6 +76,7 @@ p.addParameter('mapType', 'ecc', @ischar);
 p.addParameter('hemisphere','lh',@ischar);
 p.addParameter('whichSurface','inflated',@ischar); % pial, white, or sphere
 p.addParameter('maxEccentricity',30,@isscalar);
+p.addParameter('maxGain',200,@isscalar);
 p.addParameter('rsquaredDataPath','',@ischar);
 p.addParameter('rsquaredThresh',0.1,@isscalar);
 p.addParameter('alphaVal',0.85,@isscalar);
@@ -140,7 +141,7 @@ switch p.Results.mapType
         mycolormap = make_ecc_colormap(mapres);
         typeLabel = 'Eccentricity [deg]';
     case 'pol'
-        mapres=[0 360 p.Results.colorRes];
+        mapres=[-180 180 p.Results.colorRes];
         mycolormap = make_polar_colormap(mapres);
         typeLabel = 'Polar angle [deg]';
     case 'sigma'
@@ -155,6 +156,14 @@ switch p.Results.mapType
         mapres=[-4 4 p.Results.colorRes];
         mycolormap = make_blueToRed_colormap(mapres);
         typeLabel = 'shift hrf peak time [secs]';
+    case 'gain'
+        mapres=[0 p.Results.maxGain p.Results.colorRes];
+        mycolormap = flipud(jet(p.Results.colorRes));
+        typeLabel = 'response gain [T2* units]';
+    case 'exponent'
+        mapres=[0 2 p.Results.colorRes];
+        mycolormap = flipud(jet(p.Results.colorRes));
+        typeLabel = 'compressive exponent [au]';
     case 'areas'
         % Need to test and develop this with the output of Noah's routine
         %        getDistinguishableColors(n_colors,bg
@@ -266,8 +275,11 @@ switch p.Results.mapType
         x = linspace(-1,1,mapres(3));
         [xx,yy] = meshgrid(x);
         [img,r] = cart2pol(xx,yy);
-        img = ((img./pi)+1)*mapres(2)/2;
-        img(r>1) = mapres(2);
+        img(r>1) = pi; % Set values outside of circle to black
+        % Scale to the -180 to +180 regime
+        img = img/nanmax(img(:))*mapres(2);
+        % Rotate by 90 deg to get 0 as the upper vertical meridian
+        img = rot90(img);
         imagesc(x,x,img)
         caxis([mapres(1) mapres(2)]);
         colormap([mycolormap; 1 1 1])
