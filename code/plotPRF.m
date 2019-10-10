@@ -11,7 +11,8 @@ resmx = max(res);                   % maximum resolution (along any dimension)
 hrf = results.options.hrf;          % HRF that was used in the model
 degs = results.options.maxpolydeg;  % vector of maximum polynomial degrees used in the model
 vxs = results.options.vxs;          % vector of analyzed vertices / voxels
-fitThresh = 0.1;                    % R^2 threshold to display
+fitThresh = 0.15;                   % R^2 threshold to display
+plotSymbolScale = 100;              % The amount to scale up the plot symbols
 
 % Pre-compute cache for faster execution
 [~,xx,yy] = makegaussian2d(resmx,2,2,2,2);
@@ -82,13 +83,13 @@ hold on;
 goodIdx = results.R2 > fitThresh;
 set(gcf,'Units','points','Position',[100 100 400 400]);
 scatter(results.cartX(goodIdx),results.cartY(goodIdx),...
-    results.rfsize(goodIdx)*200,...
+    results.rfsize(goodIdx)*plotSymbolScale,...
     'o','filled', ...
     'MarkerFaceAlpha',1/8,'MarkerFaceColor','red');
 % Highlight the pRF for which we have plotted a time series
 hold on
 scatter(results.cartX(vx),results.cartY(vx),...
-    results.rfsize(vx)*200,...
+    results.rfsize(vx)*plotSymbolScale,...
     'o', 'MarkerEdgeColor','blue','MarkerFaceColor','none');
 xlabel('X-position (deg)');
 ylabel('Y-position (deg)');
