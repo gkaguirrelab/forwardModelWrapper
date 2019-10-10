@@ -94,5 +94,4 @@ fprintf('Installing neuropythy\n');
 command = 'pip install neuropythy > /dev/null';
 system(command);
 
-
 end

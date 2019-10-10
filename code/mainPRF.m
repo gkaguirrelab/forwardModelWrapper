@@ -1,4 +1,4 @@
-function mainPRF(funcZipPath, stimFilePath, structZipPath, varargin)
+function [hcpStructPath,nativeSpaceDirPath,pseudoHemiDirPath]=mainPRF(funcZipPath, stimFilePath, structZipPath, varargin)
 % When compiled, is called by the python run function in the gear
 %
 % Syntax:
@@ -154,7 +154,7 @@ mapTypes = {'ecc','pol','rsquared','sigma','hrfshift','gain','exponent'};
 surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
 maxEccentricity = ceil(((size(stimulus{1},1)/2)/str2double(p.Results.pixelsPerDegree))/5)*5;
 for mm = 1:length(mapSet)
-    dataPath = fullfile(pseudoHemiDirPath,['R_' mapSet{mm} '_map.mgz']);
+    dataPath = fullfile(nativeSpaceDirPath,['R_' mapSet{mm} '_map.mgz']);
     fig = saveSurfMap(dataPath,surfPath, ...
         'mapType',mapTypes{mm}, ...
         'maxEccentricity',maxEccentricity, ...
