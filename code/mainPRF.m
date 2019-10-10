@@ -46,12 +46,9 @@ p.addParameter('screenMagnification', '1.0', @isstr)
 
 % Config options - convert to mgz
 p.addParameter('externalMGZMakerPath', [], @isstr)
-% p.addParameter('externalMGZMakerPath',...
-%     fullfile(getpref('pRFCompileWrapper','projectBaseDir'),'code','make_fsaverage.py'), @isstr)
 p.addParameter('RegName', 'FS', @isstr)
 
 % Config options - demo over-ride
-p.addParameter('demoMode', false, @islogical)
 p.addParameter('vxsPass', [], @isnumeric)
 
 % Internal paths
@@ -130,6 +127,7 @@ if strcmp(p.Results.dataFileType,'cifti')
         );
     fileList = fileList(cell2mat(extractfield(fileList,'isdir')));
     hcpStructPath = fullfile(fileList.folder,fileList.name);
+    subjectName = fileList.name;
     
     % Create directories for the output files
     nativeSpaceDirPath = fullfile(p.Results.outPath, 'maps_nativeMGZ');
@@ -142,17 +140,28 @@ if strcmp(p.Results.dataFileType,'cifti')
     end
     
     % Perform the call and report if an error occurred
-    if ~isempty(p.Results.externalMGZMakerPath)
-        %if floor(str2double(pyversion)) == 3
-            %command =  ['python3 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
-        %else
-            %command =  ['python ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
-        command =  ['python3 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
-        end
-        callErrorStatus = system(command);
-        if callErrorStatus
-            warning('An error occurred during execution of the external Python function for map conversion');
-        end
+    command =  ['python3 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
+    callErrorStatus = system(command);
+    if callErrorStatus
+        warning('An error occurred during execution of the external Python function for map conversion');
     end
-    
+end
+
+
+%% Save map images
+mapSet = {'eccentricity','angle','R2','rfsize','hrfshift','gain','exponent'};
+mapTypes = {'ecc','pol','rsquared','sigma','hrfshift','gain','exponent'};
+surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
+maxEccentricity = ceil(((size(stimulus{1},1)/2)/str2double(p.Results.pixelsPerDegree))/5)*5;
+for mm = 1:length(mapSet)
+    dataPath = fullfile(pseudoHemiDirPath,['R_' mapSet{mm} '_map.mgz']);
+    fig = saveSurfMap(dataPath,surfPath, ...
+        'mapType',mapTypes{mm}, ...
+        'maxEccentricity',maxEccentricity, ...
+        'hemisphere','rh','visible',false);
+    plotFileName = fullfile(p.Results.outPath,['rh.' mapSet{mm} '.png']);
+    print(fig,plotFileName,'-dpng')
+end
+
+
 end % Main function
