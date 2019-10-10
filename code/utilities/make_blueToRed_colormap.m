@@ -1,4 +1,4 @@
-function [mycolormap] = make_blueToRed_colormap(mapres,show)
+function [mycolormap] = make_blueToRed_colormap(mapres)
 
 %   Creates a matrix useful for plotting pRF and ccRF correlation maps
 %
@@ -10,10 +10,7 @@ function [mycolormap] = make_blueToRed_colormap(mapres,show)
 %
 %   Written by Andrew S Bock Oct 2014
 
-%% Set up defaults
-if ~exist('show','var')
-    show = 0;
-end
+
 %% Create colormap
 % Blue to Blue-Gray 
 mycolormap(0*mapres(3)/4+1:1*mapres(3)/4,1) = linspace(0,0.375,mapres(3)/4);
@@ -31,16 +28,5 @@ mycolormap(2*mapres(3)/4+1:3*mapres(3)/4,3) = linspace(0.75,0.375,mapres(3)/4);
 mycolormap(3*mapres(3)/4+1:4*mapres(3)/4,1) = linspace(0.875,1,mapres(3)/4);
 mycolormap(3*mapres(3)/4+1:4*mapres(3)/4,2) = linspace(0.375,0,mapres(3)/4);
 mycolormap(3*mapres(3)/4+1:4*mapres(3)/4,3) = linspace(0.375,0,mapres(3)/4);
-%% Plot resulting colormap
-if show
-    figure;
-    x = linspace(-1,+1,mapres(3)); [xx,yy] = meshgrid(x);
-    [xx,yy] = meshgrid(x);
-    img = yy - min(yy(:));
-    img = img/nanmax(img(:))*mapres(2);
-    imagesc(x,x,img)
-    cb = colorbar;
-    caxis([mapres(1) mapres(2)]);
-    colormap(mycolormap)
-    set(cb,'YDir','normal')
+
 end

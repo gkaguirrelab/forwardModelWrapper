@@ -1,4 +1,4 @@
-function [mycolormap] = make_polar_colormap(mapres,show)
+function [mycolormap] = make_polar_colormap(mapres)
 
 %   Creates a matrxi useful for plotting pRF and ccRF polar angle maps
 %
@@ -10,10 +10,7 @@ function [mycolormap] = make_polar_colormap(mapres,show)
 %
 %   Written by Andrew S Bock Oct 2014
 
-%% Set up defaults
-if ~exist('show','var')
-    show = 0;
-end
+
 %% Create colormap
 %mycolormap = blue_green_red;
 mycolormap = zeros(mapres(3),3);
@@ -32,18 +29,5 @@ mycolormap(3*mapres(3)/4+1:mapres(3),2) = linspace(0,1,mapres(3)/4);
 mycolormap(3*mapres(3)/4+1:mapres(3),3) = linspace(1,0,mapres(3)/4);
 % Flip so visual field is reversed
 mycolormap = flipud(mycolormap);
-%% Plot resulting colormap
-if show
-    figure;
-    x = linspace(-1,1,mapres(3));
-    [xx,yy] = meshgrid(x);
-    [th,r] = cart2pol(xx,yy);
-    img = th;
-    img(r>1) = 3.2; % Set values outside of circle to black
-    img = img/nanmax(img(:))*mapres(2);
-    imagesc(x,x,img);
-    colorbar;
-    axis tight equal off
-    set(gca,'ydir','normal')
-    colormap([mycolormap;.8 .8 .8]);
+
 end
