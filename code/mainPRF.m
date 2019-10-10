@@ -1,4 +1,4 @@
-function [hcpStructPath,nativeSpaceDirPath,pseudoHemiDirPath]=mainPRF(funcZipPath, stimFilePath, structZipPath, varargin)
+function [hcpStructPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath]=mainPRF(funcZipPath, stimFilePath, structZipPath, varargin)
 % When compiled, is called by the python run function in the gear
 %
 % Syntax:

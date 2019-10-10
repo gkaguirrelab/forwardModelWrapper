@@ -164,10 +164,10 @@ switch p.Results.mapType
         mapres=[0 2 p.Results.colorRes];
         mycolormap = flipud(jet(p.Results.colorRes));
         typeLabel = 'compressive exponent [au]';
-    case 'areas'
-        % Need to test and develop this with the output of Noah's routine
-        %        getDistinguishableColors(n_colors,bg
-        %        mapres=[-5 5 length(mycolormap)];
+    case 'varea'
+        nAreas = length(unique(srf))-1;
+        mapres = [1 nAreas nAreas];
+        mycolormap = getDistinguishableColors(nAreas,{'w','k'});
         typeLabel = 'Visual area index';
     otherwise
         error('Unrecognized mapType');
