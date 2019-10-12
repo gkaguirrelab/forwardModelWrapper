@@ -196,16 +196,15 @@ alpha_vals(~isnan(srf)) = p.Results.alphaVal;
 
 %% Make figure
 if p.Results.visible
-    fig = figure('units','normalized','position',[0 0 .35 .25]);
+    fig = figure('units','pixels','position',[0 0 1050 469]);
 else
-    fig = figure('units','normalized','position',[0 0 .35 .25],'visible','off');
+    fig = figure('units','pixels','position',[0 0 1050 469],'visible','off');
     
 end
 
 %% Plot brain and surface map
 smp = brain;
 smp.facevertexcdata = cmap_vals;
-%set(gcf,'name',data);
 
 % Get the plot limits
 rl_pa_is_Max = ceil(nanmax(brain.vertices)/10)*10;
