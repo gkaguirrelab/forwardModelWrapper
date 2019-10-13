@@ -4,6 +4,8 @@ import os
 os.system("mv /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libexpat.so.1 /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libexpat.so.1-appended")
 import json
 
+os.system('cat /proc/cpuinfo')
+
 # Flywheel path
 flywheel_base ='/flywheel/v0/'
 

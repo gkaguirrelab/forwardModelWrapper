@@ -1,17 +1,17 @@
 {
 	"name": "analyzePRF",
-	"label": "analyzePRF: A gear for population receptive field (pRF) analysis",
-	"description": "Built from a MATLAB wrapper written for Kendrick Kay's AnalyzePRF script, this gear performs pRF analysis and allows ICA-fix zip archieves to be used as direct inputs. The gear looks for the cifti files in each of the separate run folders located in the ica-fix archive and analyzes all of them outputting an averaged results.mat file along with raw brain maps. Analysis of volumetric data is NOT currently supported.",
+	"label": "analyzePRF: derive retinotopic map using non-linear pRF fitting",
+	"description": "Built from a MATLAB wrapper written for Kendrick Kay's AnalyzePRF script, this gear performs pRF analysis and allows ICA-fix zip archives to be used as direct inputs. The gear looks for the cifti files in each of the separate run folders located in the ica-fix archive and outputs an results.mat file along with raw brain maps and diagnostic images.",
 	"author": "Wrapper written by Ozenc Taskin based on Kendrick Kay's AnalyzePRF function",
 	"maintainer": "Ozenc Taskin <huseyinozenc.taskin@pennmedicine.upenn.edu>",
 	"source": "https://github.com/kendrickkay/analyzePRF",
 	"url": "https://github.com/gkaguirrelab/pRFCompileWrapper",
-	"version": "0.2.5",
+	"version": "0.2.6",
 	"custom": {
 		"flywheel": {
 			"suite": "GKAguirreLab"
 		},
-		"docker-image": "gkaguirrelab/analyzeprfgear:0.2.5"
+		"docker-image": "gkaguirrelab/analyzeprfgear:0.2.6"
 	},
 	"license": "Other",
 	"config": {
