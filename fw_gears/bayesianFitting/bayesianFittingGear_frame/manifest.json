@@ -6,14 +6,17 @@
 	"maintainer": "Ozenc Taskin <huseyinozenc.taskin@pennmedicine.upenn.edu>",
 	"source": "https://github.com/noahbenson/neuropythy",
 	"url": "",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"custom": {
+		"flywheel": {
+			"suite": "GKAguirreLab"
+		},
 		"docker-image": ""
 	},
 	"license": "Other",
 	"config": {
 		"verbose": {
-			"default": false,
+			"default": true,
 			"description": "verbose mode",
 			"type": "boolean"
 		},
@@ -59,7 +62,7 @@
 		},
 		"field-sign-weight": {
 			"default": 1.0,
-			"description": "The strength of the field-sign-based. Both the field-sign and the pRF radius are used to modify the\n   weights on the individual vertices prior to the registration. Values of 0 indicate that this part of the weight should be ignored while values of 1 indicate that the weight should be relatively strong (default is 1 for both).",
+			"description": "The strength of the field-sign-based. Both the field-sign and the pRF radius are used to modify the weights on the individual vertices prior to the registration. Values of 0 indicate that this part of the weight should be ignored while values of 1 indicate that the weight should be relatively strong (default is 1 for both).",
 			"type": "number"
 		},
 		"radius-weight": {
@@ -81,6 +84,16 @@
 			"default": "benson17",
 			"description": "This specifies the name of the prior registration to use in the fsaverage or fsaverage_sym subject; by default this is 'benson17'",
 			"type": "string"
+		},
+		"max-input-eccen": {
+			"default": 8,
+			"description": "Maximum eccentricity.",
+			"type": "number"
+		},
+		"min-input-eccen": {
+			"default": 0,
+			"description": "Minimum eccentricity",
+			"type": "number"
 		}
 	},
 
