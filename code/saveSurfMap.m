@@ -185,17 +185,16 @@ end
 %% Color vertices
 cmap_vals = zeros(size(cmap_curv))+0.5;
 alpha_vals = zeros(size(cmap_curv,1),1);
-for i = 1:length(srf)
-    % Find the closest color value to the srf(i) value
-    [~,ind] = min(abs(myvec-srf(i)));
-    if isnan(srf(i))
-        col4thisvox = [.8 .8 .8]; % set nan to gray
+for ii = 1:length(srf)
+    % Find the closest color value to the srf(ii) value
+    [~,ind] = min(abs(myvec-srf(ii)));
+    if isnan(srf(ii)) || srf(ii)==0
+        col4thisvox = [.8 .8 .8]; % set nan and zero to gray
     else
         col4thisvox = mycolormap(ind,:);
     end
-    cmap_vals(i,:) = col4thisvox;
+    cmap_vals(ii,:) = col4thisvox;
 end
-
 
 %% Set the alpha transparency
 alpha_vals(~isnan(srf)) = p.Results.alphaVal;
