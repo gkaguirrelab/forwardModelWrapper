@@ -14,10 +14,11 @@ def compile_renderInferredMaps(path_to_matlab_documents, output_folder):
     
     #mcc_path = '/usr/local/MATLAB/R2018b/bin/mcc'
     mcc_path = 'mcc'
-    mcc_call = '%s -m -R -nodisplay %s -I %s -I %s -d %s -v'%(mcc_path,
+    mcc_call = '%s -m -R -nodisplay %s -I %s -I %s -I %s -d %s -v'%(mcc_path,
                                                      os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/renderInferredMaps.m'),
                                                      os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/'),
                                                      os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/utilities/'),
+                                                     os.path.join(path_to_matlab_documents,'toolboxes/freesurferMatlab/matlab/'),
                                                      output_folder)
     
     print('Compiling renderInferredMaps.m')
