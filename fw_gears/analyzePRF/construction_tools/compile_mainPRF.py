@@ -32,7 +32,7 @@ def compile_mainPRF(path_to_matlab_documents, output_folder):
     os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/plotPRF.m'),
     os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/startParpool.m'),
     os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/plotPRF.m'),
-    os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/saveSurfMap.m'),
+    os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/makeSurfMap.m'),
     os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/renderInferredMaps.m'),
     os.path.join(path_to_matlab_documents,'toolboxes/analyzePRF/'),
     os.path.join(path_to_matlab_documents,'toolboxes/HCPpipelines/global/matlab/'),
