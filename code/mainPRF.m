@@ -34,7 +34,6 @@ p.addParameter('wantglmdenoise','0',@isstr);
 p.addParameter('maxpolydeg','Na',@isstr);
 p.addParameter('seedmode','[0 1 2]',@isstr);
 p.addParameter('xvalmode','0',@isstr);
-p.addParameter('numperjob','Na',@isstr);
 p.addParameter('maxiter','500',@isstr);
 p.addParameter('typicalgain','10',@isstr);
 
