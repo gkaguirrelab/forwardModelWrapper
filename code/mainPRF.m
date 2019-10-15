@@ -21,7 +21,6 @@ p.addParameter('maskFilePath', 'Na', @isstr)
 p.addParameter('hrfFilePath', 'Na', @isstr)
 
 % Config options - multiple
-p.addParameter('verbose', '1', @isstr)
 p.addParameter('dataFileType', 'cifti', @isstr)
 
 % Config options - pre-process
@@ -37,7 +36,6 @@ p.addParameter('seedmode','[0 1 2]',@isstr);
 p.addParameter('xvalmode','0',@isstr);
 p.addParameter('numperjob','Na',@isstr);
 p.addParameter('maxiter','500',@isstr);
-p.addParameter('display','off',@isstr);
 p.addParameter('typicalgain','10',@isstr);
 
 % Config options - post-process
