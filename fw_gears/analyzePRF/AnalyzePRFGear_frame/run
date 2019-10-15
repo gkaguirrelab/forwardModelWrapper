@@ -72,7 +72,7 @@ cmd = """%s %s '%s' '%s' '%s' 'maskFilePath' '%s' 'hrfFilePath' '%s' \
 'seedmode' '%s' 'xvalmode' '%s' 'maxiter' '%s' \
 'typicalgain' '%s' 'pixelsPerDegree' '%s' 'screenMagnification' '%s' 'externalMGZMakerPath' '%s' 'RegName' '%s' 'workbenchPath' '%s' 'outPath' '%s'""" %(matlab_func, 
 mcr_path, func_zip_path, stim_file_path, struct_zip_path,
-mask_file_path, hrf_file_path, verbose, dataFileType, dataSourceType,
+mask_file_path, hrf_file_path, dataFileType, dataSourceType,
 trimDummyStimTRs, averageAcquisitions, tr, wantglmdenoise, maxpolydeg,
 seedmode, xvalmode, maxiter, typicalgain, pixelsPerDegree,
 screenMagnification, path_to_python_func, RegName, workbench_path, first_output_dir)
