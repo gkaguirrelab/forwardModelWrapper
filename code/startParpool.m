@@ -25,7 +25,18 @@ warning('off','MATLAB:datetime:NonstandardSystemTimeZoneFixed');
 warning('off','MATLAB:datetime:NonstandardSystemTimeZone');
 
 % Get the available cores
-nWorkers = feature('numcores');
+if ismac
+    % Code to run on Mac plaform
+    nWorkers = feature('numcores');
+elseif isunix
+    % Code to run on Linux plaform
+    [~,nWorkers] = system('nproc');
+elseif ispc
+    % Code to run on Windows platform
+    warning('Not supported for PC')
+else
+    disp('What are you using?')
+end
 fprintf(['Number of cores available: ' num2str(nWorkers) '\n']);
 
 % If a parallel pool does not exist, attempt to create one
