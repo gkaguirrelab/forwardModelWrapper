@@ -30,7 +30,9 @@ if ismac
     nWorkers = feature('numcores');
 elseif isunix
     % Code to run on Linux plaform
-    [~,nWorkers] = system('nproc');
+    command = 'echo "$(( $(lscpu | awk ''/^Socket\(s\)/{ print $2 }'') * $(lscpu | awk ''/^Core\(s\) per socket/{ print $4 }'') ))"';
+    [~,nWorkers] = system(command);
+    nWorkers = str2double(nWorkers);
 elseif ispc
     % Code to run on Windows platform
     warning('Not supported for PC')
