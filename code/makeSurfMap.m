@@ -1,8 +1,8 @@
-function fig = saveSurfMap(dataPath,surfPath, varargin)
+function fig = makeSurfMap(dataPath,surfPath, varargin)
 % Render and save retinotopic maps on the cortical surface
 %
 % Syntax:
-%  saveSurfMap(dataPath,surfPath)
+%  makeSurfMap(dataPath,surfPath)
 %
 % Description
 %
