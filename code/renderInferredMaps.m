@@ -22,7 +22,7 @@ p.parse(inferredMapsDirPath, surfPath, outPath)
 
 
 
-%% Save map images
+%% Save rh map images
 mapSet = {'eccen','angle','sigma','varea'};
 mapTypes = {'ecc','pol','sigma','varea'};
 for mm = 1:length(mapSet)
@@ -31,6 +31,18 @@ for mm = 1:length(mapSet)
         'mapType',mapTypes{mm}, ...
         'hemisphere','rh','visible',false);
     plotFileName = fullfile(outPath,['rh.inferred_' mapSet{mm} '.png']);
+    print(fig,plotFileName,'-dpng')
+end
+
+%% Save lh map images
+mapSet = {'eccen','angle','sigma','varea'};
+mapTypes = {'ecc','pol','sigma','varea'};
+for mm = 1:length(mapSet)
+    dataPath = fullfile(inferredMapsDirPath,['lh.inferred_' mapSet{mm} '.mgz']);
+    fig = saveSurfMap(dataPath,surfPath, ...
+        'mapType',mapTypes{mm}, ...
+        'hemisphere','lh','visible',false);
+    plotFileName = fullfile(outPath,['lh.inferred_' mapSet{mm} '.png']);
     print(fig,plotFileName,'-dpng')
 end
 
