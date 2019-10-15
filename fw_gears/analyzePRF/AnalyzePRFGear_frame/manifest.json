@@ -27,7 +27,7 @@
 		},
 		"trimDummyStimTRs":  {
   			"default": "0",
-  			"description": "Used when the stimulus and data lengths are not equal and the inequality is due to the removal of dummy TRs from the sample. Calculates the mean along the time dimension for each voxel and adds that mean to the front of the data matrix (this procedure is repeated multiple times if required until data and stimulus sample lengths are exactly the same length. Don't use this option if the mismatch is due to sampling. 1 for true and 0 for false. Default = 0 (false)",
+  			"description": "Used when the stimulus and data lengths are not equal and the inequality is due to the removal of dummy TRs from the sample. Calculates the mean along the time dimension for each voxel and adds that mean to the front of the data matrix. This procedure is repeated multiple times if required until data and stimulus sample lengths are exactly the same. If this option is set to zero, and the stimulus.mat file and the data have different numbers of timepoints, then the stimulus will be assumed to be of the same duration as the data so needs be resampled beforehand to match in temporal resolution. 1 for true and 0 for false. Default = 0 (false)",
   			"type": "string"
 		},
 		"averageAcquisitions":  {
@@ -41,7 +41,7 @@
 		},
 		"wantglmdenoise":  {
   			"default": "0",
-  			"description": "is whether to use GLMdenoise to determine nuisance regressors to add into the PRF model. Note that in order to use this feature, there must be at least two runs (and conditions must repeat across runs). We automatically determine the GLM design matrix based on the contents of <stimulus>. Special case is to pass in the noise regressors directly (e.g. from a previous call). default: 0 ",
+  			"description": "Determines whether to use GLMdenoise to determine nuisance regressors to add into the PRF model. Note that to use this feature, there must be at least two runs, and the stimulus must be the same across runs. We automatically determine the GLM design matrix based upon the contents of the stimulus.mat file. default: 0 ",
   			"type": "string"
 		},
 		"maxpolydeg":  {
@@ -66,12 +66,12 @@
 		},
 		"typicalgain":  {
   			"default": "10",
-  			"description": "Is a typical value for the gain in each time-series. Default: 10.",
+  			"description": "The expected amplitude of the BOLD fMRI response to the mapping stimulus. If the units of the data are in percent signal change, then a value of 1.0 would be typical. If the data are in raw signal units, then a value of 30 or greater would be typical. Default: 10.",
   			"type": "string"
 		},
 		"pixelsPerDegree":  {
 			"default": "Na",
-  			"description": "Number. If a pixel to degree number is specified, eccentricity results are saved and represented on this scale",
+  			"description": "To express the results in units of visual degrees, provide the number of pixels in the DOWNSAMPLED STIMULUS MAT FILE per degree of visual angle.",
 			"type": "string"
 		},
 		"screenMagnification":  {
