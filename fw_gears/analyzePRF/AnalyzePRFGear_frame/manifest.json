@@ -59,11 +59,6 @@
   			"description": "0 means just fit all the data - 1 means two-fold cross-validation (first half of runs; second half of runs) - 2 means two-fold cross-validation (first half of each run; second half of each run). default: 0. (note that we round when halving.) ",
   			"type": "string"
 		},
-		"numperjob":  {
-  			"default": "Na",
-  			"description": "Number. Na means to run locally (not on the cluster) N where N is a positive integer indicating the number of voxels to analyze in each cluster job this option requires a customized computational setup! default: Na",
-			"type": "string"
-		},
 		"maxiter":  {
   			"default": "500",
   			"description": "Is the maximum number of iterations. Default: 500",
