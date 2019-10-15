@@ -15,11 +15,6 @@
 	},
 	"license": "Other",
 	"config": {
-		"verbose":  {
-  			"default": "1",
-  			"description": "Verbose. 1 or 0. Default: 1",
-  			"type": "string"
-		},
 		"dataFileType":  {
   			"default": "cifti",
   			"description": "Select the data type. Currently, only cifti surface files can be received from the ica-fix output",
@@ -72,11 +67,6 @@
 		"maxiter":  {
   			"default": "500",
   			"description": "Is the maximum number of iterations. Default: 500",
-  			"type": "string"
-		},
-		"display":  {
-  			"default": "iter",
-  			"description": "is iter | final | off. Default: iter",
   			"type": "string"
 		},
 		"typicalgain":  {

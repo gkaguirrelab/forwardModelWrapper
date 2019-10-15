@@ -49,7 +49,6 @@ with open(config_path) as config_file:
     job_config = json.load(config_file)
 config = job_config['config']
 
-verbose = config['verbose']
 dataFileType = config['dataFileType']
 dataSourceType = config['dataSourceType']
 trimDummyStimTRs = config['trimDummyStimTRs']
@@ -61,7 +60,6 @@ seedmode = config['seedmode']
 xvalmode = config['xvalmode']
 numperjob = config['numperjob']
 maxiter = config['maxiter']
-display = config['display']
 typicalgain = config['typicalgain']
 pixelsPerDegree = config['pixelsPerDegree']
 screenMagnification = config['screenMagnification']
@@ -70,14 +68,14 @@ RegName = config['RegName']
 ###################Run Algorithm################################
     
 cmd = """%s %s '%s' '%s' '%s' 'maskFilePath' '%s' 'hrfFilePath' '%s' \
-'verbose' '%s' 'dataFileType' '%s' 'dataSourceType' '%s' 'trimDummyStimTRs' '%s' \
+'dataFileType' '%s' 'dataSourceType' '%s' 'trimDummyStimTRs' '%s' \
 'averageAcquisitions' '%s' 'tr' '%s' 'wantglmdenoise' '%s' 'maxpolydeg' '%s' \
-'seedmode' '%s' 'xvalmode' '%s' 'numperjob' '%s' 'maxiter' '%s' 'display' '%s' \
+'seedmode' '%s' 'xvalmode' '%s' 'numperjob' '%s' 'maxiter' '%s' \
 'typicalgain' '%s' 'pixelsPerDegree' '%s' 'screenMagnification' '%s' 'externalMGZMakerPath' '%s' 'RegName' '%s' 'workbenchPath' '%s' 'outPath' '%s'""" %(matlab_func, 
 mcr_path, func_zip_path, stim_file_path, struct_zip_path,
 mask_file_path, hrf_file_path, verbose, dataFileType, dataSourceType,
 trimDummyStimTRs, averageAcquisitions, tr, wantglmdenoise, maxpolydeg,
-seedmode, xvalmode, numperjob, maxiter, display, typicalgain, pixelsPerDegree,
+seedmode, xvalmode, numperjob, maxiter, typicalgain, pixelsPerDegree,
 screenMagnification, path_to_python_func, RegName, workbench_path, first_output_dir)
 
 os.system(cmd)        
