@@ -293,6 +293,13 @@ switch p.Results.mapType
         caxis([mapres(1) mapres(2)]);
         colormap([mycolormap; 1 1 1])
         h = colorbar('southoutside');
+    case 'vareas'
+        caxis([mapres(1) mapres(2)]);
+        colormap(mycolormap);
+        h = colorbar('southoutside');
+        h.Ticks = linspace(1, nAreas, nAreas);
+        ticLabels = {'V1','V2','V3','hV4','VO1','VO2','LO1','LO2','TO1','TO2','V3b','V3a'};
+        h.TickLabels = ticLabels;
     otherwise
         caxis([mapres(1) mapres(2)]);
         colormap(mycolormap);
