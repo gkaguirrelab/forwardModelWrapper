@@ -150,11 +150,12 @@ mapTypes = {'ecc','pol','rsquared','sigma','hrfshift','gain','exponent'};
 surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
 for mm = 1:length(mapSet)
     dataPath = fullfile(nativeSpaceDirPath,['R_' mapSet{mm} '_map.mgz']);
-    fig = saveSurfMap(dataPath,surfPath, ...
+    fig = makeSurfMap(dataPath,surfPath, ...
         'mapType',mapTypes{mm}, ...
         'hemisphere','rh','visible',false);
     plotFileName = fullfile(p.Results.outPath,['rh.' mapSet{mm} '.png']);
     print(fig,plotFileName,'-dpng')
+    close(fig);
 end
 
 %% Save lh map images
@@ -163,11 +164,12 @@ mapTypes = {'ecc','pol','rsquared','sigma','hrfshift','gain','exponent'};
 surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
 for mm = 1:length(mapSet)
     dataPath = fullfile(nativeSpaceDirPath,['L_' mapSet{mm} '_map.mgz']);
-    fig = saveSurfMap(dataPath,surfPath, ...
+    fig = makeSurfMap(dataPath,surfPath, ...
         'mapType',mapTypes{mm}, ...
         'hemisphere','lh','visible',false);
     plotFileName = fullfile(p.Results.outPath,['lh.' mapSet{mm} '.png']);
     print(fig,plotFileName,'-dpng')
+    close(fig);
 end
 
 
