@@ -148,7 +148,7 @@ if strcmp(p.Results.dataFileType,'cifti')
 end
 
 
-%% Save map images
+%% Save rh map images
 mapSet = {'eccentricity','angle','R2','rfsize','hrfshift','gain','exponent'};
 mapTypes = {'ecc','pol','rsquared','sigma','hrfshift','gain','exponent'};
 surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
@@ -158,6 +158,19 @@ for mm = 1:length(mapSet)
         'mapType',mapTypes{mm}, ...
         'hemisphere','rh','visible',false);
     plotFileName = fullfile(p.Results.outPath,['rh.' mapSet{mm} '.png']);
+    print(fig,plotFileName,'-dpng')
+end
+
+%% Save lh map images
+mapSet = {'eccentricity','angle','R2','rfsize','hrfshift','gain','exponent'};
+mapTypes = {'ecc','pol','rsquared','sigma','hrfshift','gain','exponent'};
+surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
+for mm = 1:length(mapSet)
+    dataPath = fullfile(nativeSpaceDirPath,['L_' mapSet{mm} '_map.mgz']);
+    fig = saveSurfMap(dataPath,surfPath, ...
+        'mapType',mapTypes{mm}, ...
+        'hemisphere','lh','visible',false);
+    plotFileName = fullfile(p.Results.outPath,['lh.' mapSet{mm} '.png']);
     print(fig,plotFileName,'-dpng')
 end
 
