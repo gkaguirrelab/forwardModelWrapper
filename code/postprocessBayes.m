@@ -1,4 +1,4 @@
-function make_cifti(leftHemiMap, rightHemiMap, hcpStructPath, templateDtseries, workbench_path, output)
+function postprocessBayes(leftHemiMap, rightHemiMap, hcpStructPath, templateDtseries, workbench_path, output)
 
 % Load neuropythy nifti interpolated maps
 leftRaw = MRIread(leftHemiMap);
