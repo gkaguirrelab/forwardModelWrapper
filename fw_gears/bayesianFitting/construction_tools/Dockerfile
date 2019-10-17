@@ -33,4 +33,6 @@ RUN wget -O opt/mcr.zip http://ssd.mathworks.com/supportfiles/downloads/R2019b/R
 RUN unzip opt/mcr.zip -d opt/
 RUN opt/install -mode silent -agreeToLicense yes
 
+# Install workbench. Installed in usr/bin/ 
+RUN apt-get install connectome-workbench -y
 
