@@ -10,7 +10,11 @@ RUN mkdir -p ${FLYWHEEL}
 COPY manifest.json run ${FLYWHEEL}
 RUN chmod +x /flywheel/v0/run
 COPY plot_func/ /opt/plot_func
-RUN chmod +x /opt/plot_func/*          
+RUN chmod +x /opt/plot_func/*    
+COPY interpolate_cifti.py /opt/
+RUN chmod +x /opt/interpolate_cifti.py   
+COPY postproc_func/ /opt/postproc_func
+RUN chmod +x /opt/postproc_func/*    
 
 # Set the entrypoint  
 ENTRYPOINT /flywheel/v0/run
