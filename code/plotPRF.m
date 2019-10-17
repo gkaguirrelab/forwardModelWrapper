@@ -43,7 +43,8 @@ end
 %% Inspect the data and the model fit
 
 % Pick the voxel with the best model fit
-[~,vx]=max(results.R2);
+[~,tmp]=max(results.R2(vxs));
+vx = vxs(tmp);
 
 % For each run, collect the data and the model fit.  We project out polynomials
 % from both the data and the model fit.  This deals with the problem of
