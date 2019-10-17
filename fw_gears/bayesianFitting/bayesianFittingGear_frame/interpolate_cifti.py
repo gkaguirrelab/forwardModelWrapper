@@ -1,5 +1,6 @@
 import neuropythy as ny
 import os 
+import sys
 
 def interpolate_cifti(path_to_inferred_maps, path_to_hcp, output):
 
