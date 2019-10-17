@@ -1,0 +1,181 @@
+#!/usr/bin/python3
+
+import os
+import json
+
+# Flywheel path
+flywheel_base ='/flywheel/v0/'
+mcr_path = '/usr/local/MATLAB/MATLAB_Runtime/v97' #path to MATLAB runtime
+matlab_plot_func = '/opt/plot_func/run_renderInferredMaps.sh'
+matlab_cifti_function = '/opt/postproc_func/run_postprocessBayes.sh'
+interpolate_function = '/opt/interpolate_cifti.py'
+
+# Path to input folder 
+native_mgz_maps_folder = os.path.join(flywheel_base, 'input', 'NativeMgzMaps')
+struct_zip_folder = os.path.join(flywheel_base, 'input', 'structZipPath')
+
+# Set path to required inputs
+native_mgz_maps_zip_path = os.path.join(native_mgz_maps_folder, os.listdir(native_mgz_maps_folder)[0])
+struct_zip_path = os.path.join(struct_zip_folder, os.listdir(struct_zip_folder)[0])
+
+# Set other paths
+manifest_file = os.path.join(flywheel_base, 'manifest.json')
+config_path = os.path.join(flywheel_base, 'config.json')
+first_output_dir = os.path.join('/opt', 'firstOutput')
+final_output_dir = os.path.join(flywheel_base, 'output')
+
+os.system('mkdir %s'%first_output_dir)
+
+################### Unzip and set more paths ##################################
+
+unzipped_maps = os.path.join('/opt' , 'unzipped_maps')
+if not os.path.exists(unzipped_maps):
+    os.system('mkdir %s'%unzipped_maps)
+unzipped_hcp = os.path.join('/opt', 'unzipped_hcp')
+if not os.path.exists(unzipped_hcp):
+    os.system('mkdir %s'%unzipped_hcp)
+
+print('unzipping files')
+
+os.system('unzip -q %s -d %s'%(native_mgz_maps_zip_path, unzipped_maps))
+os.system('unzip -q %s -d %s'%(struct_zip_path, unzipped_hcp))
+unzipped_map_folder = os.path.join(unzipped_maps, os.listdir(unzipped_maps)[0])
+subject_name = os.listdir(unzipped_hcp)[0]
+unzipped_hcp_folder = os.path.join(unzipped_hcp, subject_name)
+
+##################Parse Config Here############################
+with open(config_path) as config_file:
+    job_config = json.load(config_file)
+config = job_config['config']
+
+verbose = config['verbose']
+no_volume_export = config['no-volume-export']
+no_surface_export = config['no-surface-export']
+no_registration_export = config['no-registration-export']
+clean = config['clean']
+partial_correction = config['partial-correction']
+model_sym = config['model-sym']
+weight_minimum = config['weight-min']
+scale = config['scale']
+field_sign_weight = config['field-sign-weight']
+radius_weight = config['radius-weight']
+maximum_steps = config['max-steps']
+maximum_step_size = config['max-step-size']
+prior = config['prior']
+maximum_eccen = config['max-input-eccen']
+minimum_eccen = config['min-input-eccen']
+
+if 'pseudoHemisphere' in native_mgz_maps_zip_path:
+    lh_angle = os.path.join(unzipped_maps, 'L_angle_map.mgz')
+    rh_angle = os.path.join(unzipped_maps, 'R_angle_map.mgz')
+    lh_eccen = os.path.join(unzipped_maps, 'L_eccentricity_map.mgz')
+    rh_eccen = os.path.join(unzipped_maps, 'R_eccentricity_map.mgz')
+    lh_radius = os.path.join(unzipped_maps, 'L_rfsize_map.mgz')
+    rh_radius = os.path.join(unzipped_maps, 'R_rfsize_map.mgz')
+    lh_weight = os.path.join(unzipped_maps, 'L_R2_map.mgz')
+    rh_weight = os.path.join(unzipped_maps, 'R_R2_map.mgz')
+else:
+    lh_angle = os.path.join(unzipped_maps, 'L_angle_map.mgz')
+    rh_angle = os.path.join(unzipped_maps, 'R_angle_map.mgz')
+    lh_eccen = os.path.join(unzipped_maps, 'L_eccentricity_map.mgz')
+    rh_eccen = os.path.join(unzipped_maps, 'R_eccentricity_map.mgz')
+    lh_radius = os.path.join(unzipped_maps, 'L_rfsize_map.mgz')
+    rh_radius = os.path.join(unzipped_maps, 'R_rfsize_map.mgz')
+    lh_weight = os.path.join(unzipped_maps, 'L_R2_map.mgz')
+    rh_weight = os.path.join(unzipped_maps, 'R_R2_map.mgz')
+
+###################Run Algorithm################################
+
+cmd = '''python3 -m neuropythy register_retinotopy %s \
+--surf-outdir=%s --vol-outdir=%s --surf-format=mgz --weight-min=%s --scale=%s \
+--field-sign-weight=%s --radius-weight=%s --max-steps=%s --max-step-size=%s \
+--prior=%s --max-input-eccen=%s --min-input-eccen=%s \
+--lh-angle=%s --rh-angle=%s \
+--lh-eccen=%s --rh-eccen=%s \
+--lh-radius=%s --rh-radius=%s \
+--lh-weight=%s --rh-weight=%s'''%(unzipped_hcp_folder, first_output_dir,
+first_output_dir, weight_minimum, scale, field_sign_weight, radius_weight,
+maximum_steps, maximum_step_size, prior, maximum_eccen,minimum_eccen, lh_angle, rh_angle, lh_eccen, rh_eccen,
+lh_radius, rh_radius, lh_weight, rh_weight)
+
+if verbose == True:
+    cmd = cmd + ' --verbose'
+if no_volume_export == True:
+    cmd + ' --no-volume-export'
+if no_surface_export == True:
+    cmd + ' --no-surface-export'
+if no_registration_export == True:
+    cmd + ' --no-registration-export'
+if clean == True:
+    cmd + ' --clean'
+if partial_correction == True:
+    cmd + ' --partial-correction'
+if model_sym == True:
+    cmd + ' --model-sym'
+
+print(cmd)
+
+os.system(cmd)
+
+###################### Run interpolate_cifti ##################################
+
+print('Interpolating to cifti FS_LR space')
+
+cifti_temp = '/opt/cifti_temp'
+if not os.path.exists(cifti_temp):
+    os.system('mkdir %s'%cifti_temp)
+
+os.system('python3 %s %s %s %s'%(interpolate_function,
+                                 first_output_dir, 
+                                 unzipped_hcp_folder, 
+                                 cifti_temp))
+
+######################### Make cifti maps #####################################
+
+print('Making cifti maps')
+
+template_dtseries = '/opt/template.dtseries.nii'
+workbench_path = '/usr/bin/wb_command'
+
+cifti_maps = 'opt/cifti_maps'
+if not os.path.exists(cifti_maps):
+    os.system('mkdir %s'%cifti_maps)
+
+for i in os.listdir(cifti_temp):
+    if i[:2] == 'lh':
+        left_hemi = os.path.join(cifti_temp, i)
+        right_hemi = os.path.join(cifti_temp, 'rh' + i[2:])
+        cmd = '%s %s %s %s %s %s %s %s' % (matlab_cifti_function, mcr_path,
+                                           left_hemi, right_hemi, 
+                                           unzipped_hcp_folder,
+                                           template_dtseries, workbench_path,
+                                           cifti_maps)
+
+######################### Run renderInferred ##################################
+
+print('Making plots')
+
+cmd = '%s %s %s %s %s' % (matlab_plot_func, mcr_path, first_output_dir,
+                        os.path.join(unzipped_hcp_folder, 'T1w', subject_name, 'surf'),
+                        final_output_dir)
+os.system(cmd)
+     
+##################### Zip everything and output ###############################
+
+print('Zipping maps')
+
+os.system('cd %s; zip -q %s *' % (os.path.join(final_output_dir, 'cifti_maps.zip'), 
+                                  cifti_maps))
+
+volume_call = 'cd %s; zip -q %s/inferred_volume.zip' % (first_output_dir, final_output_dir)
+surface_call = 'cd %s; zip -q %s/inferred_surface.zip' % (first_output_dir, final_output_dir)
+
+for i in os.listdir(first_output_dir):
+    if i[:8] == 'inferred':
+        volume_call = volume_call + ' ' + i
+    else:
+        surface_call = surface_call + ' ' + i
+
+os.system(volume_call)
+os.system(surface_call)
+    
