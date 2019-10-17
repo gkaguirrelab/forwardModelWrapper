@@ -1,4 +1,4 @@
-function make_cifti(leftHemiMap, rightHemiMap, pathToHCP, templateDtseries, workbench_path, output)
+function make_cifti(leftHemiMap, rightHemiMap, hcpStructPath, templateDtseries, workbench_path, output)
 
 % Load neuropythy nifti interpolated maps
 leftRaw = MRIread(leftHemiMap);
@@ -10,8 +10,8 @@ rightHemiData = rightRaw.vol(:);
 
 % Load templates
 ciftiTemplate = ciftiopen(templateDtseries, workbench_path);
-leftAtlas = gifti(fullfile(pathToHCP,'MNINonLinear', 'fsaverage_LR32k', 'TOME_3045.L.atlasroi.32k_fs_LR.shape.gii'));
-rightAtlas = gifti(fullfile(pathToHCP,'MNINonLinear', 'fsaverage_LR32k', 'TOME_3045.R.atlasroi.32k_fs_LR.shape.gii'));
+leftAtlas = gifti(fullfile(hcpStructPath,'MNINonLinear', 'fsaverage_LR32k', 'TOME_3045.L.atlasroi.32k_fs_LR.shape.gii'));
+rightAtlas = gifti(fullfile(hcpStructPath,'MNINonLinear', 'fsaverage_LR32k', 'TOME_3045.R.atlasroi.32k_fs_LR.shape.gii'));
 
 % Concatanete AtlasROI vectors. These vectors are exactly the same for the 
 % FSLR template but we concatenate to make it usable for non symetrical
@@ -30,7 +30,7 @@ end
 % Get rid of the values that do not belong 
 fullData(fullData==9999) = [];
 
-% Calculate the number of subcortical vertices from atlases and concetenate
+% Calculate the number of subcortical vertices from the template and concetenate
 other = length(ciftiTemplate.cdata) - length(fullData);
 other = zeros(other,1);
 fullData = [fullData; other];
