@@ -117,15 +117,6 @@ print(cmd)
 
 os.system(cmd)
 
-######################### Run renderInferred ##################################
-
-print('Making plots')
-
-cmd = '%s %s %s %s %s' % (matlab_plot_func, mcr_path, first_output_dir,
-                        os.path.join(unzipped_hcp_folder, 'T1w', subject_name, 'surf'),
-                        final_output_dir)
-os.system(cmd)
-
 ###################### Run interpolate_cifti ##################################
 
 print('Interpolating to cifti FS_LR space')
@@ -159,7 +150,16 @@ for i in os.listdir(cifti_temp):
                                            unzipped_hcp_folder,
                                            template_dtseries, workbench_path,
                                            cifti_maps)
-        
+
+######################### Run renderInferred ##################################
+
+print('Making plots')
+
+cmd = '%s %s %s %s %s' % (matlab_plot_func, mcr_path, first_output_dir,
+                        os.path.join(unzipped_hcp_folder, 'T1w', subject_name, 'surf'),
+                        final_output_dir)
+os.system(cmd)
+     
 ##################### Zip everything and output ###############################
 
 print('Zipping maps')
