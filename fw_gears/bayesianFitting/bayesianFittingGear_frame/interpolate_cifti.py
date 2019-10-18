@@ -20,7 +20,7 @@ def interpolate_cifti(path_to_inferred_maps, path_to_hcp, output):
     other_maps_right['rh.inferred_varea'] = ny.load(os.path.join(path_to_inferred_maps, 'rh.inferred_varea.mgz'))    
     
     # Negate right hemi angles 
-    right_hemi_angle = ny.load(angle_ecc_maps['rh.inferred_angle'])
+    right_hemi_angle = ny.load(os.path.join(path_to_inferred_maps('rh.inferred_angle.mgz')))
     right_hemi_angle_negated = right_hemi_angle * -1
     ny.save(os.path.join(path_to_inferred_maps, 'rh.inferred_angle.mgz'), right_hemi_angle_negated)
 
