@@ -2,7 +2,7 @@
 	"name": "analyzeprf",
 	"label": "analyzePRF: derive retinotopic map using non-linear pRF fitting",
 	"description": "Built from a MATLAB wrapper written for Kendrick Kay's AnalyzePRF script, this gear performs pRF analysis and allows ICA-fix zip archives to be used as direct inputs. The gear looks for the cifti files in each of the separate run folders located in the ica-fix archive and outputs an results.mat file along with raw brain maps and diagnostic images.",
-	"version": "0.2.8",
+	"version": "0.2.9",
 	"inputs": {
 		"funcZipPath": {
 			"base": "file",
@@ -137,7 +137,7 @@
 		},
 		"gear-builder": {
 			"category": "analysis",
-			"image": "gkaguirrelab/analyzeprfgear:0.2.8"
+			"image": "gkaguirrelab/analyzeprfgear:0.2.9"
 		}
 	}
 }
