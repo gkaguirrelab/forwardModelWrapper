@@ -137,7 +137,7 @@ print('Making cifti maps')
 template_dtseries = '/opt/template.dtseries.nii'
 workbench_path = '/usr/bin/wb_command'
 
-cifti_maps = 'opt/cifti_maps'
+cifti_maps = '/opt/cifti_maps'
 if not os.path.exists(cifti_maps):
     os.system('mkdir %s'%cifti_maps)
 
@@ -164,8 +164,7 @@ os.system(cmd)
 
 print('Zipping maps')
 
-os.system('cd %s; zip -q %s *' % (os.path.join(final_output_dir, 'cifti_maps.zip'), 
-                                  cifti_maps))
+os.system('cd %s; zip -q %s *' % (cifti_maps, os.path.join(final_output_dir, 'cifti_maps.zip')))
 
 volume_call = 'cd %s; zip -q %s/inferred_volume.zip' % (first_output_dir, final_output_dir)
 surface_call = 'cd %s; zip -q %s/inferred_surface.zip' % (first_output_dir, final_output_dir)
