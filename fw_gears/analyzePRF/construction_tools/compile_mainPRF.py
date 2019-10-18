@@ -25,7 +25,7 @@ def compile_mainPRF(path_to_matlab_documents, output_folder):
     #mcc_path = '/usr/local/MATLAB/R2018b/bin/mcc'
     mcc_path = 'mcc'
     mcc_call = '%s -m -R -nodisplay %s -a %s -a %s -a %s -a %s -a %s -a %s -a %s -a %s -a %s -I %s -I %s \
-    -a %s -a %s -d %s -v'%(mcc_path, os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/mainPRF.m'),
+    -I %s -d %s -v'%(mcc_path, os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/mainPRF.m'),
     os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/preprocessPRF.m'),
     os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/postprocessPRF.m'),
     os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/wrapperPRF.m'),
@@ -37,8 +37,7 @@ def compile_mainPRF(path_to_matlab_documents, output_folder):
     os.path.join(path_to_matlab_documents,'toolboxes/analyzePRF/'),
     os.path.join(path_to_matlab_documents,'toolboxes/HCPpipelines/global/matlab/'),
     os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/utilities/'),    
-    os.path.join(path_to_matlab_documents,'toolboxes/freesurferMatlab/matlab/MRIwrite.m'),
-    os.path.join(path_to_matlab_documents,'toolboxes/freesurferMatlab/matlab/MRIread.m'),
+    os.path.join(path_to_matlab_documents,'toolboxes/freesurferMatlab/matlab/'),
     output_folder)
     
     print('Compiling mainPRF.m')
