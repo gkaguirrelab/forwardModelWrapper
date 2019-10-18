@@ -2,7 +2,7 @@
 	"name": "bayesprf",
 	"label": "bayesPRF: template fitting of retinotopic maps using neuropythy",
 	"description": "This gear utilizes the Neuropythy python package written by Noah C. Benson and fits a pre-calculated retinotopic model of V1, V2, and V3 to retinotopy data. maps_nativeMGZ.zip or maps_nativeMGZpseudoHemisphere.zip outputs obtained from the analyzePRF gear can be used here as input",
-	"version": "0",
+	"version": "0.1.2",
 	"inputs": {
 		"NativeMgzMaps": {
 			"base": "file",
@@ -113,6 +113,9 @@
 	"source": "https://github.com/noahbenson/neuropythy",
 	"url": "",
 	"custom": {
+		"flywheel": {
+			"suite": "GKAguirreLab"
+		},
 		"gear-builder": {
 			"category": "analysis",
 			"image": "gkaguirrelab/bayesianfittinggear:0.1.2"

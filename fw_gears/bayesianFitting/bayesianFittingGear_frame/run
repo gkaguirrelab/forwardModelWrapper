@@ -115,8 +115,6 @@ if partial_correction == True:
 if model_sym == True:
     cmd + ' --model-sym'
 
-print(cmd)
-
 os.system(cmd)
 
 ###################### Run interpolate_cifti ##################################
@@ -147,13 +145,15 @@ for i in os.listdir(cifti_temp):
     if i[:2] == 'lh':
         left_hemi = os.path.join(cifti_temp, i)
         right_hemi = os.path.join(cifti_temp, 'rh' + i[2:])
+        print(left_hemi)
+        print(right_hemi)
         name = left_hemi.replace('lh.','').replace('.mgz','') + '.dtseries.nii'
         cmd = '%s %s %s %s %s %s %s %s' % (matlab_cifti_function, mcr_path,
                                            left_hemi, right_hemi, 
                                            unzipped_hcp_folder,
                                            template_dtseries, workbench_path,
-                                           cifti_maps)
-
+                                           final_output_dir)
+        os.system(cmd)
 ######################### Run renderInferred ##################################
 
 print('Making plots')
