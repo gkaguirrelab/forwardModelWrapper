@@ -71,6 +71,14 @@ for ii = 1:length(fieldsToAdjust)
     modifiedResults.(fieldsToAdjust{ii})(zeroIdx) = nan;
 end
 
+
+% We find that the rfsize map contains negative values at points where
+% model fitting failed. We set these points to nan in all result maps.
+negIdx = modifiedResults.rfsize<=0;
+for ii = 1:length(fieldsToAdjust)
+    modifiedResults.(fieldsToAdjust{ii})(negIdx) = nan;
+end
+
 % If supplied, use the pixelsPerDegree value to convert the result data to
 % units of visual angle in degrees
 if ~strcmp(p.Results.pixelsPerDegree,'Na')
@@ -102,9 +110,6 @@ end
 % and interpolation steps.
 modifiedResults.cartX = modifiedResults.ecc .* cosd(modifiedResults.ang);
 modifiedResults.cartY = modifiedResults.ecc .* sind(modifiedResults.ang);
-
-% Convert R2 from percent to proportion
-modifiedResults.R2 = modifiedResults.R2 ./ 100;
 
 % Negative R2 values can result in areas of extremely poor model fit. We
 % set these to zero keep the R2 values in the domain of 0-1.
