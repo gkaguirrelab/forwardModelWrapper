@@ -147,12 +147,12 @@ for i in os.listdir(cifti_temp):
         right_hemi = os.path.join(cifti_temp, 'rh' + i[2:])
         print(left_hemi)
         print(right_hemi)
-        name = left_hemi.replace('lh.','').replace('.mgz','') + '.dtseries.nii'
+        save = os.path.join(final_output_dir, i.replace('lh.','').replace('.mgz','') + '.dtseries.nii')
         cmd = '%s %s %s %s %s %s %s %s' % (matlab_cifti_function, mcr_path,
                                            left_hemi, right_hemi, 
                                            unzipped_hcp_folder,
                                            template_dtseries, workbench_path,
-                                           final_output_dir)
+                                           save)
         os.system(cmd)
 ######################### Run renderInferred ##################################
 
