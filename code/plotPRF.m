@@ -12,7 +12,7 @@ plotSymbolScale = 100;              % The amount to scale up the plot symbols
 class = results.model.class;
 inputs = results.model.inputs;
 opts = results.model.opts;
-model = feval(class,inputs{:},opts{:});
+model = feval(class,data,inputs{:},opts{:});
 
 % Pick the voxel with the best model fit
 [~,tmp]=nanmax(results.R2(vxs));
@@ -29,7 +29,6 @@ datats = model.clean(datats);
 
 % Obtain the model fit
 modelts = model.forward(results.params(vx,:));
-modelts = model.clean(modelts);
 
 % Visualize the model fit
 fig1 = figure('visible','off');
