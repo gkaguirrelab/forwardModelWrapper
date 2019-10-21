@@ -148,28 +148,28 @@ end
 
 %% Save rh map images
 surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
-for mm = 1:length(modifiedResults.mapType)
-    dataPath = fullfile(nativeSpaceDirPath,['R_' modifiedResults.mapType{mm} '_map.mgz']);
+for mm = 1:length(modifiedResults.meta.mapField)
+    dataPath = fullfile(nativeSpaceDirPath,['R_' modifiedResults.meta.mapName{mm} '_map.mgz']);
     fig = makeSurfMap(dataPath,surfPath, ...
-        'mapScale',modifiedResults.mapType{mm}, ...
-        'mapLabel',modifiedResults.mapLabel{mm}, ...
-        'mapBounds',modifiedResults.mapBounds{mm}, ...
+        'mapScale',modifiedResults.meta.mapScale{mm}, ...
+        'mapLabel',modifiedResults.meta.mapLabel{mm}, ...
+        'mapBounds',modifiedResults.meta.mapBounds{mm}, ...
         'hemisphere','rh','visible',false);
-    plotFileName = fullfile(p.Results.outPath,['rh.' mapSet{mm} '.png']);
+    plotFileName = fullfile(p.Results.outPath,['rh.' modifiedResults.meta.mapName{mm} '.png']);
     print(fig,plotFileName,'-dpng')
     close(fig);
 end
 
 %% Save lh map images
-mapSet = {'eccentricity','angle','R2','rfsize','hrfshift','gain','exponent'};
-mapTypes = {'ecc','pol','rsquared','sigma','hrfshift','gain','exponent'};
 surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
-for mm = 1:length(mapSet)
-    dataPath = fullfile(nativeSpaceDirPath,['L_' mapSet{mm} '_map.mgz']);
+for mm = 1:length(modifiedResults.meta.mapField)
+    dataPath = fullfile(nativeSpaceDirPath,['L_' modifiedResults.meta.mapName{mm} '_map.mgz']);
     fig = makeSurfMap(dataPath,surfPath, ...
-        'mapType',mapTypes{mm}, ...
-        'hemisphere','lh','visible',false);
-    plotFileName = fullfile(p.Results.outPath,['lh.' mapSet{mm} '.png']);
+        'mapScale',modifiedResults.meta.mapScale{mm}, ...
+        'mapLabel',modifiedResults.meta.mapLabel{mm}, ...
+        'mapBounds',modifiedResults.meta.mapBounds{mm}, ...
+        'hemisphere','rh','visible',false);
+    plotFileName = fullfile(p.Results.outPath,['lh.' modifiedResults.meta.mapName{mm} '.png']);
     print(fig,plotFileName,'-dpng')
     close(fig);
 end

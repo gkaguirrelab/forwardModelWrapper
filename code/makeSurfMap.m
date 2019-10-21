@@ -254,7 +254,7 @@ end
 %% Add the legend
 subplot(spr(1),spr(2),[6 7]);
 
-switch p.Results.mapType
+switch p.Results.mapScale
     case 'ecc'
         x = linspace(-1,+1,mapres(3)); [xx,yy] = meshgrid(x);
         [~,r] = cart2pol(xx,yy);
@@ -267,7 +267,7 @@ switch p.Results.mapType
         h = colorbar('southoutside');
         set(gca,'ColorScale','log') 
         h.Ticks = logspace(log10(1), log10(mapres(3)), 8);
-        h.TickLabels = num2cell( round(logspace(log10(1), log10(p.Results.maxEccentricity), 8)*2)/2 );
+        h.TickLabels = num2cell( round(logspace(log10(mapres(1)), log10(mapres(2)), 8)*2)/2 );
     case 'pol'
         x = linspace(-1,1,mapres(3));
         [xx,yy] = meshgrid(x);
