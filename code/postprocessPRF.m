@@ -74,13 +74,13 @@ for ii = 1:length(fieldsToSave)
     switch p.Results.dataFileType
         case 'volumetric'
             fileName = fullfile(outDirName,[fieldsToSave{ii} '_map.nii.gz']);
-            outData.vol = modifiedResults.(fieldsToSave{ii});
+            outData.vol = results.(fieldsToSave{ii});
             outData.nframes = 1;
             MRIwrite(outData, fileName);
         case 'cifti'
             fileName = fullfile(outDirName,[fieldsToSave{ii} '_map.dtseries.nii']);
             outData = templateImage;
-            outData.cdata = single(modifiedResults.(fieldsToSave{ii}));
+            outData.cdata = single(results.(fieldsToSave{ii}));
             ciftisave(outData, fileName, workbenchPath)
         otherwise
             error('not a recognized dataFileType')
