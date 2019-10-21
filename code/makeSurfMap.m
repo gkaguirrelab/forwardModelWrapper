@@ -76,7 +76,7 @@ p.addParameter('mapType', 'ecc', @ischar);
 p.addParameter('hemisphere','lh',@ischar);
 p.addParameter('whichSurface','inflated',@ischar); % pial, white, or sphere
 p.addParameter('maxEccentricity',90,@isscalar);
-p.addParameter('maxGain',200,@isscalar);
+p.addParameter('maxGain',1000,@isscalar);
 p.addParameter('rsquaredDataPath','',@ischar);
 p.addParameter('rsquaredThresh',0.1,@isscalar);
 p.addParameter('alphaVal',0.85,@isscalar);
@@ -147,10 +147,10 @@ switch p.Results.mapType
         typeLabel = 'Polar angle [deg]';
         myvec = linspace(mapres(1),mapres(2),size(mycolormap,1));
     case 'sigma'
-        mapres=[0 10 p.Results.colorRes];
+        mapres=[0.1 20 p.Results.colorRes];
         mycolormap = flipud(jet(p.Results.colorRes));
         typeLabel = 'Sigma [deg]';
-        myvec = linspace(mapres(1),mapres(2),size(mycolormap,1));
+        myvec = logspace(log10(mapres(1)),log10(mapres(2)),size(mycolormap,1));
     case 'rsquared'
         mapres=[0 1 p.Results.colorRes];
         mycolormap = make_grayToRed_colormap(mapres);
@@ -293,6 +293,12 @@ switch p.Results.mapType
         caxis([mapres(1) mapres(2)]);
         colormap([mycolormap; 1 1 1])
         h = colorbar('southoutside');
+    case 'sigma'
+        colormap([mycolormap; 1 1 1])
+        h = colorbar('southoutside');
+        set(gca,'ColorScale','log') 
+        h.Ticks = logspace(log10(1), log10(mapres(2)), 8);
+        h.TickLabels = num2cell( round(logspace(log10(1), log10(mapres(2)), 8)*2)/2 );
     case 'vareas'
         caxis([mapres(1) mapres(2)]);
         colormap(mycolormap);

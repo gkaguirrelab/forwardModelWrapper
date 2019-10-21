@@ -5,8 +5,7 @@ function plotPRF(results,data,outPath)
 
 % Define some variables
 vxs = results.meta.vxs;          % vector of analyzed vertices / voxels
-fitThresh = 0.15;                   % R^2 threshold to display
-plotSymbolScale = 100;              % The amount to scale up the plot symbols
+fitThresh = 0.20;                   % R^2 threshold to display
 
 % Instantial the model
 class = results.model.class;
@@ -57,15 +56,29 @@ hold on;
 
 goodIdx = results.R2 > fitThresh;
 set(gcf,'Units','points','Position',[100 100 400 400]);
-scatter(results.cartX(goodIdx),results.cartY(goodIdx),...
-    results.rfsize(goodIdx)*plotSymbolScale,...
+h = scatter(results.cartX(goodIdx),results.cartY(goodIdx),...
     'o','filled', ...
     'MarkerFaceAlpha',1/8,'MarkerFaceColor','red');
+
+currentunits = get(gca,'Units');
+set(gca, 'Units', 'Points');
+axpos = get(gca,'Position');
+set(gca, 'Units', currentunits);
+markerWidth = (results.rfsize(goodIdx))./diff(xlim)*axpos(3); % Calculate Marker width in points
+set(h, 'SizeData', markerWidth.^2)
+
 % Highlight the pRF for which we have plotted a time series
 hold on
-scatter(results.cartX(vx),results.cartY(vx),...
-    results.rfsize(vx)*plotSymbolScale,...
+h = scatter(results.cartX(vx),results.cartY(vx),...    
     'o', 'MarkerEdgeColor','blue','MarkerFaceColor','none');
+currentunits = get(gca,'Units');
+set(gca, 'Units', 'Points');
+axpos = get(gca,'Position');
+set(gca, 'Units', currentunits);
+markerWidth = (results.rfsize(vx))./diff(xlim)*axpos(3); % Calculate Marker width in points
+set(h, 'SizeData', markerWidth.^2)
+
+
 xlabel('X-position (deg)');
 ylabel('Y-position (deg)');
 title('pRF centers and sizes in visual field degrees');
