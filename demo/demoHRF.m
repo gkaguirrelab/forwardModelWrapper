@@ -1,4 +1,4 @@
-% DEMO_AnalyzePRF
+% DEMO_AnalyzeHRF
 %
 % This routine downloads ICAFIX and hcp-struct data from flywheel and then
 % submits the files for analysis

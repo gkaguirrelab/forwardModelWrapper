@@ -72,11 +72,11 @@ p.addRequired('dataPath', @ischar);
 p.addRequired('surfPath', @ischar);
 
 % Optional key-value pairs
-p.addParameter('mapType', 'ecc', @ischar);
+p.addParameter('mapScale', 'ecc', @ischar);
+p.addParameter('mapLabel', [], @ischar);
+p.addParameter('mapBounds', [], @isnumeric);
 p.addParameter('hemisphere','lh',@ischar);
 p.addParameter('whichSurface','inflated',@ischar); % pial, white, or sphere
-p.addParameter('maxEccentricity',90,@isscalar);
-p.addParameter('maxGain',1000,@isscalar);
 p.addParameter('rsquaredDataPath','',@ischar);
 p.addParameter('rsquaredThresh',0.1,@isscalar);
 p.addParameter('alphaVal',0.85,@isscalar);
@@ -135,47 +135,35 @@ end
 
 
 %% Define color map
-switch p.Results.mapType
+switch p.Results.mapScale
     case 'ecc'
-        mapres=[1 p.Results.maxEccentricity p.Results.colorRes];
+        mapres=[p.Results.mapBounds p.Results.colorRes];
         mycolormap = make_ecc_colormap(mapres);
-        typeLabel = 'Eccentricity [deg]';
         myvec = logspace(log10(mapres(1)),log10(mapres(2)),size(mycolormap,1));
     case 'pol'
-        mapres=[-180 180 p.Results.colorRes];
+        mapres=[p.Results.mapBounds p.Results.colorRes];
         mycolormap = make_polar_colormap(mapres);
-        typeLabel = 'Polar angle [deg]';
         myvec = linspace(mapres(1),mapres(2),size(mycolormap,1));
-    case 'sigma'
-        mapres=[0.1 20 p.Results.colorRes];
+    case 'logJet'
+        mapres=[p.Results.mapBounds p.Results.colorRes];
         mycolormap = flipud(jet(p.Results.colorRes));
-        typeLabel = 'Sigma [deg]';
         myvec = logspace(log10(mapres(1)),log10(mapres(2)),size(mycolormap,1));
-    case 'rsquared'
-        mapres=[0 1 p.Results.colorRes];
+    case 'grayRed'
+        mapres=[p.Results.mapBounds p.Results.colorRes];
         mycolormap = make_grayToRed_colormap(mapres);
-        typeLabel = 'R^2';
         myvec = linspace(mapres(1),mapres(2),size(mycolormap,1));
-    case 'hrfshift'
-        mapres=[-4 4 p.Results.colorRes];
+    case 'blueRed'
+        mapres=[p.Results.mapBounds p.Results.colorRes];
         mycolormap = make_blueToRed_colormap(mapres);
-        typeLabel = 'shift hrf peak time [secs]';
         myvec = linspace(mapres(1),mapres(2),size(mycolormap,1));
-    case 'gain'
-        mapres=[0 p.Results.maxGain p.Results.colorRes];
+    case 'linearJet'
+        mapres=[p.Results.mapBounds p.Results.colorRes];
         mycolormap = flipud(jet(p.Results.colorRes));
-        typeLabel = 'response gain [T2* units]';
-        myvec = linspace(mapres(1),mapres(2),size(mycolormap,1));
-    case 'exponent'
-        mapres=[0 2 p.Results.colorRes];
-        mycolormap = flipud(jet(p.Results.colorRes));
-        typeLabel = 'compressive exponent [au]';
         myvec = linspace(mapres(1),mapres(2),size(mycolormap,1));
     case 'varea'
         nAreas = length(unique(srf))-1;
         mapres = [1 nAreas nAreas];
         mycolormap = getDistinguishableColors(nAreas,{'w','k'});
-        typeLabel = 'Visual area index';
         myvec = linspace(mapres(1),mapres(2),size(mycolormap,1));
     otherwise
         error('Unrecognized mapType');
@@ -293,12 +281,12 @@ switch p.Results.mapType
         caxis([mapres(1) mapres(2)]);
         colormap([mycolormap; 1 1 1])
         h = colorbar('southoutside');
-    case 'sigma'
+    case 'logJet'
         colormap([mycolormap; 1 1 1])
         h = colorbar('southoutside');
         set(gca,'ColorScale','log') 
-        h.Ticks = logspace(log10(1), log10(mapres(2)), 8);
-        h.TickLabels = num2cell( round(logspace(log10(1), log10(mapres(2)), 8)*2)/2 );
+        h.Ticks = logspace(log10(mapres(1)), log10(mapres(2)), 8);
+        h.TickLabels = num2cell( round(logspace(log10(mapres(1)), log10(mapres(2)), 8)*10)/10 );
     case 'vareas'
         caxis([mapres(1) mapres(2)]);
         colormap(mycolormap);
@@ -311,7 +299,7 @@ switch p.Results.mapType
         colormap(mycolormap);
         h = colorbar('southoutside');
 end
-xlabel(h, typeLabel)
+xlabel(h, p.Results.mapLabel)
 axis tight equal off
 
 

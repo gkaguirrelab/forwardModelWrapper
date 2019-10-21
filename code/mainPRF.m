@@ -147,13 +147,13 @@ end
 
 
 %% Save rh map images
-mapSet = {'eccentricity','angle','R2','rfsize','hrfshift','gain','exponent'};
-mapTypes = {'ecc','pol','rsquared','sigma','hrfshift','gain','exponent'};
 surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
-for mm = 1:length(mapSet)
-    dataPath = fullfile(nativeSpaceDirPath,['R_' mapSet{mm} '_map.mgz']);
+for mm = 1:length(modifiedResults.mapType)
+    dataPath = fullfile(nativeSpaceDirPath,['R_' modifiedResults.mapType{mm} '_map.mgz']);
     fig = makeSurfMap(dataPath,surfPath, ...
-        'mapType',mapTypes{mm}, ...
+        'mapScale',modifiedResults.mapType{mm}, ...
+        'mapLabel',modifiedResults.mapLabel{mm}, ...
+        'mapBounds',modifiedResults.mapBounds{mm}, ...
         'hemisphere','rh','visible',false);
     plotFileName = fullfile(p.Results.outPath,['rh.' mapSet{mm} '.png']);
     print(fig,plotFileName,'-dpng')
