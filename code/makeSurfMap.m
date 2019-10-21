@@ -285,7 +285,7 @@ switch p.Results.mapScale
         colormap([mycolormap; 1 1 1])
         h = colorbar('southoutside');
         set(gca,'ColorScale','log') 
-        h.Ticks = logspace(log10(mapres(1)), log10(mapres(2)), 8);
+        h.Ticks = logspace(log10(mapres(1)), log10(mapres(3)), 8);
         h.TickLabels = num2cell( round(logspace(log10(mapres(1)), log10(mapres(2)), 8)*10)/10 );
     case 'vareas'
         caxis([mapres(1) mapres(2)]);

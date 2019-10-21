@@ -18,7 +18,7 @@ p.addRequired('structZipPath',@isstr);
 
 % Optional inputs
 p.addParameter('maskFilePath', 'Na', @isstr)
-p.addParameter('hrfFilePath', 'Na', @isstr)
+p.addParameter('payloadPath', 'Na', @isstr)
 
 % Config options - multiple
 p.addParameter('dataFileType', 'cifti', @isstr)
@@ -28,18 +28,10 @@ p.addParameter('dataSourceType', 'icafix', @isstr)
 p.addParameter('trimDummyStimTRs', '0', @isstr)
 p.addParameter('averageAcquisitions', '0', @isstr)
 
-% Config options - wrapper
+% Config options - forwardModel
+p.addParameter('modelClass','pRF_timeShift',@isstr);
+p.addParameter('modelOpts','{}',@isstr);
 p.addParameter('tr',[],@isstr);
-p.addParameter('wantglmdenoise','0',@isstr);
-p.addParameter('maxpolydeg','Na',@isstr);
-p.addParameter('seedmode','[0 1 2]',@isstr);
-p.addParameter('xvalmode','0',@isstr);
-p.addParameter('maxiter','500',@isstr);
-p.addParameter('typicalgain','10',@isstr);
-
-% Config options - post-process
-p.addParameter('pixelsPerDegree', 'Na', @isstr)
-p.addParameter('screenMagnification', '1.0', @isstr)
 
 % Config options - convert to mgz
 p.addParameter('externalMGZMakerPath', [], @isstr)
@@ -58,7 +50,7 @@ p.parse(funcZipPath, stimFilePath, structZipPath, varargin{:})
 
 
 
-%% AnalyzePRFPreprocess
+%% Preprocess
 [stimulus, data, vxs, templateImage] = ...
     preprocessPRF(p.Results.workbenchPath, funcZipPath, stimFilePath, ...
     'maskFilePath',p.Results.maskFilePath, ...
@@ -70,41 +62,38 @@ if ~isempty(p.Results.vxsPass)
     vxs = p.Results.vxsPass;
 end
 
-% If the hrfFilePath has been defined, load it
-if ~strcmp(p.Results.hrfFilePath,'Na')
-    load(p.Results.hrfFilePath,'hrf');
-else
-    hrf = [];
-end
-
 
 %% Start the parpool
 startParpool;
 
 
-%% wrapperPRF
-results = analyzePRF(stimulus,data,'vxs',vxs,'tr',0.8);
+%% forwardModel
 
-% results = wrapperPRF(stimulus, data, vxs, ...
-%     'tr',p.Results.tr,...
-%     'hrf',hrf,...
-%     'wantglmdenoise',p.Results.wantglmdenoise,...
-%     'maxpolydeg',p.Results.maxpolydeg,...
-%     'seedmode',p.Results.seedmode,...
-%     'xvalmode',p.Results.xvalmode,...
-%     'maxiter',p.Results.maxiter,...
-%     'typicalgain',p.Results.typicalgain);
+% Load the payload
+if ~strcmp(p.Results.payloadPath,'Na')
+    load(p.Results.payloadPath,'payload');
+else
+    payload = {};
+end
+
+results = analyzePRF(stimulus,data,...
+    'modelClass', p.Results.modelClass, ...
+    'modelOpts', eval(p.Results.modelOpts), ...
+    'modelPayload', payload, ...
+    'tr', str2double(p.Results.tr), ...
+    'vxs', vxs);
 
 % Process and save the results
-[modifiedResults, mapsPath] = postprocessPRF(...
+mapsPath = postprocessPRF(...
     results, templateImage, p.Results.outPath, p.Results.workbenchPath,...
     'dataFileType', p.Results.dataFileType, ...
     'pixelsPerDegree', p.Results.pixelsPerDegree, ...
     'screenMagnification', p.Results.screenMagnification);
 
 % Create and save some plots
-plotPRF(modifiedResults,data,p.Results.outPath)
-
+if strcmp(p.Results.modelClass,'pRF_timeShift')
+plotPRF(results,data,p.Results.outPath)
+end
 
 %% Convert to MGZ
 % If we are working with CIFTI files, convert the resulting maps to
@@ -148,28 +137,28 @@ end
 
 %% Save rh map images
 surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
-for mm = 1:length(modifiedResults.meta.mapField)
-    dataPath = fullfile(nativeSpaceDirPath,['R_' modifiedResults.meta.mapName{mm} '_map.mgz']);
+for mm = 1:length(results.meta.mapField)
+    dataPath = fullfile(nativeSpaceDirPath,['R_' results.meta.mapName{mm} '_map.mgz']);
     fig = makeSurfMap(dataPath,surfPath, ...
-        'mapScale',modifiedResults.meta.mapScale{mm}, ...
-        'mapLabel',modifiedResults.meta.mapLabel{mm}, ...
-        'mapBounds',modifiedResults.meta.mapBounds{mm}, ...
+        'mapScale',results.meta.mapScale{mm}, ...
+        'mapLabel',results.meta.mapLabel{mm}, ...
+        'mapBounds',results.meta.mapBounds{mm}, ...
         'hemisphere','rh','visible',false);
-    plotFileName = fullfile(p.Results.outPath,['rh.' modifiedResults.meta.mapName{mm} '.png']);
+    plotFileName = fullfile(p.Results.outPath,['rh.' results.meta.mapName{mm} '.png']);
     print(fig,plotFileName,'-dpng')
     close(fig);
 end
 
 %% Save lh map images
 surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
-for mm = 1:length(modifiedResults.meta.mapField)
-    dataPath = fullfile(nativeSpaceDirPath,['L_' modifiedResults.meta.mapName{mm} '_map.mgz']);
+for mm = 1:length(results.meta.mapField)
+    dataPath = fullfile(nativeSpaceDirPath,['L_' results.meta.mapName{mm} '_map.mgz']);
     fig = makeSurfMap(dataPath,surfPath, ...
-        'mapScale',modifiedResults.meta.mapScale{mm}, ...
-        'mapLabel',modifiedResults.meta.mapLabel{mm}, ...
-        'mapBounds',modifiedResults.meta.mapBounds{mm}, ...
-        'hemisphere','rh','visible',false);
-    plotFileName = fullfile(p.Results.outPath,['lh.' modifiedResults.meta.mapName{mm} '.png']);
+        'mapScale',results.meta.mapScale{mm}, ...
+        'mapLabel',results.meta.mapLabel{mm}, ...
+        'mapBounds',results.meta.mapBounds{mm}, ...
+        'hemisphere','lh','visible',false);
+    plotFileName = fullfile(p.Results.outPath,['lh.' results.meta.mapName{mm} '.png']);
     print(fig,plotFileName,'-dpng')
     close(fig);
 end
