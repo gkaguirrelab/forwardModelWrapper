@@ -47,10 +47,10 @@ p.parse(results, templateImage, outPath, workbenchPath, varargin{:})
 % For volumetric results, we need to reshape the data to have the dimensions defined by the
 % templateImage
 fieldsToSave = results.meta.mapField;
-if strcmp(p.Results.dataFileType','volumetric')
+if strcmp(p.Results.dataFileType,'volumetric')
     sizer = size(templateImage);
     for ii = 1:length(fieldsToSave)
-        modifiedResults.(fieldsToSave{ii}) = ...
+        results.(fieldsToSave{ii}) = ...
             reshape(results.(fieldsToSave{ii}),[sizer(1:end-1) 1]);
     end
 end
@@ -68,7 +68,6 @@ if ~exist(outDirName,'dir')
     mkdir(outDirName);
 end
 
-fieldsToSave = results.meta.mapField;
 for ii = 1:length(fieldsToSave)
     outData = struct();
     switch p.Results.dataFileType
