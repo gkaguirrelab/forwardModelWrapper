@@ -295,7 +295,11 @@ switch p.Results.mapScale
         ticLabels = {'V1','V2','V3','hV4','VO1','VO2','LO1','LO2','TO1','TO2','V3b','V3a'};
         h.TickLabels = ticLabels;
     otherwise
-        caxis([mapres(1) mapres(2)]);
+        if mapres(1) == mapres(2)
+            caxis([mapres(1) mapres(2)*2]);
+        else
+            caxis([mapres(1) mapres(2)]);
+        end
         colormap(mycolormap);
         h = colorbar('southoutside');
 end

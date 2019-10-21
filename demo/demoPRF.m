@@ -171,7 +171,7 @@ end
 % Setup processing one or all voxels
 if doOneVoxel
     % Process one voxel that has a great fit
-    vxsPass = 51789;
+    vxsPass = 52153;
 else
     vxsPass = [];
 end
@@ -194,35 +194,3 @@ externalMGZMakerPath = fullfile(getpref('pRFCompileWrapper','projectBaseDir'),'c
     'typicalgain','50', ...
     'vxsPass', vxsPass);
 
-
-%% Call the Bayesian fitting
-inferredMapsDirPath = fullfile(outPath, 'maps_inferredMGZ');
-if ~exist(inferredMapsDirPath,'dir')
-    mkdir(inferredMapsDirPath);
-end
-
-inferredVolDirPath = fullfile(outPath, 'maps_inferredVol');
-if ~exist(inferredVolDirPath,'dir')
-    mkdir(inferredVolDirPath);
-end
-
-command = ['python3 -m neuropythy register_retinotopy ' hcpStructPath ...
-    ' --surf-outdir=' inferredMapsDirPath ...
-    ' --vol-outdir=' inferredVolDirPath ...
-    ' --surf-format=mgz'  ...
-    ' --lh-angle=' fullfile(nativeSpaceDirPath,'L_angle_map.mgz') ...
-    ' --rh-angle=' fullfile(nativeSpaceDirPath,'R_angle_map.mgz') ...
-    ' --lh-eccen=' fullfile(nativeSpaceDirPath,'L_eccentricity_map.mgz') ...
-    ' --rh-eccen=' fullfile(nativeSpaceDirPath,'R_eccentricity_map.mgz') ...
-    ' --lh-radius=' fullfile(nativeSpaceDirPath,'L_rfsize_map.mgz') ...
-    ' --rh-radius=' fullfile(nativeSpaceDirPath,'R_rfsize_map.mgz') ...
-    ' --lh-weight=' fullfile(nativeSpaceDirPath,'L_R2_map.mgz') ...
-    ' --rh-weight=' fullfile(nativeSpaceDirPath,'R_R2_map.mgz') ...
-    ' --verbose'];
-
-system(command);
-
-
-%% Save pictures of the inferred maps
-surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
-renderInferredMaps(inferredMapsDirPath, surfPath, outPath)
