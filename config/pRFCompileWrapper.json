@@ -18,7 +18,7 @@
 		"hook": "",
 		"importance": "",
 		"localHookTemplate": "",
-		"name": "analyzePRF",
+		"name": "forwardModel",
 		"pathPlacement": "prepend",
 		"subfolder": "",
 		"toolboxRoot": "",
