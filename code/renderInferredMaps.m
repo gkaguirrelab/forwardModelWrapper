@@ -23,27 +23,27 @@ p.parse(inferredMapsDirPath, surfPath, outPath)
 
 
 %% Save rh map images
-mapSet = {'eccen','angle','sigma','varea'};
-mapTypes = {'ecc','pol','sigma','varea'};
-for mm = 1:length(mapSet)
-    dataPath = fullfile(inferredMapsDirPath,['rh.inferred_' mapSet{mm} '.mgz']);
+mapField = {'eccen','angle','sigma','varea'};
+mapScale = {'eccen','angle','logJet','varea'};
+for mm = 1:length(mapField)
+    dataPath = fullfile(inferredMapsDirPath,['rh.inferred_' mapField{mm} '.mgz']);
     fig = makeSurfMap(dataPath,surfPath, ...
-        'mapType',mapTypes{mm}, ...
+        'mapType',mapScale{mm}, ...
         'hemisphere','rh','visible',false);
-    plotFileName = fullfile(outPath,['rh.inferred_' mapSet{mm} '.png']);
+    plotFileName = fullfile(outPath,['rh.inferred_' mapField{mm} '.png']);
     print(fig,plotFileName,'-dpng')
     close(fig);
 end
 
 %% Save lh map images
-mapSet = {'eccen','angle','sigma','varea'};
-mapTypes = {'ecc','pol','sigma','varea'};
-for mm = 1:length(mapSet)
-    dataPath = fullfile(inferredMapsDirPath,['lh.inferred_' mapSet{mm} '.mgz']);
+mapField = {'eccen','angle','sigma','varea'};
+mapScale = {'eccen','angle','logJet','varea'};
+for mm = 1:length(mapField)
+    dataPath = fullfile(inferredMapsDirPath,['lh.inferred_' mapField{mm} '.mgz']);
     fig = makeSurfMap(dataPath,surfPath, ...
-        'mapType',mapTypes{mm}, ...
+        'mapType',mapScale{mm}, ...
         'hemisphere','lh','visible',false);
-    plotFileName = fullfile(outPath,['lh.inferred_' mapSet{mm} '.png']);
+    plotFileName = fullfile(outPath,['lh.inferred_' mapField{mm} '.png']);
     print(fig,plotFileName,'-dpng')
     close(fig);
 end

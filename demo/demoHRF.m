@@ -1,4 +1,4 @@
-% DEMO_AnalyzePRF
+% DEMO_AnalyzeHRF
 %
 % This routine downloads ICAFIX and hcp-struct data from flywheel and then
 % submits the files for analysis
@@ -19,23 +19,13 @@ projectName = 'pRFCompileWrapper';
 scratchSaveDir = getpref(projectName,'flywheelScratchDir');
 subjectName = 'TOME_3045';
 
-% Specify the number of pixels *in the downsampled stimulus* per nominal
-% degree of visual angle. The stimulus file in this demo is 108x108 pixels.
-%{
-    stimulusHeightDeg = 20.8692;
-    stimulusHeightPixels = 108;
-    pixelsPerDegree = 108 / 20.8692;
-%}
-pixelsPerDegree = '5.1751';
-
-% The subject was wearing a -5.25 D contact lens during scanning. This
-% causes the screen to appear minified by a small amount. This effect is
-% computed by the routine calcScreenMagnification in the mriTOMEAnalysis
-% repo.
-screenMagnification = '0.96';
-
 % TR of the acquisition in seconds
 tr = '0.8';
+
+% The typical amplitude of the BOLD fMRI response
+typicalGain = '300';
+
+polyDeg = '13';
 
 % Flag to average the acquisitions together before computing pRF
 % parameters. This makes the operation faster.
@@ -60,7 +50,7 @@ outputFileSuffix = '_hcpicafix.zip';
 %     'returnType', 'analysis', ...
 %     'filters', {{...
 %     struct('match', struct('analysis0x2elabel', 'icafix')), ...
-%     struct('match', struct('analysis0x2elabel', 'RETINO')), ...
+%     struct('match', struct('analysis0x2elabel', 'FLASH')), ...
 %     struct('match', struct('project0x2elabel', 'tome')), ...
 %     struct('match', struct('subject0x2ecode', subjectName)), ...
 %     }} ...
@@ -93,13 +83,14 @@ outputFileSuffix = '_hcpicafix.zip';
 % end
 
 saveName = ...
-'/tmp/flywheel/v0/input/funcZip/TOME_3045_ICAFIX_multi_tfMRI_RETINO_PA_run1_tfMRI_RETINO_PA_run2_tfMRI_RETINO_AP_run3_tfMRI_RETINO_AP_run4_hcpicafix.zip';
+'/tmp/flywheel/v0/input/funcZip/TOME_3045_ICAFIX_multi_tfMRI_FLASH_AP_run1_tfMRI_FLASH_PA_run2_hcpicafix.zip';
 
 funcZipPath = saveName;
 
-%% Download the structural data
 
-% Define a few variables
+%% Download the structural data
+% 
+% % Define a few variables
 % outputFileSuffix = '_hcpstruct.zip';
 % 
 % % Create the save dir if it does not exist
@@ -147,15 +138,15 @@ funcZipPath = saveName;
 %     % Download the matching file to the rootSaveDir. This can take a while
 %     fw.downloadOutputFromAnalysis(thisAnalysis.id,thisName,saveName);
 % end
+
 saveName = ...
     '/tmp/flywheel/v0/input/structZip/TOME_3045_hcpstruct.zip';
 structZipPath = saveName;
 
-
 %% Additional settings
 
 % Required input
-stimFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','pRFStimulus_108x108x420.mat');
+stimFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','flashStimulus_1x1x420.mat');
 
 % Optional input
 maskFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','lh.V1mask.dscalar.nii');
@@ -171,7 +162,7 @@ end
 % Setup processing one or all voxels
 if doOneVoxel
     % Process one voxel that has a great fit
-    vxsPass = 52153;
+    vxsPass = 23518;
 else
     vxsPass = [];
 end
@@ -179,10 +170,11 @@ end
 % Path to the external python routine that converts map formats
 externalMGZMakerPath = fullfile(getpref('pRFCompileWrapper','projectBaseDir'),'code','make_fsaverage.py');
 
+
 % Assemble the modelOpts
 modelOpts = ['{' ...
-               ' ''pixelsPerDegree'',' pixelsPerDegree ',' ...
-               ' ''screenMagnification'',' screenMagnification ...
+               ' ''typicalGain'',' typicalGain ',' ...
+               ' ''polyDeg'',' polyDeg ...
                '}'];
 
 %% Call the main routine
@@ -191,7 +183,7 @@ modelOpts = ['{' ...
     'maskFilePath',maskFilePath, ...
     'averageAcquisitions',averageAcquisitions, ...
     'tr',tr, ...
-    'modelClass','pRF_timeShift', ...
+    'modelClass','deriveHRF', ...
     'modelOpts',modelOpts, ...
     'workbenchPath',workbenchPath, ...
     'externalMGZMakerPath', externalMGZMakerPath, ...
