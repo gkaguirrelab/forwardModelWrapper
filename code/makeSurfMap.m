@@ -20,14 +20,12 @@ function fig = makeSurfMap(dataPath,surfPath, varargin)
 %  'mapType'              - Char vector. The type of map to be displayed;
 %                           this controls the color gradient. Valid options
 %                           include:
-%                             {'ecc','pol','rsquared','sigma','areas'}
+%                             {'eccen','angle','rsquared','sigma','areas'}
 %  'hemisphere'           - Char vector. The hemisphere to display. Valid
 %                           options are: {'lh','rh'}
 %  'whichSurface'         - Char vector. The cortical surface on which to
 %                           display the map. Valid options are:
 %                           {'inflated','pial','sphere','white'}
-%  'maxEccentricity'      - Scalar. The maximum eccentricity value
-%                           displayed (only used when mapType is ecc)
 %  'rsquaredDataPath'     - Char vector. The full path to the map of R^2
 %                           values. If set, then the rsquaredThresh value
 %                           is used to only display map values that are at
@@ -49,7 +47,7 @@ function fig = makeSurfMap(dataPath,surfPath, varargin)
 %{
     dataPath = '/tmp/flywheel/v0/output/maps_nativeMGZ/R_original_angle_map.mgz'
     surfPath = '/tmp/flywheel/v0/input/structZip/TOME_3021/T1w/TOME_3021/surf'
-    saveSurfMap(dataPath,surfPath,'hemisphere','rh','mapType','pol')
+    saveSurfMap(dataPath,surfPath,'hemisphere','rh','mapType','angle')
 %}
 %{
     dataPath = '/tmp/flywheel/v0/output/maps_nativeMGZ/R_original_R2_map.mgz'
@@ -72,7 +70,7 @@ p.addRequired('dataPath', @ischar);
 p.addRequired('surfPath', @ischar);
 
 % Optional key-value pairs
-p.addParameter('mapScale', 'ecc', @ischar);
+p.addParameter('mapScale', 'eccen', @ischar);
 p.addParameter('mapLabel', [], @ischar);
 p.addParameter('mapBounds', [], @isnumeric);
 p.addParameter('hemisphere','lh',@ischar);
@@ -136,11 +134,11 @@ end
 
 %% Define color map
 switch p.Results.mapScale
-    case 'ecc'
+    case 'eccen'
         mapres=[p.Results.mapBounds p.Results.colorRes];
         mycolormap = make_ecc_colormap(mapres);
         myvec = logspace(log10(mapres(1)),log10(mapres(2)),size(mycolormap,1));
-    case 'pol'
+    case 'angle'
         mapres=[p.Results.mapBounds p.Results.colorRes];
         mycolormap = make_polar_colormap(mapres);
         myvec = linspace(mapres(1),mapres(2),size(mycolormap,1));
@@ -255,7 +253,7 @@ end
 subplot(spr(1),spr(2),[6 7]);
 
 switch p.Results.mapScale
-    case 'ecc'
+    case 'eccen'
         x = linspace(-1,+1,mapres(3)); [xx,yy] = meshgrid(x);
         [~,r] = cart2pol(xx,yy);
         img = r;
@@ -264,11 +262,12 @@ switch p.Results.mapScale
         img(isnan(img)) = mapres(2);
         imagesc(x,x,img)
         colormap([mycolormap; 1 1 1])
+        caxis([mapres(1) mapres(2)]);
         h = colorbar('southoutside');
         set(gca,'ColorScale','log') 
         h.Ticks = logspace(log10(1), log10(mapres(3)), 8);
         h.TickLabels = num2cell( round(logspace(log10(mapres(1)), log10(mapres(2)), 8)*2)/2 );
-    case 'pol'
+    case 'angle'
         x = linspace(-1,1,mapres(3));
         [xx,yy] = meshgrid(x);
         [img,r] = cart2pol(xx,yy);
@@ -283,9 +282,10 @@ switch p.Results.mapScale
         h = colorbar('southoutside');
     case 'logJet'
         colormap([mycolormap; 1 1 1])
+        caxis([mapres(1) mapres(2)]);
         h = colorbar('southoutside');
         set(gca,'ColorScale','log') 
-        h.Ticks = logspace(log10(mapres(1)), log10(mapres(3)), 8);
+        h.Ticks = logspace(log10(1), log10(mapres(3)), 8);
         h.TickLabels = num2cell( round(logspace(log10(mapres(1)), log10(mapres(2)), 8)*10)/10 );
     case 'vareas'
         caxis([mapres(1) mapres(2)]);

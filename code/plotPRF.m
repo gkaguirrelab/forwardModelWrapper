@@ -64,7 +64,7 @@ currentunits = get(gca,'Units');
 set(gca, 'Units', 'Points');
 axpos = get(gca,'Position');
 set(gca, 'Units', currentunits);
-markerWidth = (results.rfsize(goodIdx))./diff(xlim)*axpos(3); % Calculate Marker width in points
+markerWidth = (results.sigma(goodIdx))./diff(xlim)*axpos(3); % Calculate Marker width in points
 set(h, 'SizeData', markerWidth.^2)
 
 % Highlight the pRF for which we have plotted a time series
@@ -75,7 +75,7 @@ currentunits = get(gca,'Units');
 set(gca, 'Units', 'Points');
 axpos = get(gca,'Position');
 set(gca, 'Units', currentunits);
-markerWidth = (results.rfsize(vx))./diff(xlim)*axpos(3); % Calculate Marker width in points
+markerWidth = (results.sigma(vx))./diff(xlim)*axpos(3); % Calculate Marker width in points
 set(h, 'SizeData', markerWidth.^2)
 
 

@@ -136,13 +136,13 @@ end
 %% Save rh map images
 surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
 for mm = 1:length(results.meta.mapField)
-    dataPath = fullfile(nativeSpaceDirPath,['R_' results.meta.mapName{mm} '_map.mgz']);
+    dataPath = fullfile(nativeSpaceDirPath,['R_' results.meta.mapField{mm} '_map.mgz']);
     fig = makeSurfMap(dataPath,surfPath, ...
         'mapScale',results.meta.mapScale{mm}, ...
         'mapLabel',results.meta.mapLabel{mm}, ...
         'mapBounds',results.meta.mapBounds{mm}, ...
         'hemisphere','rh','visible',false);
-    plotFileName = fullfile(p.Results.outPath,['rh.' results.meta.mapName{mm} '.png']);
+    plotFileName = fullfile(p.Results.outPath,['rh.' results.meta.mapField{mm} '.png']);
     print(fig,plotFileName,'-dpng')
     close(fig);
 end
@@ -150,13 +150,13 @@ end
 %% Save lh map images
 surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
 for mm = 1:length(results.meta.mapField)
-    dataPath = fullfile(nativeSpaceDirPath,['L_' results.meta.mapName{mm} '_map.mgz']);
+    dataPath = fullfile(nativeSpaceDirPath,['L_' results.meta.mapField{mm} '_map.mgz']);
     fig = makeSurfMap(dataPath,surfPath, ...
         'mapScale',results.meta.mapScale{mm}, ...
         'mapLabel',results.meta.mapLabel{mm}, ...
         'mapBounds',results.meta.mapBounds{mm}, ...
         'hemisphere','lh','visible',false);
-    plotFileName = fullfile(p.Results.outPath,['lh.' results.meta.mapName{mm} '.png']);
+    plotFileName = fullfile(p.Results.outPath,['lh.' results.meta.mapField{mm} '.png']);
     print(fig,plotFileName,'-dpng')
     close(fig);
 end
