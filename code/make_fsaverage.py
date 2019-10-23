@@ -48,7 +48,7 @@ def make_fsaverage(path_to_cifti_maps, path_to_hcp, alignment_type, native_mgz, 
         final_averaged_left = orig_lhdat.copy()
         final_averaged_right = orig_rhdat.copy()
         for length in range(len(orig_lhdat)):
-            if amap == 'CartX_map.dtseries.nii':
+            if amap == 'cartX_map.dtseries.nii':
                 final_averaged_left[length] = (orig_lhdat[length] + (-1 * flipped_lhdat[length]))/2
                 final_averaged_right[length] = (orig_rhdat[length] + (-1 * flipped_rhdat[length]))/2
             else:
@@ -72,10 +72,10 @@ def make_fsaverage(path_to_cifti_maps, path_to_hcp, alignment_type, native_mgz, 
             variable = native_mgz_pseudo_hemi
             
         # Reload the X-Y cartesian images.
-        left_x = ny.load(os.path.join(variable, 'L_CartX_map.mgz'))
-        left_y = ny.load(os.path.join(variable, 'L_CartY_map.mgz'))
-        right_x = ny.load(os.path.join(variable, 'R_CartX_map.mgz'))
-        right_y = ny.load(os.path.join(variable, 'R_CartY_map.mgz'))
+        left_x = ny.load(os.path.join(variable, 'L_cartX_map.mgz'))
+        left_y = ny.load(os.path.join(variable, 'L_cartY_map.mgz'))
+        right_x = ny.load(os.path.join(variable, 'R_cartX_map.mgz'))
+        right_y = ny.load(os.path.join(variable, 'R_cartY_map.mgz'))
         
         # Calculate the angle and eccentricity
         left_angle_new_template = np.rad2deg(np.mod(np.arctan2(left_y,left_x), 2*np.pi))
