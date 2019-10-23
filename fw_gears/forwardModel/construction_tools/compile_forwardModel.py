@@ -1,7 +1,7 @@
 import os 
 import sys
 
-def compile_mainPRF(path_to_matlab_documents, output_folder):
+def compile_forwardModel(path_to_matlab_documents, output_folder):
     
     # This function compiles the mainPRF.m. It works with ToolboxToolbox folder 
     # organization.Therefore, it assumes that the required MATLAB functions are 
