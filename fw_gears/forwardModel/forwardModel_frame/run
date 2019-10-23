@@ -13,7 +13,6 @@ flywheel_base ='/flywheel/v0/'
 func_zip_folder = os.path.join(flywheel_base, 'input/funcZipPath')
 stim_file_folder = os.path.join(flywheel_base, 'input/stimFilePath')
 struct_zip_folder = os.path.join(flywheel_base, 'input/structZipPath')
-hrf_file_folder = os.path.join(flywheel_base, 'input/hrfFilePath')
 mask_file_folder = os.path.join(flywheel_base, 'input/maskFilePath')
 payload_file_folder = os.path.join(flywheel_base, 'input/payloadFilePath')
 
@@ -22,12 +21,7 @@ func_zip_path = os.path.join(func_zip_folder, os.listdir(func_zip_folder)[0])
 stim_file_path = os.path.join(stim_file_folder, os.listdir(stim_file_folder)[0])
 struct_zip_path = os.path.join(struct_zip_folder, os.listdir(struct_zip_folder)[0])
 
-# Set path to optional paths
-if os.path.isdir(hrf_file_folder) == True:
-    hrf_file_path = os.path.join(hrf_file_folder, os.listdir(hrf_file_folder)[0])
-else:
-    hrf_file_path = 'Na'
-    
+# Set path to optional paths   
 if os.path.isdir(mask_file_folder) == True:    
     mask_file_path = os.path.join(mask_file_folder, os.listdir(mask_file_folder)[0])
 else:
@@ -41,7 +35,7 @@ else:
 # Set other paths
 manifest_file = os.path.join(flywheel_base, 'manifest.json')
 config_path = os.path.join(flywheel_base, 'config.json')
-matlab_func = '/opt/func_input/run_mainPRF.sh'
+matlab_func = '/opt/func_input/run_mainWrapper.sh'
 first_output_dir = '/firstOutput'
 final_output_dir = os.path.join(flywheel_base, 'output')
 mcr_path = '/usr/local/MATLAB/MATLAB_Runtime/v97' #path to MATLAB runtime
@@ -66,12 +60,12 @@ modelOpts = config['modelOpts']
 
 ###################Run Algorithm################################
     
-cmd = """%s %s '%s' '%s' '%s' 'maskFilePath' '%s' 'hrfFilePath' '%s' \
-'payloadFilePath' '%s' 'dataFileType' '%s' 'dataSourceType' '%s' \
+cmd = """%s %s '%s' '%s' '%s' 'maskFilePath' '%s' \
+'payloadPath' '%s' 'dataFileType' '%s' 'dataSourceType' '%s' \
 'trimDummyStimTRs' '%s' 'averageAcquisitions' '%s' 'tr' '%s' \
 'externalMGZMakerPath' '%s' 'RegName' '%s' 'modelClass' '%s' 'modelOpts' '%s' \
 'workbenchPath' '%s' 'outPath' '%s'""" % (matlab_func, mcr_path, func_zip_path, 
-stim_file_path, struct_zip_path, mask_file_path, hrf_file_path, 
+stim_file_path, struct_zip_path, mask_file_path, 
 payload_file_path, dataFileType, dataSourceType, trimDummyStimTRs, 
 averageAcquisitions, tr, path_to_python_func, RegName, modelClass, modelOpts,
 workbench_path, first_output_dir)
