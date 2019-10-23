@@ -3,15 +3,15 @@
 		"flavor": "",
 		"hook": "",
 		"importance": "",
-		"localHookTemplate": "config/pRFCompileWrapperLocalHookTemplate.m",
+		"localHookTemplate": "config/forwardModelWrapperLocalHookTemplate.m",
 	        "printLocalHookOutput": "1",
-		"name": "pRFCompileWrapper",
+		"name": "forwardModelWrapper",
 		"pathPlacement": "append",
 		"subfolder": ["code","demo"],
 		"toolboxRoot": "",
 		"type": "git",
 		"update": "",
-		"url": "https:\/\/github.com\/gkaguirrelab\/pRFCompileWrapper.git"
+		"url": "https:\/\/github.com\/gkaguirrelab\/forwardModelWrapper.git"
 	},
 	{
 		"flavor": "",

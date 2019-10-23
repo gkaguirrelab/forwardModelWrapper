@@ -1,4 +1,4 @@
-function [hcpStructPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath]=mainPRF(funcZipPath, stimFilePath, structZipPath, varargin)
+function [hcpStructPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath]=mainWrapper(funcZipPath, stimFilePath, structZipPath, varargin)
 % When compiled, is called by the python run function in the gear
 %
 % Syntax:
@@ -52,7 +52,7 @@ p.parse(funcZipPath, stimFilePath, structZipPath, varargin{:})
 
 %% Preprocess
 [stimulus, data, vxs, templateImage] = ...
-    preprocessPRF(p.Results.workbenchPath, funcZipPath, stimFilePath, ...
+    handleInputs(p.Results.workbenchPath, funcZipPath, stimFilePath, ...
     'maskFilePath',p.Results.maskFilePath, ...
     'averageAcquisitions',p.Results.averageAcquisitions);
 
@@ -84,13 +84,13 @@ results = forwardModel(stimulus,data,str2double(p.Results.tr),...
     'vxs', vxs);
 
 % Process and save the results
-mapsPath = postprocessPRF(...
+mapsPath = handleOutputs(...
     results, templateImage, p.Results.outPath, p.Results.workbenchPath,...
     'dataFileType', p.Results.dataFileType);
 
 % Create and save some plots
 if strcmp(p.Results.modelClass,'pRF_timeShift')
-plotPRF(results,data,p.Results.outPath)
+    plotPRF(results,data,p.Results.outPath)
 end
 
 %% Convert to MGZ

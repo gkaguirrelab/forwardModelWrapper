@@ -1,13 +1,13 @@
-function [stimulus, data, vxs, templateImage] = preprocessPRF(workbenchPath, funcZipPath, stimFilePath, varargin)
+function [stimulus, data, vxs, templateImage] = handleInputs(workbenchPath, funcZipPath, stimFilePath, varargin)
 % This function prepares the data, stimulus and mask inputs for AnalyzePRF
 %
 % Syntax:
-%  [stimulus, data, vxs, templateImage] = preprocessPRF(workbench_path, funcZipPath, stimFilePath)
+%  [stimulus, data, vxs, templateImage] = handleInputs(workbench_path, funcZipPath, stimFilePath)
 %
 % Description:
 %   This routine takes the inputs as specified by (e.g.) a Flywheel gear
 %   call and assembles the data and stimulus files for subsequent
-%   processing by the pRF Wrapper stage.
+%   processing by forwardModel.
 %
 % Inputs:
 %   workbenchPath         - String. path to workbench_command

@@ -1,12 +1,12 @@
-function outDirName = postprocessPRF(results, templateImage, outPath, workbenchPath, varargin)
+function outDirName = handleOutputs(results, templateImage, outPath, workbenchPath, varargin)
 % Produce maps from the analyzePRF results
 %
 % Syntax:
-%  outDirName = postprocessPRF(results, templateImage, outPath, workbenchPath)
+%  outDirName = handleOutputs(results, templateImage, outPath, workbenchPath)
 %
 % Description:
 %   This routine produces maps from the results structure returned by
-%   analyzePRF.
+%   forwardModel.
 %
 % Inputs:
 %   results               - Structure. Contains the results produced by

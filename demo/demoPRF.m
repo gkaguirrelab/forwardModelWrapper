@@ -15,7 +15,7 @@ doOneVoxel = false;
 
 
 %% Variable declaration
-projectName = 'pRFCompileWrapper';
+projectName = 'forwardModelWrapper';
 scratchSaveDir = getpref(projectName,'flywheelScratchDir');
 subjectName = 'TOME_3045';
 
@@ -177,7 +177,7 @@ else
 end
 
 % Path to the external python routine that converts map formats
-externalMGZMakerPath = fullfile(getpref('pRFCompileWrapper','projectBaseDir'),'code','make_fsaverage.py');
+externalMGZMakerPath = fullfile(getpref('forwardModelWrapper','projectBaseDir'),'code','make_fsaverage.py');
 
 % Assemble the modelOpts
 modelOpts = ['{' ...
@@ -187,7 +187,7 @@ modelOpts = ['{' ...
 
 %% Call the main routine
 [hcpStructPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath] = ...
-    mainPRF(funcZipPath, stimFilePath, structZipPath, ...
+    mainWrapper(funcZipPath, stimFilePath, structZipPath, ...
     'maskFilePath',maskFilePath, ...
     'averageAcquisitions',averageAcquisitions, ...
     'tr',tr, ...

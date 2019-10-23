@@ -15,7 +15,7 @@ function pRFCompileWrapperLocalHook
 
  
 %% Define project
-projectName = 'pRFCompileWrapper';
+projectName = 'forwardModelWrapper';
  
 
 %% Clear out old preferences
