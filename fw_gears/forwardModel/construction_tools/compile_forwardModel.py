@@ -41,4 +41,4 @@ def compile_mainPRF(path_to_matlab_documents, output_folder):
     print('Compiling mainPRF.m')
     os.system(mcc_call)
     
-compile_mainPRF(*sys.argv[1:])
+compile_forwardModel(*sys.argv[1:])
