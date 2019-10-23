@@ -39,11 +39,6 @@
   			"description": "Required. TR in seconds (e.g. 1.5).",
   			"type": "string"
 		},
-		"seedmode":  {
-  			"default": "[0 1 2]",
-  			"description": "Is a vector consisting of one or more of the following values (we automatically sort and ensure uniqueness): 0 means use generic large PRF seed - 1 means use generic small PRF seed - 2 means use best seed based on super-grid default: [0 1 2].",
-  			"type": "string"
-		},
 		"RegName":  {
 			"default": "FS",
   			"description": "Registration type used for creating your hcp-struct archive. FS or MSMSulc. Default:FS",
