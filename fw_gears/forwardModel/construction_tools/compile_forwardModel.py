@@ -25,16 +25,16 @@ def compile_forwardModel(path_to_matlab_documents, output_folder):
     #mcc_path = '/usr/local/MATLAB/R2018b/bin/mcc'
     mcc_path = 'mcc'
     mcc_call = '%s -m -R -nodisplay %s -a %s -a %s -a %s -a %s -a %s -a %s -a %s -I %s -I %s \
-    -I %s -d %s -v'%(mcc_path, os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/mainWrapper.m'),
-    os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/handleInputs.m'),
-    os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/handleOutputs.m'),
-    os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/makeSurfMap.m'),
-    os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/plotPRF.m'),
-    os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/startParpool.m'),
-    os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/renderInferredMaps.m'),
+    -I %s -d %s -v'%(mcc_path, os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/mainWrapper.m'),
+    os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/handleInputs.m'),
+    os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/handleOutputs.m'),
+    os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/makeSurfMap.m'),
+    os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/plotPRF.m'),
+    os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/startParpool.m'),
+    os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/renderInferredMaps.m'),
     os.path.join(path_to_matlab_documents,'toolboxes/forwardModel/'),
     os.path.join(path_to_matlab_documents,'toolboxes/HCPpipelines/global/matlab/'),
-    os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/utilities/'),    
+    os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/utilities/'),    
     os.path.join(path_to_matlab_documents,'toolboxes/freesurferMatlab/matlab/'),
     output_folder)
     
