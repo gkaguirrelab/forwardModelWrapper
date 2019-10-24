@@ -10,15 +10,15 @@ os.system('cat /proc/cpuinfo')
 flywheel_base ='/flywheel/v0/'
 
 # Path to input folder 
-func_zip_folder01 = os.path.join(flywheel_base, 'input/funcZipPath01')
-func_zip_folder02 = os.path.join(flywheel_base, 'input/funcZipPath02')
-func_zip_folder03 = os.path.join(flywheel_base, 'input/funcZipPath03')
-func_zip_folder04 = os.path.join(flywheel_base, 'input/funcZipPath04')
-func_zip_folder05 = os.path.join(flywheel_base, 'input/funcZipPath05')
-stim_file_folder = os.path.join(flywheel_base, 'input/stimFilePath')
-struct_zip_folder = os.path.join(flywheel_base, 'input/structZipPath')
-mask_file_folder = os.path.join(flywheel_base, 'input/maskFilePath')
-payload_file_folder = os.path.join(flywheel_base, 'input/payloadFilePath')
+func_zip_folder01 = os.path.join(flywheel_base, 'input/funcZip01')
+func_zip_folder02 = os.path.join(flywheel_base, 'input/funcZip02')
+func_zip_folder03 = os.path.join(flywheel_base, 'input/funcZip03')
+func_zip_folder04 = os.path.join(flywheel_base, 'input/funcZip04')
+func_zip_folder05 = os.path.join(flywheel_base, 'input/funcZip05')
+stim_file_folder = os.path.join(flywheel_base, 'input/stimFile')
+struct_zip_folder = os.path.join(flywheel_base, 'input/structZip')
+mask_file_folder = os.path.join(flywheel_base, 'input/maskFile')
+payload_file_folder = os.path.join(flywheel_base, 'input/payloadFile')
 
 # Set path to required inputs
 func_zip_path01 = os.path.join(func_zip_folder01, os.listdir(func_zip_folder01)[0])
@@ -76,7 +76,7 @@ averageAcquisitions = config['averageAcquisitions']
 tr = config['tr']
 RegName = config['RegName']
 modelClass = config['modelClass']
-modelOpts = config['modelOpts']
+modelOpts = '{' + config['modelOpts'] + '}'
 
 ###################Run Algorithm################################
     
