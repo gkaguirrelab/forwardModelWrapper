@@ -1,13 +1,53 @@
 {
-	"name": "analyzeprf",
-	"label": "analyzePRF: derive retinotopic map using non-linear pRF fitting",
+	"name": "forwardmodel",
+	"label": "forwardModel: derive retinotopic map using non-linear pRF fitting",
 	"description": "Built from a MATLAB wrapper written for Kendrick Kay's AnalyzePRF script, this gear performs pRF analysis and allows ICA-fix zip archives to be used as direct inputs. The gear looks for the cifti files in each of the separate run folders located in the ica-fix archive and outputs an results.mat file along with raw brain maps and diagnostic images.",
-	"version": "0",
+	"version": "0.3.0",
 	"inputs": {
-		"funcZipPath": {
+		"funcZipPath01": {
 			"base": "file",
 			"description": "Provides the path to a zip archive that has been produced by either hcp-icafix or hcp-func.",
 			"optional": false,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZipPath02": {
+			"base": "file",
+			"description": "Provides the path to a zip archive that has been produced by either hcp-icafix or hcp-func.",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZipPath03": {
+			"base": "file",
+			"description": "Provides the path to a zip archive that has been produced by either hcp-icafix or hcp-func.",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZipPath04": {
+			"base": "file",
+			"description": "Provides the path to a zip archive that has been produced by either hcp-icafix or hcp-func.",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZipPath05": {
+			"base": "file",
+			"description": "Provides the path to a zip archive that has been produced by either hcp-icafix or hcp-func.",
+			"optional": true,
 			"type": {
 				"enum": [
 					"archive"
@@ -96,10 +136,10 @@
 			"type": "string"
 		}
 	},
-	"author": "Ozzy Taskin",
-	"maintainer": "Ozzy Taskin",
+	"author": "Ozenc Taskin",
+	"maintainer": "Ozenc Taskin",
 	"license": "Other",
-	"source": "https://github.com/kendrickkay/analyzePRF",
+	"source": "https://github.com/gkaguirrelab/forwardModelWrapper",
 	"url": "https://github.com/gkaguirrelab/pRFCompileWrapper",
 	"custom": {
 		"flywheel": {

@@ -1,17 +1,17 @@
 {
-	"name": "analyzePRF",
-	"label": "analyzePRF: derive retinotopic map using non-linear pRF fitting",
+	"name": "forwardmodel",
+	"label": "forwardModel: derive retinotopic map using non-linear pRF fitting",
 	"description": "Built from a MATLAB wrapper written for Kendrick Kay's AnalyzePRF script, this gear performs pRF analysis and allows ICA-fix zip archives to be used as direct inputs. The gear looks for the cifti files in each of the separate run folders located in the ica-fix archive and outputs an results.mat file along with raw brain maps and diagnostic images.",
 	"author": "Wrapper written by Ozenc Taskin based on Kendrick Kay's AnalyzePRF function",
 	"maintainer": "Ozenc Taskin <huseyinozenc.taskin@pennmedicine.upenn.edu>",
-	"source": "https://github.com/kendrickkay/analyzePRF",
+	"source": "https://github.com/gkaguirrelab/forwardModelWrapper",
 	"url": "https://github.com/gkaguirrelab/pRFCompileWrapper",
 	"version": "0.3.0",
 	"custom": {
 		"flywheel": {
 			"suite": "GKAguirreLab"
 		},
-		"docker-image": "gkaguirrelab/analyzeprfgear:0.2.6"
+		"docker-image": "gkaguirrelab/analyzeprfgear:0.3.0"
 	},
 	"license": "Other",
 	"config": {
@@ -56,10 +56,50 @@
 		}
 	},
 	"inputs": {
-		"funcZipPath": {
+		"funcZipPath01": {
 			"description": "Provides the path to a zip archive that has been produced by either hcp-icafix or hcp-func.",
 			"base": "file",
 			"optional": false,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZipPath02": {
+			"description": "Provides the path to a zip archive that has been produced by either hcp-icafix or hcp-func.",
+			"base": "file",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZipPath03": {
+			"description": "Provides the path to a zip archive that has been produced by either hcp-icafix or hcp-func.",
+			"base": "file",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZipPath04": {
+			"description": "Provides the path to a zip archive that has been produced by either hcp-icafix or hcp-func.",
+			"base": "file",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZipPath05": {
+			"description": "Provides the path to a zip archive that has been produced by either hcp-icafix or hcp-func.",
+			"base": "file",
+			"optional": true,
 			"type": {
 				"enum": [
 					"archive"

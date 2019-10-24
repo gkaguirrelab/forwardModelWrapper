@@ -10,18 +10,38 @@ os.system('cat /proc/cpuinfo')
 flywheel_base ='/flywheel/v0/'
 
 # Path to input folder 
-func_zip_folder = os.path.join(flywheel_base, 'input/funcZipPath')
+func_zip_folder01 = os.path.join(flywheel_base, 'input/funcZipPath01')
+func_zip_folder02 = os.path.join(flywheel_base, 'input/funcZipPath02')
+func_zip_folder03 = os.path.join(flywheel_base, 'input/funcZipPath03')
+func_zip_folder04 = os.path.join(flywheel_base, 'input/funcZipPath04')
+func_zip_folder05 = os.path.join(flywheel_base, 'input/funcZipPath05')
 stim_file_folder = os.path.join(flywheel_base, 'input/stimFilePath')
 struct_zip_folder = os.path.join(flywheel_base, 'input/structZipPath')
 mask_file_folder = os.path.join(flywheel_base, 'input/maskFilePath')
 payload_file_folder = os.path.join(flywheel_base, 'input/payloadFilePath')
 
 # Set path to required inputs
-func_zip_path = os.path.join(func_zip_folder, os.listdir(func_zip_folder)[0])
+func_zip_path01 = os.path.join(func_zip_folder01, os.listdir(func_zip_folder01)[0])
 stim_file_path = os.path.join(stim_file_folder, os.listdir(stim_file_folder)[0])
 struct_zip_path = os.path.join(struct_zip_folder, os.listdir(struct_zip_folder)[0])
 
 # Set path to optional paths   
+if os.path.isdir(func_zip_folder02) == True:    
+    func_zip_path02 = os.path.join(func_zip_folder02, os.listdir(func_zip_folder02)[0])
+else:
+    func_zip_path02 = 'Na'
+if os.path.isdir(func_zip_folder03) == True:    
+    func_zip_path03 = os.path.join(func_zip_folder03, os.listdir(func_zip_folder03)[0])
+else:
+    func_zip_path03 = 'Na'
+if os.path.isdir(func_zip_folder04) == True:    
+    func_zip_path04 = os.path.join(func_zip_folder04, os.listdir(func_zip_folder04)[0])
+else:
+    func_zip_path04 = 'Na'
+if os.path.isdir(func_zip_folder05) == True:    
+    func_zip_path05 = os.path.join(func_zip_folder05, os.listdir(func_zip_folder05)[0])
+else:
+    func_zip_path05 = 'Na'
 if os.path.isdir(mask_file_folder) == True:    
     mask_file_path = os.path.join(mask_file_folder, os.listdir(mask_file_folder)[0])
 else:
@@ -60,15 +80,15 @@ modelOpts = config['modelOpts']
 
 ###################Run Algorithm################################
     
-cmd = """%s %s '%s' '%s' '%s' 'maskFilePath' '%s' \
+cmd = """%s %s '%s' '%s' '%s' '%s' '%s' '%s' '%s' 'maskFilePath' '%s' \
 'payloadPath' '%s' 'dataFileType' '%s' 'dataSourceType' '%s' \
 'trimDummyStimTRs' '%s' 'averageAcquisitions' '%s' 'tr' '%s' \
 'externalMGZMakerPath' '%s' 'RegName' '%s' 'modelClass' '%s' 'modelOpts' '%s' \
-'workbenchPath' '%s' 'outPath' '%s'""" % (matlab_func, mcr_path, func_zip_path, 
-stim_file_path, struct_zip_path, mask_file_path, 
-payload_file_path, dataFileType, dataSourceType, trimDummyStimTRs, 
-averageAcquisitions, tr, path_to_python_func, RegName, modelClass, modelOpts,
-workbench_path, first_output_dir)
+'workbenchPath' '%s' 'outPath' '%s'""" % (matlab_func, mcr_path, func_zip_path01, 
+func_zip_path02, func_zip_path03, func_zip_path04, func_zip_path05, 
+stim_file_path, struct_zip_path, mask_file_path, payload_file_path, dataFileType, 
+dataSourceType, trimDummyStimTRs, averageAcquisitions, tr, path_to_python_func, 
+RegName, modelClass, modelOpts, workbench_path, first_output_dir)
 
 os.system(cmd)        
 
