@@ -199,7 +199,7 @@ for jj=1:length(funcZipPath)
     
     % Delete the temporary directory that contains the unpacked zip
     % contents
-    command = ['rmdir -r ' zipDir];
+    command = ['rm -r ' zipDir];
     system(command);
     
 end % Loop over entries in funcZipPath
