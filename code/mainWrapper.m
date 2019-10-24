@@ -1,4 +1,4 @@
-function [hcpStructPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath]=mainWrapper(funcZipPath, stimFilePath, structZipPath, varargin)
+function [hcpStructPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath]=mainWrapper(funcZipPath01, funcZipPath02, funcZipPath03, funcZipPath04, funcZipPath05, stimFilePath, structZipPath, varargin)
 % When compiled, is called by the python run function in the gear
 %
 % Syntax:
@@ -12,7 +12,11 @@ function [hcpStructPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath]=mainWr
 p = inputParser; p.KeepUnmatched = false;
 
 % Required
-p.addRequired('funcZipPath',@isstr);
+p.addRequired('funcZipPath01',@isstr);
+p.addRequired('funcZipPath02',@isstr);
+p.addRequired('funcZipPath03',@isstr);
+p.addRequired('funcZipPath04',@isstr);
+p.addRequired('funcZipPath05',@isstr);
 p.addRequired('stimFilePath',@isstr);
 p.addRequired('structZipPath',@isstr);
 
@@ -46,7 +50,11 @@ p.addParameter('outPath', '', @isstr);
 
 
 % Parse
-p.parse(funcZipPath, stimFilePath, structZipPath, varargin{:})
+p.parse(funcZipPath01, funcZipPath02, funcZipPath03, funcZipPath04, funcZipPath05, stimFilePath, structZipPath, varargin{:})
+
+
+%% Assemble the funcZipPaths into a cell array
+funcZipPath = {funcZipPath01, funcZipPath02, funcZipPath03, funcZipPath04, funcZipPath05};
 
 
 %% Parse the modelOpts string

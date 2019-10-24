@@ -11,9 +11,10 @@ function [stimulus, data, vxs, templateImage] = handleInputs(workbenchPath, func
 %
 % Inputs:
 %   workbenchPath         - String. path to workbench_command
-%   funcZipPath           - String. Provides the path to a zip archive that
-%                           has been produced by either hcp-icafix or
-%                           hcp-func.
+%   funcZipPath           - Cell array of strings. Provides the paths to
+%                           zip archives that has been produced by either
+%                           hcp-icafix or hcp-func. May contain entries
+%                           that are "Na", which will be ignored.
 %   stimFilePath          - String. Full path to a .mat file that contains
 %                           the stimulus apertures, which is a cell vector
 %                           of R x C x time. Values should be in [0,1]. The
@@ -72,7 +73,7 @@ p = inputParser; p.KeepUnmatched = false;
 
 % Required
 p.addRequired('workbenchPath',@isstr);
-p.addRequired('funcZipPath',@isstr);
+p.addRequired('funcZipPath',@iscell);
 p.addRequired('stimFilePath',@isstr);
 
 % Optional
@@ -92,99 +93,110 @@ verbose = strcmp(p.Results.verbose,'1');
 
 %% Check inputs
 
+% Strip out entries in the funcZipPath that are "Na"
+funcZipPath = funcZipPath(~strcmp(funcZipPath,'Na'));
+
 % Ensure that we have been passed a zip file
-if ~endsWith(funcZipPath,'zip')
-    error('AnalyzePRFPreprocess:notAZip','fMRI data should be passed as the path to a zip archive');
+for jj=1:length(funcZipPath)
+    if ~endsWith(funcZipPath{jj},'zip')
+        error('AnalyzePRFPreprocess:notAZip','fMRI data should be passed as the path to a zip archive');
+    end
 end
 if ~strcmp(p.Results.dataSourceType,'icafix')
     error('AnalyzePRFPreprocess:notICAFIX','We have only implemented processing of ICAFIX archives so far');
 end
 
 
-%% Unzip the functional data
+%% Loop over entries in funcZipPath
+data = {};
+totalAcquisitions = 1;
 
-% Inform the user
-if verbose
-    fprintf('  Unzipping funcZip\n');
-end
-
-% Uncompress the zip archive into the dir that holds the zip. We do this
-% with a system call so that we can prevent over-writing a prior unzipped
-% version of the data (which can happen in demo mode).
-command = ['unzip -q -n ' funcZipPath ' -d ' fileparts(funcZipPath)];
-system(command);
-
-
-%% Find the files
-
-% The ICA-FIX gear saves the output data within the MNINonLinear dir
-acquisitionList = dir(strcat(fileparts(funcZipPath), '/*/MNINonLinear/Results'));
-
-% Remove the entries returned by dir that are 
-acquisitionList = acquisitionList(~ismember({acquisitionList.name},{'.','..'}));
-
-% Remove any entries that have a dot prefix, including the dir itself and the
-% enclosing dir
-acquisitionList = acquisitionList(...
-    cellfun(@(x) ~startsWith(x,'.'),extractfield(acquisitionList,'name')) ...
-    );
-
-% Remove the ICAFIX concat dir
-acquisitionList = acquisitionList(...
-    cellfun(@(x) ~startsWith(x,'ICAFIX'),extractfield(acquisitionList,'name')) ...
-    );
-
-% Each entry left in funcZipPaths is a different fMRI acquisition
-nAcquisitions = length(acquisitionList);
-
-% Pre-allocate the data cell array
-data = cell(1,nAcquisitions);
-
-% Loop through the acquisitions
-for ii = 1:nAcquisitions
+for jj=1:length(funcZipPath)
     
-    % The name of the acquisition, the loading, and the initial processing
-    % varies for CIFIT and volumetric data
-    switch p.Results.dataFileType
-        case 'volumetric'
-            rawName = strcat(acquisitionList(ii).folder, filesep, acquisitionList(ii).name, filesep, acquisitionList(ii).name, '_', 'hp2000_clean.nii.gz');
-            thisAcqData = MRIread(rawName);
-            % Check if this is the first acquisition. If so, retain an
-            % example of the source data to be used as a template to format
-            % the output files.
-            if ii == 1
-                templateImage = thisAcqData;
-            end
-            thisAcqData = thisAcqData.vol;
-            thisAcqData = single(thisAcqData);
-            thisAcqData = reshape(thisAcqData, [size(thisAcqData',1)*size(thisAcqData',2)*size(thisAcqData',3), size(thisAcqData',4)]);
-            thisAcqData(isnan(thisAcqData)) = 0;
-        case 'cifti'
-            rawName = strcat(acquisitionList(ii).folder, filesep, acquisitionList(ii).name,filesep, acquisitionList(ii).name, '_', 'Atlas_hp2000_clean.dtseries.nii');
-            thisAcqData = ciftiopen(rawName, workbenchPath);
-            % Check if this is the first acquisition. If so, retain an
-            % example of the source data to be used as a template to format
-            % the output files.
-            if ii == 1
-                templateImage = thisAcqData;
-                % Make the time dimension a singleton
-                templateImage.cdata = templateImage.cdata(:,1);
-            end
-            thisAcqData = thisAcqData.cdata;
-        otherwise
-            errorString = [p.Results.dataFileType ' is not a recognized dataFileType for this routine. Try, cifti or volumetric'];
-            error('AnalyzePRFPreprocess:notICAFIX', errorString);
-    end
-    
-    % Store the acquisition data in a cell array
-    data{ii} = thisAcqData;
-    
-    % Alert the user
+    % Inform the user
     if verbose
-        outputString = ['Read acquisition ' num2str(ii) ' of ' num2str(nAcquisitions) ' -- ' rawName '\n'];
-        fprintf(outputString)
+        fprintf('  Unzipping funcZip\n');
     end
-end
+    
+    % Uncompress the zip archive into the dir that holds the zip. We do this
+    % with a system call so that we can prevent over-writing a prior unzipped
+    % version of the data (which can happen in demo mode).
+    command = ['unzip -q -n ' funcZipPath{jj} ' -d ' fileparts(funcZipPath{jj})];
+    system(command);
+    
+    % Find the files
+    
+    % The ICA-FIX gear saves the output data within the MNINonLinear dir
+    acquisitionList = dir(strcat(fileparts(funcZipPath{jj}), '/*/MNINonLinear/Results'));
+    
+    % Remove the entries returned by dir that are
+    acquisitionList = acquisitionList(~ismember({acquisitionList.name},{'.','..'}));
+    
+    % Remove any entries that have a dot prefix, including the dir itself and the
+    % enclosing dir
+    acquisitionList = acquisitionList(...
+        cellfun(@(x) ~startsWith(x,'.'),extractfield(acquisitionList,'name')) ...
+        );
+    
+    % Remove the ICAFIX concat dir
+    acquisitionList = acquisitionList(...
+        cellfun(@(x) ~startsWith(x,'ICAFIX'),extractfield(acquisitionList,'name')) ...
+        );
+    
+    % Each entry left in funcZipPaths is a different fMRI acquisition
+    nAcquisitions = length(acquisitionList);
+        
+    % Loop through the acquisitions
+    for ii = 1:nAcquisitions
+        
+        % The name of the acquisition, the loading, and the initial processing
+        % varies for CIFIT and volumetric data
+        switch p.Results.dataFileType
+            case 'volumetric'
+                rawName = strcat(acquisitionList(ii).folder, filesep, acquisitionList(ii).name, filesep, acquisitionList(ii).name, '_', 'hp2000_clean.nii.gz');
+                thisAcqData = MRIread(rawName);
+                % Check if this is the first acquisition. If so, retain an
+                % example of the source data to be used as a template to format
+                % the output files.
+                if ii == 1
+                    templateImage = thisAcqData;
+                end
+                thisAcqData = thisAcqData.vol;
+                thisAcqData = single(thisAcqData);
+                thisAcqData = reshape(thisAcqData, [size(thisAcqData',1)*size(thisAcqData',2)*size(thisAcqData',3), size(thisAcqData',4)]);
+                thisAcqData(isnan(thisAcqData)) = 0;
+            case 'cifti'
+                rawName = strcat(acquisitionList(ii).folder, filesep, acquisitionList(ii).name,filesep, acquisitionList(ii).name, '_', 'Atlas_hp2000_clean.dtseries.nii');
+                thisAcqData = ciftiopen(rawName, workbenchPath);
+                % Check if this is the first acquisition. If so, retain an
+                % example of the source data to be used as a template to format
+                % the output files.
+                if ii == 1
+                    templateImage = thisAcqData;
+                    % Make the time dimension a singleton
+                    templateImage.cdata = templateImage.cdata(:,1);
+                end
+                thisAcqData = thisAcqData.cdata;
+            otherwise
+                errorString = [p.Results.dataFileType ' is not a recognized dataFileType for this routine. Try, cifti or volumetric'];
+                error('AnalyzePRFPreprocess:notICAFIX', errorString);
+        end
+        
+        % Store the acquisition data in a cell array
+        data{totalAcquisitions} = thisAcqData;
+        
+        % Increment the total number of acquisitions
+        totalAcquisitions = totalAcquisitions + 1;
+                       
+        % Alert the user
+        if verbose
+            outputString = ['Read acquisition ' num2str(ii) ' of ' num2str(nAcquisitions) ' -- ' rawName '\n'];
+            fprintf(outputString)
+        end
+    end
+    
+end % Loop over entries in funcZipPath
+
 
 
 %% Average the acquisitions if requested
@@ -212,7 +224,7 @@ if strcmp(p.Results.averageAcquisitions,'1')
     meanData = meanData ./ length(data);
     data = {meanData};
     clear meanData
-    nAcquisitions = 1;
+    totalAcquisitions = 1;
     
 end
 
@@ -235,21 +247,21 @@ if ~iscell(stimulus)
 end
 
 % Check the compatability of stimulus and data lengths
-if length(stimulus)~=1 && length(stimulus)~=nAcquisitions
+if length(stimulus)~=1 && length(stimulus)~=totalAcquisitions
     error('AnalyzePRFPreprocess:stimulusWrongNumCells','The stimulus file must contain a cell array with one entry, or as many entries as data acquisitions');
 end
 
 % If the stimulus contains a single cell, then replicate this to be the
 % same length as the data array
 if length(stimulus)==1
-    tmpStimulus = cell(1, nAcquisitions);
+    tmpStimulus = cell(1, totalAcquisitions);
     tmpStimulus(:) = stimulus(1);
     stimulus = tmpStimulus;
 end
 
 % Check that the length of the stimulus matrices match the length of the
 % data matricies. If prependDummyTR is set to true, pad the data.
-for ii = 1:nAcquisitions
+for ii = 1:totalAcquisitions
     dataTRs = size(data{ii},2);
     stimTRs = size(stimulus{ii},3);
     if dataTRs~=stimTRs
@@ -266,7 +278,7 @@ for ii = 1:nAcquisitions
             warning('AnalyzePRFPreprocess:stimulusTRTrim', warnString);
             
         else
-            errorString = ['Acquisition ' num2str(ii) ' of ' num2str(nAcquisitions) ' has a mismatched number of TRs with its stimulus'];
+            errorString = ['Acquisition ' num2str(ii) ' of ' num2str(totalAcquisitions) ' has a mismatched number of TRs with its stimulus'];
             error('AnalyzePRFPreprocess:notICAFIX', errorString);
         end
     end
