@@ -118,16 +118,18 @@ for jj=1:length(funcZipPath)
         fprintf('  Unzipping funcZip\n');
     end
     
-    % Uncompress the zip archive into the dir that holds the zip. We do this
-    % with a system call so that we can prevent over-writing a prior unzipped
-    % version of the data (which can happen in demo mode).
-    command = ['unzip -q -n ' funcZipPath{jj} ' -d ' fileparts(funcZipPath{jj})];
+    % Create a temp directory to hold the zip file output
+    zipDir = fullfile(fileparts(funcZipPath{jj}),tempname('.'));
+    mkdir(zipDir)
+    
+    % Uncompress the zip archive into the zipDir.
+    command = ['unzip -q -n ' funcZipPath{jj} ' -d ' zipDir];
     system(command);
     
     % Find the files
     
     % The ICA-FIX gear saves the output data within the MNINonLinear dir
-    acquisitionList = dir(strcat(fileparts(funcZipPath{jj}), '/*/MNINonLinear/Results'));
+    acquisitionList = dir(fullfile(zipDir,'*','MNINonLinear','Results'));
     
     % Remove the entries returned by dir that are
     acquisitionList = acquisitionList(~ismember({acquisitionList.name},{'.','..'}));
@@ -193,7 +195,12 @@ for jj=1:length(funcZipPath)
             outputString = ['Read acquisition ' num2str(ii) ' of ' num2str(nAcquisitions) ' -- ' rawName '\n'];
             fprintf(outputString)
         end
-    end
+    end % Loop over acquisitions within a funcZip file
+    
+    % Delete the temporary directory that contains the unpacked zip
+    % contents
+    command = ['rmdir -r ' zipDir];
+    system(command);
     
 end % Loop over entries in funcZipPath
 
