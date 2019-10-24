@@ -6,7 +6,7 @@
 	"maintainer": "Ozenc Taskin <huseyinozenc.taskin@pennmedicine.upenn.edu>",
 	"source": "https://github.com/kendrickkay/analyzePRF",
 	"url": "https://github.com/gkaguirrelab/pRFCompileWrapper",
-	"version": "0.2.9",
+	"version": "0.3.0",
 	"custom": {
 		"flywheel": {
 			"suite": "GKAguirreLab"
@@ -39,49 +39,19 @@
   			"description": "Required. TR in seconds (e.g. 1.5).",
   			"type": "string"
 		},
-		"wantglmdenoise":  {
-  			"default": "0",
-  			"description": "Determines whether to use GLMdenoise to determine nuisance regressors to add into the PRF model. Note that to use this feature, there must be at least two runs, and the stimulus must be the same across runs. We automatically determine the GLM design matrix based upon the contents of the stimulus.mat file. default: 0 ",
-  			"type": "string"
-		},
-		"maxpolydeg":  {
-			"default": "Na",
-  			"description": "Is a non-negative integer indicating the maximum polynomial degree to use for drift terms. Default is to use round(L/2) where L is the number of minutes in the duration of a given run.",
-			"type": "string"
-		},
-		"seedmode":  {
-  			"default": "[0 1 2]",
-  			"description": "Is a vector consisting of one or more of the following values (we automatically sort and ensure uniqueness): 0 means use generic large PRF seed - 1 means use generic small PRF seed - 2 means use best seed based on super-grid default: [0 1 2].",
-  			"type": "string"
-		},
-		"xvalmode":  {
-  			"default": "0",
-  			"description": "0 means just fit all the data - 1 means two-fold cross-validation (first half of runs; second half of runs) - 2 means two-fold cross-validation (first half of each run; second half of each run). default: 0. (note that we round when halving.) ",
-  			"type": "string"
-		},
-		"maxiter":  {
-  			"default": "500",
-  			"description": "Is the maximum number of iterations. Default: 500",
-  			"type": "string"
-		},
-		"typicalgain":  {
-  			"default": "10",
-  			"description": "The expected amplitude of the BOLD fMRI response to the mapping stimulus. If the units of the data are in percent signal change, then a value of 1.0 would be typical. If the data are in raw signal units, then a value of 30 or greater would be typical. Default: 10.",
-  			"type": "string"
-		},
-		"pixelsPerDegree":  {
-			"default": "Na",
-  			"description": "To express the results in units of visual degrees, provide the number of pixels in the DOWNSAMPLED STIMULUS MAT FILE per degree of visual angle.",
-			"type": "string"
-		},
-		"screenMagnification":  {
-			"default": "1.0",
-  			"description": "The stimulus screen is subject to magnification / minification if the subject is wearing corrective lenses. We account for this effect here. While in principle this could be rolled into the pixelsPerDegree variable, we prefer to keep these separate to aid clear book-keeping.",
-			"type": "string"
-		},
 		"RegName":  {
 			"default": "FS",
   			"description": "Registration type used for creating your hcp-struct archive. FS or MSMSulc. Default:FS",
+			"type": "string"
+		},
+		"modelClass": {
+			"default": "pRF_timeShift",
+			"description": "DESCRIBE",
+			"type": "string"
+		},
+		"modelOpts": {
+			"default":"{(pixelsPerDegree), 5.18, (screenMagnification), 1, (polyDeg), [], (typicalGain), 300}",
+			"description": "DESCRIBE",
 			"type": "string"
 		}
 	},
@@ -116,8 +86,8 @@
 				]
 			}
 		},
-		"hrfFilePath": {
-			"description": "is a column vector with the hemodynamic response function (HRF) to use in the model. The first value of hrf should be coincident with the onset of the stimulus, and the HRF should indicate the timecourse of the response to a stimulus that lasts for one TR. Default is to use a canonical HRF (calculated using getcanonicalhrf(tr,tr)'). A different model can be used by inputting a 1xn MATLAB matrix",
+		"payloadFilePath": {
+			"description": "DESCRIBE",
 			"base": "file",
 			"optional": true,
 			"type": {

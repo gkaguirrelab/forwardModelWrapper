@@ -27,7 +27,7 @@ else
       args="${args} \"${token}\"" 
       shift
   done
-  eval "\"${exe_dir}/mainPRF\"" $args
+  eval "\"${exe_dir}/mainWrapper\"" $args
 fi
 exit
 

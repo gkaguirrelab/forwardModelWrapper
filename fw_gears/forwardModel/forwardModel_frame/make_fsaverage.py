@@ -16,33 +16,24 @@ def make_fsaverage(path_to_cifti_maps, path_to_hcp, alignment_type, native_mgz, 
     
 ############# Set a dictionary for the AnalyzePRF results #################################
     
-    maps = {}
-    maps['angle_map'] = os.path.join(path_to_cifti_maps, 'ang_map.dtseries.nii')
-    maps['eccentricity_map'] = os.path.join(path_to_cifti_maps, 'ecc_map.dtseries.nii')
-    maps['exponent_map'] = os.path.join(path_to_cifti_maps, 'expt_map.dtseries.nii')
-    maps['gain_map'] = os.path.join(path_to_cifti_maps, 'gain_map.dtseries.nii')
-    maps['R2_map'] = os.path.join(path_to_cifti_maps, 'R2_map.dtseries.nii')
-    maps['rfsize_map'] = os.path.join(path_to_cifti_maps, 'rfsize_map.dtseries.nii')
-    maps['x_map'] = os.path.join(path_to_cifti_maps, 'cartX_map.dtseries.nii')
-    maps['y_map'] = os.path.join(path_to_cifti_maps, 'cartY_map.dtseries.nii')
-    maps['hrfshift_map'] = os.path.join(path_to_cifti_maps, 'hrfshift_map.dtseries.nii')
+    maps = os.listdir(path_to_cifti_maps)
     
 #### Interpolate AnalyzePRF maps over subject's native surface do the flip and average ####   
     
     print('Starting: Left-Right averaging and interpolation')
     
-    for amap in maps.keys():
+    for amap in maps:
         
         print('Processing %s'%amap)
        
         # Load the maps interpolate to native space and save the unprocessed 
         # mgz maps.
-        tempim = ny.load(maps[amap])
+        tempim = ny.load(os.path.join(path_to_cifti_maps, amap))
         (orig_lhdat, orig_rhdat, orig_other) = ny.hcp.cifti_split(tempim)  
         original_result_left = hem_from_left.interpolate(hem_to_left, orig_lhdat)
         original_result_right = hem_from_right.interpolate(hem_to_right, orig_rhdat)
-        ny.save(os.path.join(native_mgz,'L_%s.mgz'%amap), original_result_left)
-        ny.save(os.path.join(native_mgz,'R_%s.mgz'%amap), original_result_right)
+        ny.save(os.path.join(native_mgz,'L_%s.mgz'%amap[:-13]), original_result_left)
+        ny.save(os.path.join(native_mgz,'R_%s.mgz'%amap[:-13]), original_result_right)
         
         # Get a copy of the unprocessed hemispheres and overwrite them with the
         # flipped versions. Getiing a copy to preserve the voxel information
@@ -57,7 +48,7 @@ def make_fsaverage(path_to_cifti_maps, path_to_hcp, alignment_type, native_mgz, 
         final_averaged_left = orig_lhdat.copy()
         final_averaged_right = orig_rhdat.copy()
         for length in range(len(orig_lhdat)):
-            if amap == 'x_map':
+            if amap == 'cartX_map.dtseries.nii':
                 final_averaged_left[length] = (orig_lhdat[length] + (-1 * flipped_lhdat[length]))/2
                 final_averaged_right[length] = (orig_rhdat[length] + (-1 * flipped_rhdat[length]))/2
             else:
@@ -67,8 +58,8 @@ def make_fsaverage(path_to_cifti_maps, path_to_hcp, alignment_type, native_mgz, 
         # Interpolate the processed images and save them
         averaged_result_left = hem_from_left.interpolate(hem_to_left, final_averaged_left)
         averaged_result_right = hem_from_right.interpolate(hem_to_right, final_averaged_right)
-        ny.save(os.path.join(native_mgz_pseudo_hemi,'L_%s.mgz'%amap), averaged_result_left)
-        ny.save(os.path.join(native_mgz_pseudo_hemi,'R_%s.mgz'%amap), averaged_result_right)
+        ny.save(os.path.join(native_mgz_pseudo_hemi,'L_%s.mgz'%amap[:-13]), averaged_result_left)
+        ny.save(os.path.join(native_mgz_pseudo_hemi,'R_%s.mgz'%amap[:-13]), averaged_result_right)
     
 ##################### Convert cartesian x-y maps to polar maps ############################      
     
@@ -81,10 +72,10 @@ def make_fsaverage(path_to_cifti_maps, path_to_hcp, alignment_type, native_mgz, 
             variable = native_mgz_pseudo_hemi
             
         # Reload the X-Y cartesian images.
-        left_x = ny.load(os.path.join(variable, 'L_x_map.mgz'))
-        left_y = ny.load(os.path.join(variable, 'L_y_map.mgz'))
-        right_x = ny.load(os.path.join(variable, 'R_x_map.mgz'))
-        right_y = ny.load(os.path.join(variable, 'R_y_map.mgz'))
+        left_x = ny.load(os.path.join(variable, 'L_cartX_map.mgz'))
+        left_y = ny.load(os.path.join(variable, 'L_cartY_map.mgz'))
+        right_x = ny.load(os.path.join(variable, 'R_cartX_map.mgz'))
+        right_y = ny.load(os.path.join(variable, 'R_cartY_map.mgz'))
         
         # Calculate the angle and eccentricity
         left_angle_new_template = np.rad2deg(np.mod(np.arctan2(left_y,left_x), 2*np.pi))
@@ -93,8 +84,8 @@ def make_fsaverage(path_to_cifti_maps, path_to_hcp, alignment_type, native_mgz, 
         right_eccentricity_new_template = np.sqrt(right_x**2 + right_y**2)
         
         # Overwriting the eccentricity maps with the new ones.
-        ny.save(os.path.join(variable,'L_eccentricity_map.mgz'), left_eccentricity_new_template) 
-        ny.save(os.path.join(variable,'R_eccentricity_map.mgz'), right_eccentricity_new_template) 
+        ny.save(os.path.join(variable,'L_eccen_map.mgz'), left_eccentricity_new_template) 
+        ny.save(os.path.join(variable,'R_eccen_map.mgz'), right_eccentricity_new_template) 
     
 ###################### Wrap angle maps to -180 - 180 scale ################################
         
@@ -112,11 +103,6 @@ def make_fsaverage(path_to_cifti_maps, path_to_hcp, alignment_type, native_mgz, 
         # Overwriting the angle maps with the new ones.
         ny.save(os.path.join(variable,'L_angle_map.mgz'), left_angle_converted)
         ny.save(os.path.join(variable,'R_angle_map.mgz'), right_angle_converted)
-
-    os.system("rm %s"%os.path.join(native_mgz_pseudo_hemi,'*_x_map.mgz'))
-    os.system("rm %s"%os.path.join(native_mgz_pseudo_hemi,'*_y_map.mgz'))
-    os.system("rm %s"%os.path.join(native_mgz,'*_x_map.mgz'))
-    os.system("rm %s"%os.path.join(native_mgz,'*_y_map.mgz'))    
 
     print('Done !')
 
