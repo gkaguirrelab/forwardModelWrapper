@@ -2,7 +2,7 @@
 	"name": "analyzeprf",
 	"label": "analyzePRF: derive retinotopic map using non-linear pRF fitting",
 	"description": "Built from a MATLAB wrapper written for Kendrick Kay's AnalyzePRF script, this gear performs pRF analysis and allows ICA-fix zip archives to be used as direct inputs. The gear looks for the cifti files in each of the separate run folders located in the ica-fix archive and outputs an results.mat file along with raw brain maps and diagnostic images.",
-	"version": "0.2.9",
+	"version": "0",
 	"inputs": {
 		"funcZipPath": {
 			"base": "file",
@@ -14,16 +14,6 @@
 				]
 			}
 		},
-		"hrfFilePath": {
-			"base": "file",
-			"description": "is a column vector with the hemodynamic response function (HRF) to use in the model. The first value of hrf should be coincident with the onset of the stimulus, and the HRF should indicate the timecourse of the response to a stimulus that lasts for one TR. Default is to use a canonical HRF (calculated using getcanonicalhrf(tr,tr)'). A different model can be used by inputting a 1xn MATLAB matrix",
-			"optional": true,
-			"type": {
-				"enum": [
-					"MATLAB data"
-				]
-			}
-		},
 		"maskFilePath": {
 			"base": "file",
 			"description": "Use a nifti FSLR mask to specify which voxels to analyze. If empty, analyze the whole brain. Using a mask significantly decreases the analysis time depending on the region. Has to be a surface cifti mask",
@@ -31,6 +21,16 @@
 			"type": {
 				"enum": [
 					"nifti"
+				]
+			}
+		},
+		"payloadFilePath": {
+			"base": "file",
+			"description": "DESCRIBE",
+			"optional": true,
+			"type": {
+				"enum": [
+					"MATLAB data"
 				]
 			}
 		},
@@ -76,29 +76,14 @@
 			"description": "Input archive type. Currently, only icafix archives are supported",
 			"type": "string"
 		},
-		"maxiter": {
-			"default": "500",
-			"description": "Is the maximum number of iterations. Default: 500",
+		"modelClass": {
+			"default": "pRF_timeShift",
+			"description": "DESCRIBE",
 			"type": "string"
 		},
-		"maxpolydeg": {
-			"default": "Na",
-			"description": "Is a non-negative integer indicating the maximum polynomial degree to use for drift terms. Default is to use round(L/2) where L is the number of minutes in the duration of a given run.",
-			"type": "string"
-		},
-		"pixelsPerDegree": {
-			"default": "Na",
-			"description": "To express the results in units of visual degrees, provide the number of pixels in the DOWNSAMPLED STIMULUS MAT FILE per degree of visual angle.",
-			"type": "string"
-		},
-		"screenMagnification": {
-			"default": "1.0",
-			"description": "The stimulus screen is subject to magnification / minification if the subject is wearing corrective lenses. We account for this effect here. While in principle this could be rolled into the pixelsPerDegree variable, we prefer to keep these separate to aid clear book-keeping.",
-			"type": "string"
-		},
-		"seedmode": {
-			"default": "[0 1 2]",
-			"description": "Is a vector consisting of one or more of the following values (we automatically sort and ensure uniqueness): 0 means use generic large PRF seed - 1 means use generic small PRF seed - 2 means use best seed based on super-grid default: [0 1 2].",
+		"modelOpts": {
+			"default": "{(pixelsPerDegree), 5.18, (screenMagnification), 1, (polyDeg), [], (typicalGain), 300}",
+			"description": "DESCRIBE",
 			"type": "string"
 		},
 		"tr": {
@@ -109,25 +94,10 @@
 			"default": "0",
 			"description": "Used when the stimulus and data lengths are not equal and the inequality is due to the removal of dummy TRs from the sample. Calculates the mean along the time dimension for each voxel and adds that mean to the front of the data matrix. This procedure is repeated multiple times if required until data and stimulus sample lengths are exactly the same. If this option is set to zero, and the stimulus.mat file and the data have different numbers of timepoints, then the stimulus will be assumed to be of the same duration as the data so needs be resampled beforehand to match in temporal resolution. 1 for true and 0 for false. Default = 0 (false)",
 			"type": "string"
-		},
-		"typicalgain": {
-			"default": "10",
-			"description": "The expected amplitude of the BOLD fMRI response to the mapping stimulus. If the units of the data are in percent signal change, then a value of 1.0 would be typical. If the data are in raw signal units, then a value of 30 or greater would be typical. Default: 10.",
-			"type": "string"
-		},
-		"wantglmdenoise": {
-			"default": "0",
-			"description": "Determines whether to use GLMdenoise to determine nuisance regressors to add into the PRF model. Note that to use this feature, there must be at least two runs, and the stimulus must be the same across runs. We automatically determine the GLM design matrix based upon the contents of the stimulus.mat file. default: 0 ",
-			"type": "string"
-		},
-		"xvalmode": {
-			"default": "0",
-			"description": "0 means just fit all the data - 1 means two-fold cross-validation (first half of runs; second half of runs) - 2 means two-fold cross-validation (first half of each run; second half of each run). default: 0. (note that we round when halving.) ",
-			"type": "string"
 		}
 	},
-	"author": "Ozenc Taskin",
-	"maintainer": "Ozenc Taskin",
+	"author": "Ozzy Taskin",
+	"maintainer": "Ozzy Taskin",
 	"license": "Other",
 	"source": "https://github.com/kendrickkay/analyzePRF",
 	"url": "https://github.com/gkaguirrelab/pRFCompileWrapper",
@@ -137,7 +107,7 @@
 		},
 		"gear-builder": {
 			"category": "analysis",
-			"image": "gkaguirrelab/analyzeprfgear:0.2.9"
+			"image": "gkaguirrelab/analyzeprfgear:0.3.0"
 		}
 	}
 }

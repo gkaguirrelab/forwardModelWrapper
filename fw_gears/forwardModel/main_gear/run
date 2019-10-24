@@ -13,29 +13,29 @@ flywheel_base ='/flywheel/v0/'
 func_zip_folder = os.path.join(flywheel_base, 'input/funcZipPath')
 stim_file_folder = os.path.join(flywheel_base, 'input/stimFilePath')
 struct_zip_folder = os.path.join(flywheel_base, 'input/structZipPath')
-hrf_file_folder = os.path.join(flywheel_base, 'input/hrfFilePath')
 mask_file_folder = os.path.join(flywheel_base, 'input/maskFilePath')
+payload_file_folder = os.path.join(flywheel_base, 'input/payloadFilePath')
 
 # Set path to required inputs
 func_zip_path = os.path.join(func_zip_folder, os.listdir(func_zip_folder)[0])
 stim_file_path = os.path.join(stim_file_folder, os.listdir(stim_file_folder)[0])
 struct_zip_path = os.path.join(struct_zip_folder, os.listdir(struct_zip_folder)[0])
 
-# Set path to optional paths
-if os.path.isdir(hrf_file_folder) == True:
-    hrf_file_path = os.path.join(hrf_file_folder, os.listdir(hrf_file_folder)[0])
-else:
-    hrf_file_path = 'Na'
-    
+# Set path to optional paths   
 if os.path.isdir(mask_file_folder) == True:    
     mask_file_path = os.path.join(mask_file_folder, os.listdir(mask_file_folder)[0])
 else:
     mask_file_path = 'Na'
+if os.path.isdir(payload_file_folder) == True:    
+    payload_file_path = os.path.join(mask_file_folder, os.listdir(payload_file_folder)[0])
+else:
+    payload_file_path = 'Na'
+
 
 # Set other paths
 manifest_file = os.path.join(flywheel_base, 'manifest.json')
 config_path = os.path.join(flywheel_base, 'config.json')
-matlab_func = '/opt/func_input/run_mainPRF.sh'
+matlab_func = '/opt/func_input/run_mainWrapper.sh'
 first_output_dir = '/firstOutput'
 final_output_dir = os.path.join(flywheel_base, 'output')
 mcr_path = '/usr/local/MATLAB/MATLAB_Runtime/v97' #path to MATLAB runtime
@@ -54,43 +54,30 @@ dataSourceType = config['dataSourceType']
 trimDummyStimTRs = config['trimDummyStimTRs']
 averageAcquisitions = config['averageAcquisitions']
 tr = config['tr']
-wantglmdenoise = config['wantglmdenoise']
-maxpolydeg = config['maxpolydeg']
-seedmode = config['seedmode']
-xvalmode = config['xvalmode']
-maxiter = config['maxiter']
-typicalgain = config['typicalgain']
-pixelsPerDegree = config['pixelsPerDegree']
-screenMagnification = config['screenMagnification']
 RegName = config['RegName']
+modelClass = config['modelClass']
+modelOpts = config['modelOpts']
 
 ###################Run Algorithm################################
     
-cmd = """%s %s '%s' '%s' '%s' 'maskFilePath' '%s' 'hrfFilePath' '%s' \
-'dataFileType' '%s' 'dataSourceType' '%s' 'trimDummyStimTRs' '%s' \
-'averageAcquisitions' '%s' 'tr' '%s' 'wantglmdenoise' '%s' 'maxpolydeg' '%s' \
-'seedmode' '%s' 'xvalmode' '%s' 'maxiter' '%s' \
-'typicalgain' '%s' 'pixelsPerDegree' '%s' 'screenMagnification' '%s' 'externalMGZMakerPath' '%s' 'RegName' '%s' 'workbenchPath' '%s' 'outPath' '%s'""" %(matlab_func, 
-mcr_path, func_zip_path, stim_file_path, struct_zip_path,
-mask_file_path, hrf_file_path, dataFileType, dataSourceType,
-trimDummyStimTRs, averageAcquisitions, tr, wantglmdenoise, maxpolydeg,
-seedmode, xvalmode, maxiter, typicalgain, pixelsPerDegree,
-screenMagnification, path_to_python_func, RegName, workbench_path, first_output_dir)
+cmd = """%s %s '%s' '%s' '%s' 'maskFilePath' '%s' \
+'payloadPath' '%s' 'dataFileType' '%s' 'dataSourceType' '%s' \
+'trimDummyStimTRs' '%s' 'averageAcquisitions' '%s' 'tr' '%s' \
+'externalMGZMakerPath' '%s' 'RegName' '%s' 'modelClass' '%s' 'modelOpts' '%s' \
+'workbenchPath' '%s' 'outPath' '%s'""" % (matlab_func, mcr_path, func_zip_path, 
+stim_file_path, struct_zip_path, mask_file_path, 
+payload_file_path, dataFileType, dataSourceType, trimDummyStimTRs, 
+averageAcquisitions, tr, path_to_python_func, RegName, modelClass, modelOpts,
+workbench_path, first_output_dir)
 
 os.system(cmd)        
 
 ################## Zip everything and output ##################################
 
-# Move mat and pdf outputs
-os.system('mv %s %s'%(os.path.join(first_output_dir,'raw_retinotopy_results.mat'), os.path.join(final_output_dir,'raw_retinotopy_results.mat'))) 
-os.system('mv %s %s'%(os.path.join(first_output_dir,'modified_retinotopy_results.mat'), os.path.join(final_output_dir,'modified_retinotopy_results.mat')))
-os.system('mv %s %s'%(os.path.join(first_output_dir,'exampleTimeSeriesFit.pdf'), os.path.join(final_output_dir,'exampleTimeSeriesFit.pdf')))
-os.system('mv %s %s'%(os.path.join(first_output_dir,'visualFieldCoverage.pdf'), os.path.join(final_output_dir,'visualFieldCoverage.pdf')))
-
-# Move diagnostic images
-list_of_png = ['eccentricity','angle','R2','rfsize','hrfshift','gain','exponent']
-for i in list_of_png:
-    os.system('mv %s %s'%(os.path.join(first_output_dir, ('rh.'+ i + '.png')), os.path.join(final_output_dir, ('rh.'+ i + '.png'))))
+# Move mat, pdf and png files to the final output folder
+os.system('cd %s; mv %s %s/'%(first_output_dir, '*.mat', final_output_dir)) 
+os.system('cd %s; mv %s %s/'%(first_output_dir, '*.pdf', final_output_dir)) 
+os.system('cd %s; mv %s %s/'%(first_output_dir, '*.png', final_output_dir)) 
 
 # Zip and move the maps
 os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'maps_cifti'), os.path.join(final_output_dir,'maps_cifti.zip')))
