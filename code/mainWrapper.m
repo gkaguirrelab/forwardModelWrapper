@@ -49,6 +49,13 @@ p.addParameter('outPath', '', @isstr);
 p.parse(funcZipPath, stimFilePath, structZipPath, varargin{:})
 
 
+%% Parse the modelOpts string
+% modelOpts may be passed in with parens substituted for single quotes. We
+% replace those here.
+modelOpts = p.Results.modelOpts;
+modelOpts = strrep(modelOpts,'(','''');
+modelOpts = strrep(modelOpts,')','''');
+
 
 %% Preprocess
 [stimulus, data, vxs, templateImage] = ...
@@ -79,7 +86,7 @@ end
 % Call the model
 results = forwardModel(stimulus,data,str2double(p.Results.tr),...
     'modelClass', p.Results.modelClass, ...
-    'modelOpts', eval(p.Results.modelOpts), ...
+    'modelOpts', eval(modelOpts), ...
     'modelPayload', payload, ...
     'vxs', vxs);
 

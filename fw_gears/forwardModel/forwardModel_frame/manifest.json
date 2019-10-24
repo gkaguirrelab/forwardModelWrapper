@@ -50,7 +50,7 @@
 			"type": "string"
 		},
 		"modelOpts": {
-			"default":"'pixelsPerDegree', 5.18, 'screenMagnification', 1, 'polyDeg', [], 'typicalGain', 300",
+			"default":"{(pixelsPerDegree), 5.18, (screenMagnification), 1, (polyDeg), [], (typicalGain), 300}",
 			"description": "DESCRIBE",
 			"type": "string"
 		}
