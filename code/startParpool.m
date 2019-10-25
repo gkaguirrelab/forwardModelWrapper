@@ -57,7 +57,7 @@ if isempty(poolObj)
     if isempty(nWorkers)
         parpool;
     else
-        parpool(nWorkers);
+        parpool([floor(nWorkers/2) nWorkers]);
     end
     poolObj = gcp;
     if isempty(poolObj)
