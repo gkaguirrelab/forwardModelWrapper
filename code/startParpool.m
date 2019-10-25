@@ -30,9 +30,15 @@ if ismac
     nWorkers = feature('numcores');
 elseif isunix
     % Code to run on Linux plaform
-    command = 'echo "$(( $(lscpu | awk ''/^Socket\(s\)/{ print $2 }'') * $(lscpu | awk ''/^Core\(s\) per socket/{ print $4 }'') ))"';
+    % "Siblings" is the number of virtual CPUs produced by hyperthreading.
+    % Replace with "cpu cores" to obtain only the number of physical CPUs
+    command = 'cat /proc/cpuinfo |grep "cpu cores" | awk -F: ''{ num+=$2 } END{ print num }''';
     [~,nWorkers] = system(command);
-    nWorkers = str2double(nWorkers);
+    nWorkers = strtrim(nWorkers);
+    % This function forces matlab to use this number of workers, even if
+    % they are virtual
+    nWorkers = str2double(nWorkers)/2;
+    maxNumCompThreads(nWorkers);
 elseif ispc
     % Code to run on Windows platform
     warning('Not supported for PC')
