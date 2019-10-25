@@ -67,24 +67,16 @@ prior = config['prior']
 maximum_eccen = config['max-input-eccen']
 minimum_eccen = config['min-input-eccen']
 
-if 'pseudoHemisphere' in native_mgz_maps_zip_path:
-    lh_angle = os.path.join(unzipped_maps, 'L_angle_map.mgz')
-    rh_angle = os.path.join(unzipped_maps, 'R_angle_map.mgz')
-    lh_eccen = os.path.join(unzipped_maps, 'L_eccentricity_map.mgz')
-    rh_eccen = os.path.join(unzipped_maps, 'R_eccentricity_map.mgz')
-    lh_radius = os.path.join(unzipped_maps, 'L_rfsize_map.mgz')
-    rh_radius = os.path.join(unzipped_maps, 'R_rfsize_map.mgz')
-    lh_weight = os.path.join(unzipped_maps, 'L_R2_map.mgz')
-    rh_weight = os.path.join(unzipped_maps, 'R_R2_map.mgz')
-else:
-    lh_angle = os.path.join(unzipped_maps, 'L_angle_map.mgz')
-    rh_angle = os.path.join(unzipped_maps, 'R_angle_map.mgz')
-    lh_eccen = os.path.join(unzipped_maps, 'L_eccentricity_map.mgz')
-    rh_eccen = os.path.join(unzipped_maps, 'R_eccentricity_map.mgz')
-    lh_radius = os.path.join(unzipped_maps, 'L_rfsize_map.mgz')
-    rh_radius = os.path.join(unzipped_maps, 'R_rfsize_map.mgz')
-    lh_weight = os.path.join(unzipped_maps, 'L_R2_map.mgz')
-    rh_weight = os.path.join(unzipped_maps, 'R_R2_map.mgz')
+
+lh_angle = os.path.join(unzipped_maps, 'L_angle_map.mgz')
+rh_angle = os.path.join(unzipped_maps, 'R_angle_map.mgz')
+lh_eccen = os.path.join(unzipped_maps, 'L_eccen_map.mgz')
+rh_eccen = os.path.join(unzipped_maps, 'R_eccen_map.mgz')
+lh_radius = os.path.join(unzipped_maps, 'L_sigma_map.mgz')
+rh_radius = os.path.join(unzipped_maps, 'R_sigma_map.mgz')
+lh_weight = os.path.join(unzipped_maps, 'L_R2_map.mgz')
+rh_weight = os.path.join(unzipped_maps, 'R_R2_map.mgz')
+
 
 ###################Run Algorithm################################
 
