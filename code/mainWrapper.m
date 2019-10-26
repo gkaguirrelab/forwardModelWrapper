@@ -33,7 +33,7 @@ p.addParameter('trimDummyStimTRs', '0', @isstr)
 p.addParameter('averageAcquisitions', '0', @isstr)
 
 % Config options - forwardModel
-p.addParameter('modelClass','pRF_timeShift',@isstr);
+p.addParameter('modelClass','prfTimeShift',@isstr);
 p.addParameter('modelOpts','{}',@isstr);
 p.addParameter('tr',[],@isstr);
 
@@ -104,7 +104,7 @@ mapsPath = handleOutputs(...
     'dataFileType', p.Results.dataFileType);
 
 % Create and save some plots
-if strcmp(p.Results.modelClass,'pRF_timeShift')
+if strcmp(p.Results.modelClass,'prfTimeShift')
     plotPRF(results,data,p.Results.outPath)
 end
 
