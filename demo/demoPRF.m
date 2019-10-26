@@ -37,8 +37,6 @@ screenMagnification = '1.0';
 % TR of the acquisition in seconds
 tr = '0.8';
 
-hrfParams = '[5.6872   10.5974   25.2284 20]';
-
 % Flag to average the acquisitions together before computing pRF
 % parameters. This makes the operation faster.
 averageAcquisitions = '1';
@@ -185,7 +183,6 @@ externalMGZMakerPath = fullfile(getpref('forwardModelWrapper','projectBaseDir'),
 modelOpts = ['{' ...
                ' ''pixelsPerDegree'',' pixelsPerDegree ',' ...
                ' ''screenMagnification'',' screenMagnification ...
-               ' ''hrfParams'',' hrfParams ...
                '}'];
 
 %% Call the main routine
