@@ -1,4 +1,4 @@
-function [stimulus, data, vxs, templateImage] = handleInputs(workbenchPath, funcZipPath, stimFilePath, varargin)
+function [stimulus, stimTime, data, vxs, templateImage] = handleInputs(workbenchPath, funcZipPath, stimFilePath, varargin)
 % This function prepares the data, stimulus and mask inputs for AnalyzePRF
 %
 % Syntax:
@@ -99,11 +99,11 @@ funcZipPath = funcZipPath(~strcmp(funcZipPath,'Na'));
 % Ensure that we have been passed a zip file
 for jj=1:length(funcZipPath)
     if ~endsWith(funcZipPath{jj},'zip')
-        error('AnalyzePRFPreprocess:notAZip','fMRI data should be passed as the path to a zip archive');
+        error('handleInputs:notAZip','fMRI data should be passed as the path to a zip archive');
     end
 end
 if ~strcmp(p.Results.dataSourceType,'icafix')
-    error('AnalyzePRFPreprocess:notICAFIX','We have only implemented processing of ICAFIX archives so far');
+    error('handleInputs:notICAFIX','We have only implemented processing of ICAFIX archives so far');
 end
 
 
@@ -181,7 +181,7 @@ for jj=1:length(funcZipPath)
                 thisAcqData = thisAcqData.cdata;
             otherwise
                 errorString = [p.Results.dataFileType ' is not a recognized dataFileType for this routine. Try, cifti or volumetric'];
-                error('AnalyzePRFPreprocess:notICAFIX', errorString);
+                error('handleInputs:notICAFIX', errorString);
         end
         
         % Store the acquisition data in a cell array
@@ -200,7 +200,7 @@ for jj=1:length(funcZipPath)
     % Delete the temporary directory that contains the unpacked zip
     % contents
     command = ['rm -r ' zipDir];
-    system(command);
+    %system(command);
     
 end % Loop over entries in funcZipPath
 
@@ -220,7 +220,7 @@ if strcmp(p.Results.averageAcquisitions,'1')
         
     % Check that all of the data cells have the same length
     if length(unique(cellfun(@(x) length(x),data))) > 1
-            error('AnalyzePRFPreprocess:dataLengthDisagreement', 'Averaging of the acquisition data was requested, but the acquisitions are not of equal length');
+            error('handleInputs:dataLengthDisagreement', 'Averaging of the acquisition data was requested, but the acquisitions are not of equal length');
     end
 
     % Perform the average
@@ -243,8 +243,14 @@ if verbose
     fprintf('Preparing the stimulus files\n')
 end
 
-% Load
-load(stimFilePath,'stimulus');
+% Load the stimulus, and potentially stimTime, variables
+warningState = warning;
+warning('off','MATLAB:load:variableNotFound');        
+load(stimFilePath,'stimulus','stimTime');
+warning(warningState);
+if ~exist('stimTime','var')
+    stimTime = {};
+end
 
 % If the stimulus is just a single matrix, package it in a cell. This
 % allows the user to supply a stimulus specification that is the matrix
@@ -252,41 +258,60 @@ load(stimFilePath,'stimulus');
 if ~iscell(stimulus)
     stimulus = {stimulus};
 end
+if ~iscell(stimTime)
+    stimTime = {stimTime};
+end
 
 % Check the compatability of stimulus and data lengths
 if length(stimulus)~=1 && length(stimulus)~=totalAcquisitions
-    error('AnalyzePRFPreprocess:stimulusWrongNumCells','The stimulus file must contain a cell array with one entry, or as many entries as data acquisitions');
+    error('handleInputs:stimulusWrongNumCells','The stimulus file must contain a cell array with one entry, or as many entries as data acquisitions');
 end
 
-% If the stimulus contains a single cell, then replicate this to be the
-% same length as the data array
+% If the stimTime is not empty, check its compatibility
+if ~isempty(stimTime)
+    if length(stimTime)~=1 && length(stimTime)~=totalAcquisitions
+        error('handleInputs:stimulusWrongNumCells','The stimulus file must contain a cell array with one entry, or as many entries as data acquisitions');
+    end
+end
+
+
+% If the stimulus and stimTime contains a single cell, then replicate this
+% to be the same length as the data array
 if length(stimulus)==1
     tmpStimulus = cell(1, totalAcquisitions);
     tmpStimulus(:) = stimulus(1);
     stimulus = tmpStimulus;
 end
+if length(stimTime)==1
+    tmpStimTime = cell(1, totalAcquisitions);
+    tmpStimTime(:) = stimTime(1);
+    stimTime = tmpStimTime;
+end
 
-% Check that the length of the stimulus matrices match the length of the
-% data matricies. If prependDummyTR is set to true, pad the data.
-for ii = 1:totalAcquisitions
-    dataTRs = size(data{ii},2);
-    stimTRs = size(stimulus{ii},3);
-    if dataTRs~=stimTRs
-        if stimTRs>dataTRs && strcmp(p.Results.trimDummyStimTRs,'1')
-            % Trim time points from the start of the stimulus to force it
-            % to match the data
-            thisStim = stimulus{ii};
-            % thisStim is now a matrix of R x C x time. We snip off the
-            % initial entries
-            thisStim = thisStim(:,:,(stimTRs-dataTRs):end);
-            stimulus{ii} = {thisStim};
-            % Let the user know that some trimming went on!
-            warnString = ['Stim file for acquisition ' num2str(ii) ' was trimmed at the start by ' num2str() ' TRs'];
-            warning('AnalyzePRFPreprocess:stimulusTRTrim', warnString);
-            
-        else
-            errorString = ['Acquisition ' num2str(ii) ' of ' num2str(totalAcquisitions) ' has a mismatched number of TRs with its stimulus'];
-            error('AnalyzePRFPreprocess:notICAFIX', errorString);
+% If the stimTime variable is empty, check that the length of the stimulus
+% matrices match the length of the data matricies. If prependDummyTR is set
+% to true, pad the data.
+if isempty(stimTime)
+    for ii = 1:totalAcquisitions
+        dataTRs = size(data{ii},2);
+        stimTRs = size(stimulus{ii},3);
+        if dataTRs~=stimTRs
+            if stimTRs>dataTRs && strcmp(p.Results.trimDummyStimTRs,'1')
+                % Trim time points from the start of the stimulus to force it
+                % to match the data
+                thisStim = stimulus{ii};
+                % thisStim is now a matrix of R x C x time. We snip off the
+                % initial entries
+                thisStim = thisStim(:,:,(stimTRs-dataTRs):end);
+                stimulus{ii} = {thisStim};
+                % Let the user know that some trimming went on!
+                warnString = ['Stim file for acquisition ' num2str(ii) ' was trimmed at the start by ' num2str() ' TRs'];
+                warning('handleInputs:stimulusTRTrim', warnString);
+                
+            else
+                errorString = ['Acquisition ' num2str(ii) ' of ' num2str(totalAcquisitions) ' has a mismatched number of TRs with its stimulus'];
+                error('handleInputs:mismatchTRs', errorString);
+            end
         end
     end
 end
@@ -320,7 +345,7 @@ else
             vxs = single(vxs);
         otherwise
             errorString = [p.Results.dataFileType ' is not a recognized dataFileType for this routine. Try, cifti or volumetric'];
-            error('AnalyzePRFPreprocess:notICAFIX', errorString);
+            error('handleInputs:notICAFIX', errorString);
     end
 end
 
