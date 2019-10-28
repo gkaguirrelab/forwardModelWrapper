@@ -162,7 +162,7 @@ end
 % Setup processing one or all voxels
 if doOneVoxel
     % Process one voxel that has a great fit
-    vxsPass = 23518;
+    vxsPass = 52153;
 else
     vxsPass = [];
 end

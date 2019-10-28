@@ -11,7 +11,7 @@ clear
 
 % Set this to true to quickly process a single voxel (seconds), vs.
 % analyzing the entire V1 region (minutes)
-doOneVoxel = false;
+doOneVoxel = true;
 
 
 %% Variable declaration
@@ -36,6 +36,8 @@ screenMagnification = '1.0';
 
 % TR of the acquisition in seconds
 tr = '0.8';
+
+polyDeg = '5';
 
 % Flag to average the acquisitions together before computing pRF
 % parameters. This makes the operation faster.
@@ -182,7 +184,8 @@ externalMGZMakerPath = fullfile(getpref('forwardModelWrapper','projectBaseDir'),
 % Assemble the modelOpts
 modelOpts = ['{' ...
                ' ''pixelsPerDegree'',' pixelsPerDegree ',' ...
-               ' ''screenMagnification'',' screenMagnification ...
+               ' ''screenMagnification'',' screenMagnification ',' ...
+               ' ''polyDeg'',' polyDeg ...
                '}'];
 
 %% Call the main routine
