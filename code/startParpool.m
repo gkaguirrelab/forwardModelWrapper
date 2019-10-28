@@ -1,4 +1,4 @@
-function [ nWorkers ] = startParpool( )
+function [ nWorkers ] = startParpool(flywheelFlag)
 % Open and configure the parpool
 %
 % Syntax:
@@ -15,6 +15,19 @@ function [ nWorkers ] = startParpool( )
 % Outputs:
 %   nWorkers              - Scalar. The number of workers available.
 %
+
+% Check if the flywheelFlag is set
+if nargin==0
+    flywheelFlag = false;
+end
+
+if flywheelFlag
+    profile = 'flywheel';
+    fprintf('Starting the parpool with the flywheel profile\n');
+else
+    profile = 'local';
+    fprintf('Starting the parpool with the local profile\n');
+end
 
 % We are going to be verbose
 verbose = true;
@@ -34,10 +47,14 @@ elseif isunix
     % Replace with "cpu cores" to obtain only the number of physical CPUs
     command = 'cat /proc/cpuinfo |grep "cpu cores" | awk -F: ''{ num+=$2 } END{ print num }''';
     [~,nWorkers] = system(command);
-    nWorkers = strtrim(nWorkers);
+    if flywheelFlag
+        nWorkers = strtrim(nWorkers);
+    else
+        nWorkers = strtrim(nWorkers/2);
+    end
     % This function forces matlab to use this number of workers, even if
     % they are virtual
-    nWorkers = str2double(nWorkers)/2;
+    nWorkers = str2double(nWorkers);
     maxNumCompThreads(nWorkers);
 elseif ispc
     % Code to run on Windows platform
@@ -57,7 +74,7 @@ if isempty(poolObj)
     if isempty(nWorkers)
         parpool;
     else
-        parpool([floor(nWorkers/2) nWorkers]);
+        parpool(profile,[floor(nWorkers/2) nWorkers]);
     end
     poolObj = gcp;
     if isempty(poolObj)

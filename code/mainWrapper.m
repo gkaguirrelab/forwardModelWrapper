@@ -48,6 +48,9 @@ p.addParameter('vxsPass', [], @isnumeric)
 p.addParameter('workbenchPath', '', @isstr);
 p.addParameter('outPath', '', @isstr);
 
+% Control
+p.addParameter('flywheelFlag', '0', @isstr);
+
 
 % Parse
 p.parse(funcZipPath01, funcZipPath02, funcZipPath03, funcZipPath04, funcZipPath05, stimFilePath, structZipPath, varargin{:})
@@ -79,7 +82,7 @@ end
 
 
 %% Start the parpool
-startParpool;
+startParpool(logical(str2double(p.Results.flywheelFlag)));
 
 
 %% forwardModel
