@@ -6,7 +6,7 @@
 	"maintainer": "Ozenc Taskin <huseyinozenc.taskin@pennmedicine.upenn.edu>",
 	"source": "https://github.com/gkaguirrelab/forwardModelWrapper",
 	"url": "https://github.com/gkaguirrelab/pRFCompileWrapper",
-	"version": "0.3.1",
+	"version": "0.3.2",
 	"custom": {
 		"flywheel": {
 			"suite": "GKAguirreLab"
@@ -45,7 +45,7 @@
 			"type": "string"
 		},
 		"modelClass": {
-			"default": "pRF_timeShift",
+			"default": "prfTimeShift",
 			"description": "The model to be fit to the fMRI data. Valid options include 'pRF_timeShift', 'deriveHRF'",
 			"type": "string"
 		},

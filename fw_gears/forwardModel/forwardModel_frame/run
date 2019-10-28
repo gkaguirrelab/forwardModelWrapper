@@ -80,7 +80,7 @@ modelOpts = '{' + config['modelOpts'] + '}'
 
 ###################Run Algorithm################################
     
-cmd = """%s %s '%s' '%s' '%s' '%s' '%s' '%s' '%s' 'maskFilePath' '%s' \
+cmd = """%s -mcruserdata ParallelProfile:/usr/local.mlsettings %s '%s' '%s' '%s' '%s' '%s' '%s' '%s' 'maskFilePath' '%s' \
 'payloadPath' '%s' 'dataFileType' '%s' 'dataSourceType' '%s' \
 'trimDummyStimTRs' '%s' 'averageAcquisitions' '%s' 'tr' '%s' \
 'externalMGZMakerPath' '%s' 'RegName' '%s' 'modelClass' '%s' 'modelOpts' '%s' \
