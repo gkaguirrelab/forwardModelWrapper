@@ -22,10 +22,9 @@ if nargin==0
 end
 
 if flywheelFlag
-    profile = 'flywheel';
     fprintf('Starting the parpool with the flywheel profile\n');
-    profile_master = parallel.importProfile(profile);
-    parallel.defaultClusterProfile(profile_master)
+    profile = parallel.importProfile(fullfile('usr','flywheel.mlsettings'));
+    parallel.defaultClusterProfile(profile);
 else
     profile = 'local';
     fprintf('Starting the parpool with the local profile\n');
