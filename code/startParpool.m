@@ -23,7 +23,7 @@ end
 
 if flywheelFlag
     fprintf('Starting the parpool with the flywheel profile\n');
-    profile = parallel.importProfile(fullfile('usr','flywheel.mlsettings'));
+    profile = parallel.importProfile(fullfile(filesep,'usr','flywheel.mlsettings'));
     parallel.defaultClusterProfile(profile);
 else
     profile = 'local';
