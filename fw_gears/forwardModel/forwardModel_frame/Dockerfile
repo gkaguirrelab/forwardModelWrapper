@@ -10,7 +10,7 @@ RUN mkdir -p ${FLYWHEEL}
 COPY manifest.json run ${FLYWHEEL}
 COPY make_fsaverage.py /opt/make_fsaverage.py
 COPY func_input/ /opt/func_input 
-COPY local.mlsettings /usr/local.mlsettings
+COPY flywheel.mlsettings /usr/flywheel.mlsettings
 RUN chmod +x /flywheel/v0/run
 RUN chmod +x /opt/func_input/*          
 
