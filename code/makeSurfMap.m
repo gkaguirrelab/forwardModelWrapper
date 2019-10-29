@@ -144,7 +144,7 @@ switch p.Results.mapScale
         myvec = linspace(mapres(1),mapres(2),size(mycolormap,1));
     case 'logJet'
         mapres=[p.Results.mapBounds p.Results.colorRes];
-        mycolormap = flipud(jet(p.Results.colorRes));
+        mycolormap = jet(p.Results.colorRes);
         myvec = logspace(log10(mapres(1)),log10(mapres(2)),size(mycolormap,1));
     case 'grayRed'
         mapres=[p.Results.mapBounds p.Results.colorRes];
@@ -156,7 +156,7 @@ switch p.Results.mapScale
         myvec = linspace(mapres(1),mapres(2),size(mycolormap,1));
     case 'linearJet'
         mapres=[p.Results.mapBounds p.Results.colorRes];
-        mycolormap = flipud(jet(p.Results.colorRes));
+        mycolormap = jet(p.Results.colorRes);
         myvec = linspace(mapres(1),mapres(2),size(mycolormap,1));
     case 'varea'
         nAreas = length(unique(srf))-1;

@@ -33,7 +33,7 @@ p.addParameter('trimDummyStimTRs', '0', @isstr)
 p.addParameter('averageAcquisitions', '0', @isstr)
 
 % Config options - forwardModel
-p.addParameter('modelClass','pRF_timeShift',@isstr);
+p.addParameter('modelClass','prfTimeShift',@isstr);
 p.addParameter('modelOpts','{}',@isstr);
 p.addParameter('tr',[],@isstr);
 
@@ -47,6 +47,9 @@ p.addParameter('vxsPass', [], @isnumeric)
 % Internal paths
 p.addParameter('workbenchPath', '', @isstr);
 p.addParameter('outPath', '', @isstr);
+
+% Control
+p.addParameter('flywheelFlag', '0', @isstr);
 
 
 % Parse
@@ -66,7 +69,7 @@ modelOpts = strrep(modelOpts,')','''');
 
 
 %% Preprocess
-[stimulus, data, vxs, templateImage] = ...
+[stimulus, stimTime, data, vxs, templateImage] = ...
     handleInputs(p.Results.workbenchPath, funcZipPath, stimFilePath, ...
     'maskFilePath',p.Results.maskFilePath, ...
     'averageAcquisitions',p.Results.averageAcquisitions);
@@ -79,7 +82,7 @@ end
 
 
 %% Start the parpool
-startParpool;
+startParpool(logical(str2double(p.Results.flywheelFlag)));
 
 
 %% forwardModel
@@ -93,20 +96,28 @@ end
 
 % Call the model
 results = forwardModel(data,stimulus,str2double(p.Results.tr),...
+    'stimTime', stimTime, ...
     'modelClass', p.Results.modelClass, ...
     'modelOpts', eval(modelOpts), ...
     'modelPayload', payload, ...
     'vxs', vxs);
+
+% Save the results figures
+figFields = fieldnames(results.figures);
+if ~isempty(figFields)
+    for ii = 1:length(figFields)
+        figHandle = struct2handle(results.figures.(figFields{ii}).hgS_070000,0,'convert');
+        plotFileName = fullfile(p.Results.outPath,figFields{ii});
+        print(figHandle,plotFileName,results.figures.(figFields{ii}).format,'-fillpage')
+        close(figHandle);
+    end
+end
 
 % Process and save the results
 mapsPath = handleOutputs(...
     results, templateImage, p.Results.outPath, p.Results.workbenchPath,...
     'dataFileType', p.Results.dataFileType);
 
-% Create and save some plots
-if strcmp(p.Results.modelClass,'pRF_timeShift')
-    plotPRF(results,data,p.Results.outPath)
-end
 
 %% Convert to MGZ
 % If we are working with CIFTI files, convert the resulting maps to

@@ -1,4 +1,4 @@
-function [ nWorkers ] = startParpool( )
+function [ nWorkers ] = startParpool(flywheelFlag)
 % Open and configure the parpool
 %
 % Syntax:
@@ -16,6 +16,20 @@ function [ nWorkers ] = startParpool( )
 %   nWorkers              - Scalar. The number of workers available.
 %
 
+% Check if the flywheelFlag is set
+if nargin==0
+    flywheelFlag = false;
+end
+
+if flywheelFlag
+    fprintf('Starting the parpool with the flywheel profile\n');
+    profile = parallel.importProfile(fullfile(filesep,'usr','flywheel.mlsettings'));
+    parallel.defaultClusterProfile(profile);
+else
+    profile = 'local';
+    fprintf('Starting the parpool with the local profile\n');
+end
+
 % We are going to be verbose
 verbose = true;
 
@@ -30,9 +44,19 @@ if ismac
     nWorkers = feature('numcores');
 elseif isunix
     % Code to run on Linux plaform
-    command = 'echo "$(( $(lscpu | awk ''/^Socket\(s\)/{ print $2 }'') * $(lscpu | awk ''/^Core\(s\) per socket/{ print $4 }'') ))"';
+    % "Siblings" is the number of virtual CPUs produced by hyperthreading.
+    % Replace with "cpu cores" to obtain only the number of physical CPUs
+    command = 'cat /proc/cpuinfo |grep "cpu cores" | awk -F: ''{ num+=$2 } END{ print num }''';
     [~,nWorkers] = system(command);
+    if flywheelFlag
+        nWorkers = strtrim(nWorkers);
+    else
+        nWorkers = strtrim(nWorkers/2);
+    end
+    % This function forces matlab to use this number of workers, even if
+    % they are virtual
     nWorkers = str2double(nWorkers);
+    maxNumCompThreads(nWorkers);
 elseif ispc
     % Code to run on Windows platform
     warning('Not supported for PC')
@@ -51,7 +75,7 @@ if isempty(poolObj)
     if isempty(nWorkers)
         parpool;
     else
-        parpool(nWorkers);
+        parpool(profile,[floor(nWorkers/2) nWorkers]);
     end
     poolObj = gcp;
     if isempty(poolObj)
