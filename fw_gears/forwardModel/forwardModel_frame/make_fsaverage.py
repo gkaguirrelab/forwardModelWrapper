@@ -62,47 +62,49 @@ def make_fsaverage(path_to_cifti_maps, path_to_hcp, alignment_type, native_mgz, 
         ny.save(os.path.join(native_mgz_pseudo_hemi,'R_%s.mgz'%amap[:-13]), averaged_result_right)
     
 ##################### Convert cartesian x-y maps to polar maps ############################      
+
+    if 'L_cartX_map.mgz' in os.listdir(native_mgz):
     
-    print('Starting: Cartesian to polar angle conversion and rescaling')
-    
-    for i in range(2):
-        if i == 0:
-            variable = native_mgz
-        elif i == 1: 
-            variable = native_mgz_pseudo_hemi
+        print('Starting: Cartesian to polar angle conversion and rescaling')
+        
+        for i in range(2):
+            if i == 0:
+                variable = native_mgz
+            elif i == 1: 
+                variable = native_mgz_pseudo_hemi
+                
+            # Reload the X-Y cartesian images.
+            left_x = ny.load(os.path.join(variable, 'L_cartX_map.mgz'))
+            left_y = ny.load(os.path.join(variable, 'L_cartY_map.mgz'))
+            right_x = ny.load(os.path.join(variable, 'R_cartX_map.mgz'))
+            right_y = ny.load(os.path.join(variable, 'R_cartY_map.mgz'))
             
-        # Reload the X-Y cartesian images.
-        left_x = ny.load(os.path.join(variable, 'L_cartX_map.mgz'))
-        left_y = ny.load(os.path.join(variable, 'L_cartY_map.mgz'))
-        right_x = ny.load(os.path.join(variable, 'R_cartX_map.mgz'))
-        right_y = ny.load(os.path.join(variable, 'R_cartY_map.mgz'))
+            # Calculate the angle and eccentricity
+            left_angle_new_template = np.rad2deg(np.mod(np.arctan2(left_y,left_x), 2*np.pi))
+            left_eccentricity_new_template = np.sqrt(left_x**2 + left_y**2)
+            right_angle_new_template = np.rad2deg(np.mod(np.arctan2(right_y,right_x), 2*np.pi))
+            right_eccentricity_new_template = np.sqrt(right_x**2 + right_y**2)
+            
+            # Overwriting the eccentricity maps with the new ones.
+            ny.save(os.path.join(variable,'L_eccen_map.mgz'), left_eccentricity_new_template) 
+            ny.save(os.path.join(variable,'R_eccen_map.mgz'), right_eccentricity_new_template) 
         
-        # Calculate the angle and eccentricity
-        left_angle_new_template = np.rad2deg(np.mod(np.arctan2(left_y,left_x), 2*np.pi))
-        left_eccentricity_new_template = np.sqrt(left_x**2 + left_y**2)
-        right_angle_new_template = np.rad2deg(np.mod(np.arctan2(right_y,right_x), 2*np.pi))
-        right_eccentricity_new_template = np.sqrt(right_x**2 + right_y**2)
-        
-        # Overwriting the eccentricity maps with the new ones.
-        ny.save(os.path.join(variable,'L_eccen_map.mgz'), left_eccentricity_new_template) 
-        ny.save(os.path.join(variable,'R_eccen_map.mgz'), right_eccentricity_new_template) 
-    
 ###################### Wrap angle maps to -180 - 180 scale ################################
-        
-        # Rescale the angle maps
-        left_angle_converted = (np.abs(left_angle_new_template - 360) + 90) % 360
-        for i in range(len(left_angle_new_template)):
-            if left_angle_converted[i] < -180 or left_angle_converted[i] > 180:
-                left_angle_converted[i] = ((left_angle_converted[i] + 180) % 360) - 180
-        
-        right_angle_converted = (np.abs(right_angle_new_template - 360) + 90) % 360
-        for i in range(len(right_angle_new_template)):
-            if right_angle_converted[i] < -180 or right_angle_converted[i] > 180:
-                right_angle_converted[i] = ((right_angle_converted[i] + 180) % 360) - 180
-        
-        # Overwriting the angle maps with the new ones.
-        ny.save(os.path.join(variable,'L_angle_map.mgz'), left_angle_converted)
-        ny.save(os.path.join(variable,'R_angle_map.mgz'), right_angle_converted)
+            
+            # Rescale the angle maps
+            left_angle_converted = (np.abs(left_angle_new_template - 360) + 90) % 360
+            for i in range(len(left_angle_new_template)):
+                if left_angle_converted[i] < -180 or left_angle_converted[i] > 180:
+                    left_angle_converted[i] = ((left_angle_converted[i] + 180) % 360) - 180
+            
+            right_angle_converted = (np.abs(right_angle_new_template - 360) + 90) % 360
+            for i in range(len(right_angle_new_template)):
+                if right_angle_converted[i] < -180 or right_angle_converted[i] > 180:
+                    right_angle_converted[i] = ((right_angle_converted[i] + 180) % 360) - 180
+            
+            # Overwriting the angle maps with the new ones.
+            ny.save(os.path.join(variable,'L_angle_map.mgz'), left_angle_converted)
+            ny.save(os.path.join(variable,'R_angle_map.mgz'), right_angle_converted)
 
     print('Done !')
 
