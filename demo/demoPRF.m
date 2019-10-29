@@ -39,7 +39,7 @@ tr = '0.8';
 
 polyDeg = '5';
 
-hrfParams = '[0.0075, -0.0044, -0.0026]';
+hrfParams = '[0.8047   -0.0394    0.0036]';
 
 % Flag to average the acquisitions together before computing pRF
 % parameters. This makes the operation faster.

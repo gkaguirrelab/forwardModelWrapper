@@ -33,8 +33,8 @@ averageAcquisitions = '1';
 
 
 
-%% Download the functional data
-outputFileSuffix = '_hcpicafix.zip';
+% %% Download the functional data
+% outputFileSuffix = '_hcpicafix.zip';
 % 
 % % Create the functional tmp save dir if it does not exist
 % saveDir = fullfile(scratchSaveDir,'v0','input','funcZip');
@@ -88,7 +88,7 @@ saveName = ...
 funcZipPath = saveName;
 
 
-%% Download the structural data
+% %% Download the structural data
 % 
 % % Define a few variables
 % outputFileSuffix = '_hcpstruct.zip';

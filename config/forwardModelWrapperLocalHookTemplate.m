@@ -1,10 +1,10 @@
-function pRFCompileWrapperLocalHook
-% pRFCompileWrapperLocalHook
+function forwardModelWrapperLocalHook
+% forwardModelWrapperLocalHook
 %
 % For use with the ToolboxToolbox.  If you copy this into your
 % ToolboxToolbox localToolboxHooks directory (by default,
 % ~/localToolboxHooks) and delete "LocalHooksTemplate" from the filename,
-% this will get run when you execute tbUse({'pRFCompileWrapperConfig'}) to set up for
+% this will get run when you execute tbUse({'forwardModelWrapperConfig'}) to set up for
 % this project.  You then edit your local copy to match your local machine.
 %
 % The main thing that this does is define Matlab preferences that specify input and output
