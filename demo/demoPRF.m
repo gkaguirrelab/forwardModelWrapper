@@ -39,6 +39,8 @@ tr = '0.8';
 
 polyDeg = '5';
 
+hrfParams = '[0.0075, -0.0044, -0.0026]';
+
 % Flag to average the acquisitions together before computing pRF
 % parameters. This makes the operation faster.
 averageAcquisitions = '1';
@@ -185,6 +187,7 @@ externalMGZMakerPath = fullfile(getpref('forwardModelWrapper','projectBaseDir'),
 modelOpts = ['{' ...
                ' ''pixelsPerDegree'',' pixelsPerDegree ',' ...
                ' ''screenMagnification'',' screenMagnification ',' ...
+               ' ''hrfParams'',' hrfParams ',' ...
                ' ''polyDeg'',' polyDeg ...
                '}'];
 
