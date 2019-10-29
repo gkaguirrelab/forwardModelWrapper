@@ -28,10 +28,11 @@ subjectName = 'TOME_3045';
 %}
 pixelsPerDegree = '5.1751';
 
-% The subject was wearing a -5.25 D contact lens during scanning. This
-% causes the screen to appear minified by a small amount. This effect is
-% computed by the routine calcScreenMagnification in the mriTOMEAnalysis
-% repo.
+% If the subject was wearing contact lenses of spectacles during scanning,
+% the corrective lenses would cause the screen to appear minified by a
+% small amount. This effect is computed by the routine
+% calcScreenMagnification in the mriTOMEAnalysis repo, and accounted for
+% here.
 screenMagnification = '1.0';
 
 % TR of the acquisition in seconds
@@ -39,7 +40,8 @@ tr = '0.8';
 
 polyDeg = '5';
 
-hrfParams = '[0.8047   -0.0394    0.0036]';
+% The 
+hrfParams = '[0.7811, -0.0836, -0.0621]';
 
 % Flag to average the acquisitions together before computing pRF
 % parameters. This makes the operation faster.
