@@ -6,7 +6,7 @@
 	"maintainer": "Ozenc Taskin <huseyinozenc.taskin@pennmedicine.upenn.edu>",
 	"source": "https://github.com/gkaguirrelab/forwardModelWrapper",
 	"url": "https://github.com/gkaguirrelab/pRFCompileWrapper",
-	"version": "0.3.4",
+	"version": "0.3.5",
 	"custom": {
 		"flywheel": {
 			"suite": "GKAguirreLab"
