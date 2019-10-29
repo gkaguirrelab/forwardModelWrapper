@@ -11,7 +11,7 @@ clear
 
 % Set this to true to quickly process a single voxel (seconds), vs.
 % analyzing the entire V1 region (minutes)
-doOneVoxel = true;
+doOneVoxel = false;
 
 
 %% Variable declaration
@@ -41,7 +41,7 @@ tr = '0.8';
 polyDeg = '5';
 
 % The 
-hrfParams = '[0.7811, -0.0836, -0.0621]';
+hrfParams = '[0.8275, -0.3575, -0.2071]';
 
 % Flag to average the acquisitions together before computing pRF
 % parameters. This makes the operation faster.
