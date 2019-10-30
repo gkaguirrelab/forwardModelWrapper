@@ -46,7 +46,7 @@ elseif isunix
     % Code to run on Linux plaform
     % "siblings" is the number of virtual CPUs produced by hyperthreading.
     % Replace with "cpu cores" to obtain only the number of physical CPUs
-    command = 'cat /proc/cpuinfo |grep "siblings" | awk -F: ''{ num+=$2 } END{ print num }''';
+    command = 'cat /proc/cpuinfo |grep "cpu cores" | awk -F: ''{ num+=$2 } END{ print num }''';
     [~,nWorkers] = system(command);
     if flywheelFlag
         nWorkers = strtrim(nWorkers);
