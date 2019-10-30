@@ -9,11 +9,15 @@ function [ nWorkers ] = startParpool(flywheelFlag)
 %   and returns the number of available workers.
 %
 % Inputs:
-%   nWorkers              - Scalar. The number of workers requested.
-%   verbose               - Boolean. Defaults to false if not passed.
+%   flywheelFlag          - Logical. If set to true, the routine determines
+%                           the profile to use and the number of available
+%                           cores using a procedure that allows the system
+%                           to make use of hyper-threaded, virtual cores
+%                           within a Google Cloud virtual machine. 
 %
 % Outputs:
-%   nWorkers              - Scalar. The number of workers available.
+%   nWorkers              - Scalar. The number of workers available in the
+%                           pool.
 %
 
 % Check if the flywheelFlag is set
@@ -21,6 +25,12 @@ if nargin==0
     flywheelFlag = false;
 end
 
+% Check if we are running within a Flywheel gear. If so, we will have been
+% provided with a mlsettings profile that will have increased the maximum
+% allowed number of workers in the parpool. This step is necessary as the
+% default, "local" matlab profile does not recognize the multiple cores
+% within a Google Cloud virtual machine as available workers, and thus will
+% set the maximum allowed number of workers to 1.
 if flywheelFlag
     fprintf('Starting the parpool with the flywheel profile\n');
     profile = parallel.importProfile(fullfile(filesep,'usr','flywheel.mlsettings'));
@@ -44,10 +54,12 @@ if ismac
     nWorkers = feature('numcores');
 elseif isunix
     % Code to run on Linux plaform
-    % "siblings" is the number of virtual CPUs produced by hyperthreading.
-    % Replace with "cpu cores" to obtain only the number of physical CPUs
     command = 'cat /proc/cpuinfo |grep "cpu cores" | awk -F: ''{ num+=$2 } END{ print num }''';
     [~,nWorkers] = system(command);
+    % In most cases, you would only want to use half of the available cores
+    % on a machine at a time. If we are operating within Flywheel and thus
+    % within a virtual machine, the only activity on the cores will be data
+    % crunching for this process, so use them all.
     if flywheelFlag
         nWorkers = strtrim(nWorkers);
     else
@@ -63,6 +75,8 @@ elseif ispc
 else
     disp('What are you using?')
 end
+
+% Report the number of cores that we have found.
 fprintf(['Number of cores available: ' num2str(nWorkers) '\n']);
 
 % If a parallel pool does not exist, attempt to create one
@@ -75,8 +89,15 @@ if isempty(poolObj)
     if isempty(nWorkers)
         parpool;
     else
+        % Give a range of workers, so that if something has gone wrong with
+        % the calculation of the number of available cores, the parpool
+        % will still be able to limp into existence with half of the
+        % requested cores.
         parpool(profile,[floor(nWorkers/2) nWorkers]);
     end
+    
+    % Check that we have successfully created a parpool and find out how
+    % many workers we got.
     poolObj = gcp;
     if isempty(poolObj)
         nWorkers=0;
