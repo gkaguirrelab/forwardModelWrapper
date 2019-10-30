@@ -146,7 +146,7 @@ structZipPath = saveName;
 %% Additional settings
 
 % Required input
-stimFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','flashStimulus_1x1x420.mat');
+stimFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','flashStimulus_1x1x450.mat');
 
 % Optional input
 maskFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','lh.V1mask.dscalar.nii');
