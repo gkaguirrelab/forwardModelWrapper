@@ -51,7 +51,6 @@ if os.path.isdir(payload_file_folder) == True:
 else:
     payload_file_path = 'Na'
 
-
 # Set other paths
 manifest_file = os.path.join(flywheel_base, 'manifest.json')
 config_path = os.path.join(flywheel_base, 'config.json')
@@ -74,9 +73,23 @@ dataSourceType = config['dataSourceType']
 trimDummyStimTRs = config['trimDummyStimTRs']
 averageAcquisitions = config['averageAcquisitions']
 tr = config['tr']
-RegName = config['RegName']
 modelClass = config['modelClass']
 modelOpts = '{' + config['modelOpts'] + '}'
+
+# Create a folder for hcpstruct config
+hcpconfpath = 'opt/hcpconf'
+os.system('mkdir %s' % hcpconfpath)
+
+# Extract the hcp config into the configfolder
+os.system('unzip -j %s \'*/*.json\' -d %s' % (struct_zip_path, hcpconfpath))
+
+hcpconfig = os.listdir(hcpconfpath)[0]
+with open(hcpconfig) as hcpconf:
+    job_config2 = json.load(hcpconf)
+config2 = job_config2['config']
+
+subject_id = config2['Subject']
+regName = config2['RegName']
 
 ###################Run Algorithm################################
     
@@ -100,6 +113,6 @@ os.system('cd %s; mv %s %s/'%(first_output_dir, '*.pdf', final_output_dir))
 os.system('cd %s; mv %s %s/'%(first_output_dir, '*.png', final_output_dir)) 
 
 # Zip and move the maps
-os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'maps_cifti'), os.path.join(final_output_dir,'maps_cifti.zip')))
-os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'maps_nativeMGZ'), os.path.join(final_output_dir,'maps_nativeMGZ.zip')))
-os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'maps_nativeMGZ_pseudoHemisphere'), os.path.join(final_output_dir,'maps_nativeMGZ_pseudoHemisphere.zip')))
+os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'maps_cifti'), os.path.join(final_output_dir,'%s_maps_cifti.zip'%(subject_id))))
+os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'maps_nativeMGZ'), os.path.join(final_output_dir,'%s_maps_nativeMGZ.zip'%(subject_id))))
+os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'maps_nativeMGZ_pseudoHemisphere'), os.path.join(final_output_dir,'%s_maps_nativeMGZ_pseudoHemisphere.zip'%(subject_id))))
