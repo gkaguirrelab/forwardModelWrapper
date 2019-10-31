@@ -39,11 +39,6 @@
   			"description": "Required. TR in seconds (e.g. 1.5).",
   			"type": "string"
 		},
-		"RegName":  {
-			"default": "FS",
-  			"description": "Registration type used for creating your hcp-struct archive. FS or MSMSulc. Default:FS",
-			"type": "string"
-		},
 		"modelClass": {
 			"default": "prfTimeShift",
 			"description": "The model to be fit to the fMRI data. Valid options include 'pRF_timeShift', 'deriveHRF'",
