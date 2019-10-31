@@ -26,6 +26,8 @@ p.addParameter('payloadPath', 'Na', @isstr)
 
 % Config options - multiple
 p.addParameter('dataFileType', 'cifti', @isstr)
+p.addParameter('Subject', '00000', @isstr)
+
 
 % Config options - pre-process
 p.addParameter('dataSourceType', 'icafix', @isstr)
@@ -102,21 +104,10 @@ results = forwardModel(data,stimulus,str2double(p.Results.tr),...
     'modelPayload', payload, ...
     'vxs', vxs);
 
-% Save the results figures
-figFields = fieldnames(results.figures);
-if ~isempty(figFields)
-    for ii = 1:length(figFields)
-        figHandle = struct2handle(results.figures.(figFields{ii}).hgS_070000,0,'convert');
-        plotFileName = fullfile(p.Results.outPath,figFields{ii});
-        print(figHandle,plotFileName,results.figures.(figFields{ii}).format,'-fillpage')
-        close(figHandle);
-    end
-end
-
 % Process and save the results
 mapsPath = handleOutputs(...
-    results, templateImage, p.Results.outPath, p.Results.workbenchPath,...
-    'dataFileType', p.Results.dataFileType);
+    results, templateImage, p.Results.outPath, p.Results.Subject, ...
+    p.Results.workbenchPath, 'dataFileType', p.Results.dataFileType);
 
 
 %% Convert to MGZ
@@ -141,11 +132,11 @@ if strcmp(p.Results.dataFileType,'cifti')
     subjectName = fileList.name;
     
     % Create directories for the output files
-    nativeSpaceDirPath = fullfile(p.Results.outPath, 'maps_nativeMGZ');
+    nativeSpaceDirPath = fullfile(p.Results.outPath, [p.Results.Subject '_maps_nativeMGZ']);
     if ~exist(nativeSpaceDirPath,'dir')
         mkdir(nativeSpaceDirPath);
     end
-    pseudoHemiDirPath = fullfile(p.Results.outPath, 'maps_nativeMGZ_pseudoHemisphere');
+    pseudoHemiDirPath = fullfile(p.Results.outPath, [p.Results.Subject '_maps_nativeMGZ_pseudoHemisphere']);
     if ~exist(pseudoHemiDirPath,'dir')
         mkdir(pseudoHemiDirPath);
     end
@@ -162,13 +153,13 @@ end
 %% Save rh map images
 surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
 for mm = 1:length(results.meta.mapField)
-    dataPath = fullfile(nativeSpaceDirPath,['R_' results.meta.mapField{mm} '_map.mgz']);
+    dataPath = fullfile(nativeSpaceDirPath,['R_' p.Results.Subject '_' results.meta.mapField{mm} '_map.mgz']);
     fig = makeSurfMap(dataPath,surfPath, ...
         'mapScale',results.meta.mapScale{mm}, ...
         'mapLabel',results.meta.mapLabel{mm}, ...
         'mapBounds',results.meta.mapBounds{mm}, ...
         'hemisphere','rh','visible',false);
-    plotFileName = fullfile(p.Results.outPath,['rh.' results.meta.mapField{mm} '.png']);
+    plotFileName = fullfile(p.Results.outPath,['rh.' p.Results.Subject '_' results.meta.mapField{mm} '.png']);
     print(fig,plotFileName,'-dpng')
     close(fig);
 end
@@ -176,13 +167,13 @@ end
 %% Save lh map images
 surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
 for mm = 1:length(results.meta.mapField)
-    dataPath = fullfile(nativeSpaceDirPath,['L_' results.meta.mapField{mm} '_map.mgz']);
+    dataPath = fullfile(nativeSpaceDirPath,['L_' p.Results.Subject '_' results.meta.mapField{mm} '_map.mgz']);
     fig = makeSurfMap(dataPath,surfPath, ...
         'mapScale',results.meta.mapScale{mm}, ...
         'mapLabel',results.meta.mapLabel{mm}, ...
         'mapBounds',results.meta.mapBounds{mm}, ...
         'hemisphere','lh','visible',false);
-    plotFileName = fullfile(p.Results.outPath,['lh.' results.meta.mapField{mm} '.png']);
+    plotFileName = fullfile(p.Results.outPath,['lh.'  p.Results.Subject '_' results.meta.mapField{mm} '.png']);
     print(fig,plotFileName,'-dpng')
     close(fig);
 end

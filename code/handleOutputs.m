@@ -1,4 +1,4 @@
-function outDirName = handleOutputs(results, templateImage, outPath, workbenchPath, varargin)
+function outDirName = handleOutputs(results, templateImage, outPath, Subject, workbenchPath, varargin)
 % Produce maps from the analyzePRF results
 %
 % Syntax:
@@ -32,14 +32,28 @@ p = inputParser; p.KeepUnmatched = true;
 p.addRequired('results', @isstruct);
 p.addRequired('templateImage', @(x)(isobject(x) | isnumeric(x)));
 p.addRequired('outPath', @isstr);
+p.addRequired('Subject', @isstr);
 p.addRequired('workbenchPath', @isstr);
 
 % Optional
 p.addParameter('dataFileType', 'cifti', @isstr)
 
 % Parse
-p.parse(results, templateImage, outPath, workbenchPath, varargin{:})
+p.parse(results, templateImage, outPath, Subject, workbenchPath, varargin{:})
 
+
+
+
+%% Save the results figures
+figFields = fieldnames(results.figures);
+if ~isempty(figFields)
+    for ii = 1:length(figFields)
+        figHandle = struct2handle(results.figures.(figFields{ii}).hgS_070000,0,'convert');
+        plotFileName = fullfile(p.Results.outPath,[Subject '_' figFields{ii}]);
+        print(figHandle,plotFileName,results.figures.(figFields{ii}).format,'-fillpage')
+        close(figHandle);
+    end
+end
 
 
 %% Process the results
@@ -60,24 +74,25 @@ end
 %% Save output
 
 % Save raw retinotopy results
-save(fullfile(outPath,'forwardModel_results.mat'),'results')
+save(fullfile(outPath,[Subject '_forwardModel_results.mat']),'results')
 
 % Create a maps directory
-outDirName = fullfile(outPath,['maps_' p.Results.dataFileType]);
+outDirName = fullfile(outPath,[Subject '_maps_' p.Results.dataFileType]);
 if ~exist(outDirName,'dir')
     mkdir(outDirName);
 end
 
+% Loop through and save the maps
 for ii = 1:length(fieldsToSave)
     outData = struct();
     switch p.Results.dataFileType
         case 'volumetric'
-            fileName = fullfile(outDirName,[fieldsToSave{ii} '_map.nii.gz']);
+            fileName = fullfile(outDirName,[Subject '_' fieldsToSave{ii} '_map.nii.gz']);
             outData.vol = results.(fieldsToSave{ii});
             outData.nframes = 1;
             MRIwrite(outData, fileName);
         case 'cifti'
-            fileName = fullfile(outDirName,[fieldsToSave{ii} '_map.dtseries.nii']);
+            fileName = fullfile(outDirName,[Subject '_' fieldsToSave{ii} '_map.dtseries.nii']);
             outData = templateImage;
             outData.cdata = single(results.(fieldsToSave{ii}));
             ciftisave(outData, fileName, workbenchPath)
