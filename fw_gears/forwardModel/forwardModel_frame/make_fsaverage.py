@@ -3,7 +3,7 @@ import neuropythy as ny
 import numpy as np
 import os 
 
-def make_fsaverage(path_to_cifti_maps, path_to_hcp, alignment_type, native_mgz, native_mgz_pseudo_hemi):
+def make_fsaverage(path_to_cifti_maps, path_to_hcp, alignment_type, native_mgz, native_mgz_pseudo_hemi, subject_id):
 
 ############# Load the FSLR_32k and native left and right hemispheres #####################
     print('Starting')
@@ -48,7 +48,7 @@ def make_fsaverage(path_to_cifti_maps, path_to_hcp, alignment_type, native_mgz, 
         final_averaged_left = orig_lhdat.copy()
         final_averaged_right = orig_rhdat.copy()
         for length in range(len(orig_lhdat)):
-            if amap == 'cartX_map.dtseries.nii':
+            if amap == '%s_cartX_map.dtseries.nii' % (subject_id):
                 final_averaged_left[length] = (orig_lhdat[length] + (-1 * flipped_lhdat[length]))/2
                 final_averaged_right[length] = (orig_rhdat[length] + (-1 * flipped_rhdat[length]))/2
             else:
@@ -62,8 +62,8 @@ def make_fsaverage(path_to_cifti_maps, path_to_hcp, alignment_type, native_mgz, 
         ny.save(os.path.join(native_mgz_pseudo_hemi,'R_%s.mgz'%amap[:-13]), averaged_result_right)
     
 ##################### Convert cartesian x-y maps to polar maps ############################      
-
-    if 'L_cartX_map.mgz' in os.listdir(native_mgz):
+    test_name = 'L_%s_cartX_map.mgz' % subject_id
+    if test_name in os.listdir(native_mgz):
     
         print('Starting: Cartesian to polar angle conversion and rescaling')
         
@@ -74,10 +74,10 @@ def make_fsaverage(path_to_cifti_maps, path_to_hcp, alignment_type, native_mgz, 
                 variable = native_mgz_pseudo_hemi
                 
             # Reload the X-Y cartesian images.
-            left_x = ny.load(os.path.join(variable, 'L_cartX_map.mgz'))
-            left_y = ny.load(os.path.join(variable, 'L_cartY_map.mgz'))
-            right_x = ny.load(os.path.join(variable, 'R_cartX_map.mgz'))
-            right_y = ny.load(os.path.join(variable, 'R_cartY_map.mgz'))
+            left_x = ny.load(os.path.join(variable, 'L_%s_cartX_map.mgz' % subject_id))
+            left_y = ny.load(os.path.join(variable, 'L_%s_cartY_map.mgz' % subject_id))
+            right_x = ny.load(os.path.join(variable, 'R_%s_cartX_map.mgz' % subject_id))
+            right_y = ny.load(os.path.join(variable, 'R_%s_cartY_map.mgz' % subject_id))
             
             # Calculate the angle and eccentricity
             left_angle_new_template = np.rad2deg(np.mod(np.arctan2(left_y,left_x), 2*np.pi))
@@ -86,8 +86,8 @@ def make_fsaverage(path_to_cifti_maps, path_to_hcp, alignment_type, native_mgz, 
             right_eccentricity_new_template = np.sqrt(right_x**2 + right_y**2)
             
             # Overwriting the eccentricity maps with the new ones.
-            ny.save(os.path.join(variable,'L_eccen_map.mgz'), left_eccentricity_new_template) 
-            ny.save(os.path.join(variable,'R_eccen_map.mgz'), right_eccentricity_new_template) 
+            ny.save(os.path.join(variable,'L_%s_eccen_map.mgz' % subject_id), left_eccentricity_new_template) 
+            ny.save(os.path.join(variable,'R_%s_eccen_map.mgz' % subject_id), right_eccentricity_new_template) 
         
 ###################### Wrap angle maps to -180 - 180 scale ################################
             
@@ -103,8 +103,8 @@ def make_fsaverage(path_to_cifti_maps, path_to_hcp, alignment_type, native_mgz, 
                     right_angle_converted[i] = ((right_angle_converted[i] + 180) % 360) - 180
             
             # Overwriting the angle maps with the new ones.
-            ny.save(os.path.join(variable,'L_angle_map.mgz'), left_angle_converted)
-            ny.save(os.path.join(variable,'R_angle_map.mgz'), right_angle_converted)
+            ny.save(os.path.join(variable,'L_%s_angle_map.mgz' % subject_id), left_angle_converted)
+            ny.save(os.path.join(variable,'R_%s_angle_map.mgz' % subject_id), right_angle_converted)
 
     print('Done !')
 
