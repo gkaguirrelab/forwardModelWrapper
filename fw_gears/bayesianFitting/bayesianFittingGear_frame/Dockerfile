@@ -1,7 +1,7 @@
 # This makes a container for the gear. Replace the first path next to the second COPY function 
 # below with a path to your local compiled matlab function
 
-FROM gkaguirrelab/bayesianfittingbase:v3
+FROM gkaguirrelab/gearbase:v1
 MAINTAINER Ozzy(ozenctaskin@hotmail.com)
 
 #Copy everything into a container
