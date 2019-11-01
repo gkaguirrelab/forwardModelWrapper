@@ -68,14 +68,14 @@ maximum_eccen = config['max-input-eccen']
 minimum_eccen = config['min-input-eccen']
 
 
-lh_angle = os.path.join(unzipped_maps, 'L_angle_map.mgz')
-rh_angle = os.path.join(unzipped_maps, 'R_angle_map.mgz')
-lh_eccen = os.path.join(unzipped_maps, 'L_eccen_map.mgz')
-rh_eccen = os.path.join(unzipped_maps, 'R_eccen_map.mgz')
-lh_radius = os.path.join(unzipped_maps, 'L_sigma_map.mgz')
-rh_radius = os.path.join(unzipped_maps, 'R_sigma_map.mgz')
-lh_weight = os.path.join(unzipped_maps, 'L_R2_map.mgz')
-rh_weight = os.path.join(unzipped_maps, 'R_R2_map.mgz')
+lh_angle = os.path.join(unzipped_maps, 'L_%s_angle_map.mgz' % subject_name)
+rh_angle = os.path.join(unzipped_maps, 'R_%s_angle_map.mgz' % subject_name)
+lh_eccen = os.path.join(unzipped_maps, 'L_%s_eccen_map.mgz' % subject_name)
+rh_eccen = os.path.join(unzipped_maps, 'R_%s_eccen_map.mgz' % subject_name)
+lh_radius = os.path.join(unzipped_maps, 'L_%s_sigma_map.mgz' % subject_name)
+rh_radius = os.path.join(unzipped_maps, 'R_%s_sigma_map.mgz' % subject_name)
+lh_weight = os.path.join(unzipped_maps, 'L_%s_R2_map.mgz' % subject_name)
+rh_weight = os.path.join(unzipped_maps, 'R_%s_R2_map.mgz' % subject_name)
 
 
 ###################Run Algorithm################################
@@ -139,18 +139,28 @@ for i in os.listdir(cifti_temp):
         right_hemi = os.path.join(cifti_temp, 'rh' + i[2:])
         print(left_hemi)
         print(right_hemi)
-        save = os.path.join(cifti_maps, i.replace('lh.','').replace('.nii','') + '.dtseries.nii')
+        save = os.path.join(cifti_maps, i.replace('lh.', subject_name + '_').replace('.nii','') + '.dtseries.nii')
         cmd = '%s %s %s %s %s %s %s %s' % (matlab_cifti_function, mcr_path,
                                            left_hemi, right_hemi, 
                                            unzipped_hcp_folder,
                                            template_dtseries, workbench_path,
                                            save)
         os.system(cmd)
+        
+######################### Change map names ###################################
+
+subject_part = subject_name + '_'
+
+for i in os.listdir(first_output_dir):
+    if 'lh' in i or 'rh' in i:
+        new_path = os.path.join(first_output_dir, i[:3] + subject_part + i[3:])
+        os.system('mv %s %s' % (os.path.join(first_output_dir,i), new_path))
+        
 ######################### Run renderInferred ##################################
 
 print('Making plots')
 
-cmd = '%s %s %s %s %s' % (matlab_plot_func, mcr_path, first_output_dir,
+cmd = '%s %s %s %s %s %s' % (matlab_plot_func, mcr_path, first_output_dir, subject_name,
                         os.path.join(unzipped_hcp_folder, 'T1w', subject_name, 'surf'),
                         final_output_dir)
 os.system(cmd)
