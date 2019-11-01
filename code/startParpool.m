@@ -63,7 +63,7 @@ elseif isunix
     if flywheelFlag
         nWorkers = strtrim(nWorkers);
     else
-        nWorkers = strtrim(nWorkers/2);
+        nWorkers = strtrim(num2str(str2num(nWorkers)/2));
     end
     % This function forces matlab to use this number of workers, even if
     % they are virtual
