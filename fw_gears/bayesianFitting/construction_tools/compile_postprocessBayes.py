@@ -15,7 +15,7 @@ def compile_renderInferredMaps(path_to_matlab_documents, output_folder):
     #mcc_path = '/usr/local/MATLAB/R2018b/bin/mcc'
     mcc_path = 'mcc'
     mcc_call = '%s -m -R -nodisplay %s -I %s -I %s -d %s -v'%(mcc_path,
-                                                              os.path.join(path_to_matlab_documents,'projects/pRFCompileWrapper/code/postprocessBayes.m'),
+                                                              os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/postprocessBayes.m'),
                                                               os.path.join(path_to_matlab_documents,'toolboxes/HCPpipelines/global/matlab/'),
                                                               os.path.join(path_to_matlab_documents,'toolboxes/freesurferMatlab/matlab/'),
                                                               output_folder)
