@@ -56,18 +56,16 @@ elseif isunix
     % Code to run on Linux plaform
     command = 'cat /proc/cpuinfo |grep "cpu cores" | awk -F: ''{ num+=$2 } END{ print num }''';
     [~,nWorkers] = system(command);
+    nWorkers = str2double(strtrim(nWorkers));
     % In most cases, you would only want to use half of the available cores
     % on a machine at a time. If we are operating within Flywheel and thus
     % within a virtual machine, the only activity on the cores will be data
     % crunching for this process, so use them all.
-    if flywheelFlag
-        nWorkers = strtrim(nWorkers);
-    else
-        nWorkers = strtrim(num2str(str2num(nWorkers)/2));
+    if ~flywheelFlag
+        nWorkers = ceil(nWorkers/2);
     end
     % This function forces matlab to use this number of workers, even if
     % they are virtual
-    nWorkers = str2double(nWorkers);
     maxNumCompThreads(nWorkers);
 elseif ispc
     % Code to run on Windows platform
