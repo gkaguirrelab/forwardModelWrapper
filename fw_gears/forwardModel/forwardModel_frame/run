@@ -77,19 +77,19 @@ modelClass = config['modelClass']
 modelOpts = '{' + config['modelOpts'] + '}'
 
 # Create a folder for hcpstruct config
-hcpconfpath = 'opt/hcpconf'
+hcpconfpath = '/opt/hcpconf'
 os.system('mkdir %s' % hcpconfpath)
 
 # Extract the hcp config into the configfolder
 os.system('unzip -j %s \'*/*.json\' -d %s' % (struct_zip_path, hcpconfpath))
 
-hcpconfig = os.listdir(hcpconfpath)[0]
+hcpconfig = os.path.join(hcpconfpath, os.listdir(hcpconfpath)[0])
 with open(hcpconfig) as hcpconf:
     job_config2 = json.load(hcpconf)
 config2 = job_config2['config']
 
 subject_id = config2['Subject']
-regName = config2['RegName']
+RegName = config2['RegName']
 
 ###################Run Algorithm################################
     

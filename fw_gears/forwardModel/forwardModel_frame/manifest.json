@@ -5,13 +5,13 @@
 	"author": "Geoffrey K. Aguirre",
 	"maintainer": "Ozenc Taskin <huseyinozenc.taskin@pennmedicine.upenn.edu>",
 	"source": "https://github.com/gkaguirrelab/forwardModelWrapper",
-	"url": "https://github.com/gkaguirrelab/pRFCompileWrapper",
-	"version": "0.3.5",
+	"url": "https://github.com/gkaguirrelab/forwardmodel",
+	"version": "0.4.3",
 	"custom": {
 		"flywheel": {
 			"suite": "GKAguirreLab"
 		},
-		"docker-image": "gkaguirrelab/analyzeprfgear:0.3.0"
+		"docker-image": "gkaguirrelab/forwardmodelgear:0.4.3"
 	},
 	"license": "Other",
 	"config": {
