@@ -97,7 +97,7 @@ cmd = """%s %s -mcruserdata ParallelProfile:/usr/flywheel.mlsettings '%s' '%s' '
 'payloadPath' '%s' 'dataFileType' '%s' 'dataSourceType' '%s' \
 'trimDummyStimTRs' '%s' 'averageAcquisitions' '%s' 'tr' '%s' \
 'externalMGZMakerPath' '%s' 'RegName' '%s' 'modelClass' '%s' 'modelOpts' '%s' \
-'workbenchPath' '%s' 'outPath' '%s' 'flywheelFlag' '0' 'Subject' '%s'""" % (matlab_func, mcr_path, func_zip_path01, 
+'workbenchPath' '%s' 'outPath' '%s' 'flywheelFlag' '1' 'Subject' '%s'""" % (matlab_func, mcr_path, func_zip_path01, 
 func_zip_path02, func_zip_path03, func_zip_path04, func_zip_path05, 
 stim_file_path, struct_zip_path, mask_file_path, payload_file_path, dataFileType, 
 dataSourceType, trimDummyStimTRs, averageAcquisitions, tr, path_to_python_func, 
