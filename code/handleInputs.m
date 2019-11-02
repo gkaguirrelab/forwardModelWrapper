@@ -2,7 +2,7 @@ function [stimulus, stimTime, data, vxs, templateImage] = handleInputs(workbench
 % This function prepares the data, stimulus and mask inputs for AnalyzePRF
 %
 % Syntax:
-%  [stimulus, data, vxs, templateImage] = handleInputs(workbench_path, funcZipPath, stimFilePath)
+%  [stimulus, stimTime, data, vxs, templateImage] = handleInputs(workbenchPath, funcZipPath, stimFilePath)
 %
 % Description:
 %   This routine takes the inputs as specified by (e.g.) a Flywheel gear
@@ -16,14 +16,20 @@ function [stimulus, stimTime, data, vxs, templateImage] = handleInputs(workbench
 %                           hcp-icafix or hcp-func. May contain entries
 %                           that are "Na", which will be ignored.
 %   stimFilePath          - String. Full path to a .mat file that contains
-%                           the stimulus apertures, which is a cell vector
-%                           of R x C x time. Values should be in [0,1]. The
-%                           number of time points can differ across runs.
-%                           The cell vector should either be of length n,
-%                           where n is the number of acquisitions that are
-%                           present in the input data zip file, or length
-%                           1, in which case the cell vector is assumed to
-%                           apply to every acquisition.
+%                           the stimulus descriptions. This is a matrix in
+%                           which the last dimension is the time domain of
+%                           the stimulus. The precise form of the stimulus
+%                           matrix is determined by the particular model
+%                           that is to be fit. A typical form is [x y st],
+%                           which provides the property of the stimulus in
+%                           the x-y domain of the stimulus display over
+%                           stimulus time. The input may also be a cell
+%                           array of such matrices. If the stimulus time
+%                           (st) is different in length than the data time
+%                           (t), the mat file must also include a valid
+%                           stimTime variable that provides the temporal
+%                           support for each stimulus matrix in units of
+%                           seconds.
 %
 % Optional key/value pairs:
 %   verbose               - String. Defaults to true
@@ -43,12 +49,14 @@ function [stimulus, stimTime, data, vxs, templateImage] = handleInputs(workbench
 %   averageAcquisitions   - String. Logical.
 %
 % Outputs:
-%   stimulus              - Stimulus is a cell vector of R x C x time.
-%                           If the cell size of input stimulus does not
-%                           match the cell size of input data, the first
-%                           cell is duplicated until they match. Be aware
-%                           of this duplication if your stimulus time
+%   stimulus              - Stimulus is a cell vector of one or more
+%                           matrices. If the cell size of input stimulus
+%                           does not match the cell size of input data, the
+%                           first cell is duplicated until they match. Be
+%                           aware of this duplication if your stimulus time
 %                           points are different accross runs.
+%   stimTime              - Cell array of vectors that provide the temporal
+%                           support for the stimulus matrices.
 %   data                  - If an ICAfix directory is specified, timeseries
 %                           are extracted from all of the runs in the
 %                           directory and reconstructed in a 1 x Run cell.
@@ -62,10 +70,7 @@ function [stimulus, stimTime, data, vxs, templateImage] = handleInputs(workbench
 %   templateImage         - Type dependent upon the nature of the input
 %                           data
 %
-% Examples:
-%{
-    [stimulus, data, vxs, templateImage] = AnalzePRFPreprocess(workbench_path, funcZipPath, stimFilePath, tempDir);
-%}
+
 
 
 %% Parse inputs

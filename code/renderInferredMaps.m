@@ -1,6 +1,13 @@
 function renderInferredMaps(inferredMapsDirPath, Subject, surfPath, outPath)
+% Used to create rendered images of the maps produced by bayesPRF
 %
+% Syntax:
+%  renderInferredMaps(inferredMapsDirPath, Subject, surfPath, outPath)
 %
+% Description:
+%   The Flywheel gear bayesPRF returns a set of MGZ files that describe
+%   retinotopic organization of visual cortex. This routine creates images
+%   of these maps.
 %
 % Examples:
 %{

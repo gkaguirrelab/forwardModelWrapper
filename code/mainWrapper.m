@@ -1,11 +1,105 @@
-function [hcpStructPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath]=mainWrapper(funcZipPath01, funcZipPath02, funcZipPath03, funcZipPath04, funcZipPath05, stimFilePath, structZipPath, varargin)
-% When compiled, is called by the python run function in the gear
+function [hcpStructPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath] = mainWrapper(funcZipPath01, funcZipPath02, funcZipPath03, funcZipPath04, funcZipPath05, stimFilePath, structZipPath, varargin)
+% Wrapper function for forwardModel, designed to used within Flywheel
 %
 % Syntax:
-%  mainPRF
+%  [hcpStructPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath] = mainWrapper(funcZipPath01, funcZipPath02, funcZipPath03, funcZipPath04, funcZipPath05, stimFilePath, structZipPath
 %
 % Description
-
+%   This function is designed to be compiled and then called from within a
+%   Flywheel gear to handle inputs and outputs associated with the
+%   forwardModel toolbox. All inputs to the function are in the form of
+%   strings, to support calling the function from the shell once it is
+%   compiled.
+%
+% Inputs:
+%   funcZipPath01,02,...  - String. Path to zip files that contain the
+%                           fMRI data to be analyzed. These zip files are
+%                           typically the output of the hcp-icafix or
+%                           hcp-func gears. All five inputs are required,
+%                           although 'Na' can be passed.
+%   stimFilePath          - String. Path to a .mat file that contains the
+%                           stimulus description.
+%   structZipPath         - String. Path to a zip file that is the output
+%                           of an hcp-struct gear operation.
+%
+% Optional key/value pairs:
+%  'maskFilePath'         - String. Path to a file that defines a boolean
+%                           mask to identify which voxels/vertices are to
+%                           be analyzed. The form of the mask should match
+%                           the dataFileType.
+%  'payloadPath'          - String. Path to a .mat file that contains a
+%                           cell array of variables to be passed to the
+%                           model within forwardModel. Optional.
+%  'dataFileType'         - String. Form of the data. While there is some
+%                           code framework for "volumetric" nifit files,
+%                           only the "cifti" format has been carefully
+%                           tested as of November 1, 2019.
+%  'Subject'              - String. The subject name or ID to be used to 
+%                           label output files.
+%  'dataSourceType'       - String. The type of gear that produced the fMRI
+%                           data to be input. Only "icafix" is currently
+%                           supported as of November 1, 2019.
+%  'trimDummyStimTRs'     - String. Valid values of 1 or 0. If set to 1, 
+%                           any mismatch in temporal support between the
+%                           stimuli and data is handled by removing
+%                           timepoints from the start of the stimulus. This
+%                           is to handle the situation in which hcp-func
+%                           has decided that some initial data time points
+%                           have not reached steady state T1 levels and
+%                           thus are "dummy" scans and are removed.
+%  'averageAcquisitions'  - String. Valid values of 1 or 0. If set to 1, 
+%                           the data acquisitions are averaged into a
+%                           single timeseries per voxel/vertex. This is
+%                           obviously only a valid operation if the same
+%                           stimulus sequence was used for every
+%                           acquisition.
+%  'averageVoxels'        - String. Valid values of 1 or 0. If set to 1, 
+%                           all time series (or the subset specified by the
+%                           mask) are averaged prior to model fitting
+%                           within the forwardModel routine.
+%  'modelClass'           - String. The type of model to be fit within the
+%                           forwardModel function.
+%  'modelOpts'            - String. The model options to be passed to the
+%                           model within forwardModel. This string is 
+%                           a list of key-value pairs, and is formatted so
+%                           that if passed to the eval() function, returns
+%                           a cell array. Therefore, a valid string is 
+%                           enclosed in curly brackets. Each key can be
+%                           enclosed either in single quotes, or in open/
+%                           close parens. The parens are replaced by single
+%                           quotes.
+%  'tr'                   - String. The TR of the fMRI data acquisition, in
+%                           units of seconds.
+%  'externalMGZMakerPath' - String. Path to the python function within this
+%                           repo that converts the CIFTI files to native
+%                           space MGZ files.
+%  'RegName'              - String. The registration algorithm that was
+%                           used to map subject native space to the atlas
+%                           space used in HCP CIFTI files (32k_fs_LR). 
+%                           Options here include 'FS' (which is the
+%                           freesurfer cortical surface registration
+%                           algorithm), 'MSMSULC' or 'MSMAll' (which are
+%                           the recommended HCP pipeline approachs).
+%  'workbenchPath'        - String. Path to a local copy of the Connectome
+%                           Workbench codebase. Executables in the
+%                           workbench are used to convert files.
+%  'outPath'              - String. Path to the location where result files
+%                           from the analysis should be saved.
+%  'flywheelFlag'         - String. Valid values of 1 or 0. If set to 1,
+%                           indicates that these functions are running as
+%                           compiled code within a Flywheel gear, and
+%                           presumably being executed within a Google Cloud
+%                           Platform virtual machine. This information is
+%                           used to control the manner in which the par
+%                           pool is invoked so that the virtual cores
+%                           that are created in a GCP VM are available for
+%                           use by the par pool.
+%  'vxsPass'              - Numeric. A vector of values that define the
+%                           mask of voxels/vertices to be analyzed. This
+%                           option over-rides the mask input, and is used
+%                           exclusively by demo operations acting upon a
+%                           non-compiled version of the code.
+%  
 
 
 %% Parse inputs
@@ -28,11 +122,11 @@ p.addParameter('payloadPath', 'Na', @isstr)
 p.addParameter('dataFileType', 'cifti', @isstr)
 p.addParameter('Subject', '00000', @isstr)
 
-
 % Config options - pre-process
 p.addParameter('dataSourceType', 'icafix', @isstr)
 p.addParameter('trimDummyStimTRs', '0', @isstr)
 p.addParameter('averageAcquisitions', '0', @isstr)
+p.addParameter('averageVoxels', '0', @isstr)
 
 % Config options - forwardModel
 p.addParameter('modelClass','prfTimeShift',@isstr);
@@ -43,15 +137,15 @@ p.addParameter('tr',[],@isstr);
 p.addParameter('externalMGZMakerPath', [], @isstr)
 p.addParameter('RegName', 'FS', @isstr)
 
-% Config options - demo over-ride
-p.addParameter('vxsPass', [], @isnumeric)
-
 % Internal paths
 p.addParameter('workbenchPath', '', @isstr);
 p.addParameter('outPath', '', @isstr);
 
 % Control
 p.addParameter('flywheelFlag', '0', @isstr);
+
+% Config options - demo over-ride
+p.addParameter('vxsPass', [], @isnumeric)
 
 
 % Parse
@@ -102,7 +196,8 @@ results = forwardModel(data,stimulus,str2double(p.Results.tr),...
     'modelClass', p.Results.modelClass, ...
     'modelOpts', eval(modelOpts), ...
     'modelPayload', payload, ...
-    'vxs', vxs);
+    'vxs', vxs, ...
+    'averageVoxels', logical(str2double(p.Results.averageVoxels))  );
 
 % Process and save the results
 mapsPath = handleOutputs(...

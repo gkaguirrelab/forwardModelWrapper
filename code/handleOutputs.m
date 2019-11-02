@@ -1,8 +1,8 @@
-function outDirName = handleOutputs(results, templateImage, outPath, Subject, workbenchPath, varargin)
-% Produce maps from the analyzePRF results
+function mapOutDirName = handleOutputs(results, templateImage, outPath, Subject, workbenchPath, varargin)
+% Produce maps from the forwardModel results
 %
 % Syntax:
-%  outDirName = handleOutputs(results, templateImage, outPath, workbenchPath)
+%  outDirName = handleOutputs(results, templateImage, outPath, Subject, workbenchPath)
 %
 % Description:
 %   This routine produces maps from the results structure returned by
@@ -10,11 +10,12 @@ function outDirName = handleOutputs(results, templateImage, outPath, Subject, wo
 %
 % Inputs:
 %   results               - Structure. Contains the results produced by
-%                           the analyzePRF routine. 
+%                           the forwardModel routine. 
 %   templateImage         - Type dependent upon the nature of the input
 %                           data
 %   outPath               - String. Path to the directory in which ouput
 %                           files are to be saved
+%   Subject               - String. The subject ID or name.
 %   workbenchPath         - String. path to workbench_command
 %
 % Optional key/value pairs:
@@ -22,7 +23,7 @@ function outDirName = handleOutputs(results, templateImage, outPath, Subject, wo
 %                           or surface (CIFTI). Options: volumetric/cifti
 %
 % Outputs:
-%   outDirName            - String. Where the maps were saved.
+%   mapOutDirName         - String. Where the maps were saved.
 
 
 %% Parse inputs
@@ -42,6 +43,21 @@ p.addParameter('dataFileType', 'cifti', @isstr)
 p.parse(results, templateImage, outPath, Subject, workbenchPath, varargin{:})
 
 
+%% Reshape the parameters
+% For volumetric results, we need to reshape the data to have the
+% dimensions defined by the templateImage
+fieldsToSave = results.meta.mapField;
+if strcmp(p.Results.dataFileType,'volumetric')
+    sizer = size(templateImage);
+    for ii = 1:length(fieldsToSave)
+        results.(fieldsToSave{ii}) = ...
+            reshape(results.(fieldsToSave{ii}),[sizer(1:end-1) 1]);
+    end
+end
+
+
+%% Save results mat file
+save(fullfile(outPath,[Subject '_' results.model.class '_results.mat']),'results')
 
 
 %% Save the results figures
@@ -56,30 +72,11 @@ if ~isempty(figFields)
 end
 
 
-%% Process the results
-
-% For volumetric results, we need to reshape the data to have the dimensions defined by the
-% templateImage
-fieldsToSave = results.meta.mapField;
-if strcmp(p.Results.dataFileType,'volumetric')
-    sizer = size(templateImage);
-    for ii = 1:length(fieldsToSave)
-        results.(fieldsToSave{ii}) = ...
-            reshape(results.(fieldsToSave{ii}),[sizer(1:end-1) 1]);
-    end
-end
-
-
-
-%% Save output
-
-% Save raw retinotopy results
-save(fullfile(outPath,[Subject '_forwardModel_results.mat']),'results')
-
+%% Create parameter maps
 % Create a maps directory
-outDirName = fullfile(outPath,[Subject '_maps_' p.Results.dataFileType]);
-if ~exist(outDirName,'dir')
-    mkdir(outDirName);
+mapOutDirName = fullfile(outPath,[Subject '_maps_' p.Results.dataFileType]);
+if ~exist(mapOutDirName,'dir')
+    mkdir(mapOutDirName);
 end
 
 % Loop through and save the maps
@@ -87,12 +84,12 @@ for ii = 1:length(fieldsToSave)
     outData = struct();
     switch p.Results.dataFileType
         case 'volumetric'
-            fileName = fullfile(outDirName,[Subject '_' fieldsToSave{ii} '_map.nii.gz']);
+            fileName = fullfile(mapOutDirName,[Subject '_' fieldsToSave{ii} '_map.nii.gz']);
             outData.vol = results.(fieldsToSave{ii});
             outData.nframes = 1;
             MRIwrite(outData, fileName);
         case 'cifti'
-            fileName = fullfile(outDirName,[Subject '_' fieldsToSave{ii} '_map.dtseries.nii']);
+            fileName = fullfile(mapOutDirName,[Subject '_' fieldsToSave{ii} '_map.dtseries.nii']);
             outData = templateImage;
             outData.cdata = single(results.(fieldsToSave{ii}));
             ciftisave(outData, fileName, workbenchPath)

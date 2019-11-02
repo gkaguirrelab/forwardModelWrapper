@@ -5,7 +5,8 @@ function fig = makeSurfMap(dataPath,surfPath, varargin)
 %  makeSurfMap(dataPath,surfPath)
 %
 % Description
-%
+%   Render maps using a variety of color scales, with special case support
+%   for polar angle and logarithmic eccentricity maps.
 %
 % Inputs:
 %   dataPath              - Char vector. Full path (including file name) to
@@ -17,10 +18,11 @@ function fig = makeSurfMap(dataPath,surfPath, varargin)
 %                           space of the subject.
 %
 % Optional key/value pairs:
-%  'mapType'              - Char vector. The type of map to be displayed;
-%                           this controls the color gradient. Valid options
-%                           include:
-%                             {'eccen','angle','rsquared','sigma','areas'}
+%  'mapScale'             - Char vector. The color scale to be used.
+%  'mapLabel'             - Char vector. How the map will be labeled in the
+%                           image.
+%  'mapBounds'            - 1x2 numeric vector. The bounds to be used to
+%                           define the color scale.
 %  'hemisphere'           - Char vector. The hemisphere to display. Valid
 %                           options are: {'lh','rh'}
 %  'whichSurface'         - Char vector. The cortical surface on which to
