@@ -220,7 +220,7 @@ if strcmp(p.Results.averageAcquisitions,'1')
     
     % Alert the user
     if verbose
-        fprintf('Averaging data acquisitions together\n')
+        fprintf('Averaging data acquisitions.\n')
     end
         
     % Check that all of the data cells have the same length
@@ -245,7 +245,7 @@ end
 
 % Alert the user
 if verbose
-    fprintf('Preparing the stimulus files\n')
+    fprintf('Preparing the stimulus files.\n')
 end
 
 % Load the stimulus, and potentially stimTime, variables
@@ -325,11 +325,6 @@ end
 %% Process masks if specified
 % The mask file is passed as an optional path to a mask file.
 
-% Alert the user
-if verbose
-    fprintf('Checking for an optional mask file\n')
-end
-
 % If set to 'Na', then the entire data array is analyzed.
 if strcmp(p.Results.maskFilePath,'Na')
     sizer = size(data{1});
@@ -351,6 +346,11 @@ else
         otherwise
             errorString = [p.Results.dataFileType ' is not a recognized dataFileType for this routine. Try, cifti or volumetric'];
             error('handleInputs:notICAFIX', errorString);
+    end
+    
+    % Alert the user
+    if verbose
+        fprintf(['Found a mask with ' num2str(length(vxs)) ' voxels/vertices\n']);
     end
 end
 
