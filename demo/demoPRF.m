@@ -48,113 +48,108 @@ hrfParams = '[0.8209, -0.3822, -0.2761]';
 averageAcquisitions = '1';
 
 
-
 %% Download the functional data
 outputFileSuffix = '_hcpicafix.zip';
-% 
-% % Create the functional tmp save dir if it does not exist
-% saveDir = fullfile(scratchSaveDir,'v0','input','funcZip');
-% if ~exist(saveDir,'dir')
-%     mkdir(saveDir);
-% end
-% 
-% % Create a flywheel object
-% fw = flywheel.Flywheel(getpref(projectName,'flywheelAPIKey'));
-% 
-% % The ica-fix results for the RETINO data for one subject
-% searchStruct = struct(...
-%     'returnType', 'analysis', ...
-%     'filters', {{...
-%     struct('match', struct('analysis0x2elabel', 'icafix')), ...
-%     struct('match', struct('analysis0x2elabel', 'RETINO')), ...
-%     struct('match', struct('project0x2elabel', 'tome')), ...
-%     struct('match', struct('subject0x2ecode', subjectName)), ...
-%     }} ...
-%     );
-% analyses = fw.search(searchStruct);
-% 
-% % We should only find one analysis result for this search
-% if length(analyses)~=1
-%     error('Search failed to find a unique analysis')
-% end
-% 
-% % Get the analysis object
-% thisAnalysis = fw.getAnalysis(analyses{1}.analysis.id);
-% 
-% % Find the file with the matching stem
-% analysisFileMatchIdx = cellfun(@(x) endsWith(x.name,outputFileSuffix),thisAnalysis.files);
-% 
-% % Get some more information about the analysis and define a saveStem
-% thisName = thisAnalysis.files{analysisFileMatchIdx}.name;
-% saveName = fullfile(saveDir,thisName);
-% 
-% % If the file has not already been downloaded, get it
-% if ~exist(saveName,'file')    
-%     % Inform the user
-%     fprintf(['Downloading: ' thisName '\n']);
-%     fprintf(['         to: ' saveDir '\n']);
-%     
-%     % Download the matching file to the rootSaveDir. This can take a while
-%     fw.downloadOutputFromAnalysis(thisAnalysis.id,thisName,saveName);        
-% end
 
-saveName = ...
-'/tmp/flywheel/v0/input/funcZip/TOME_3045_ICAFIX_multi_tfMRI_RETINO_PA_run1_tfMRI_RETINO_PA_run2_tfMRI_RETINO_AP_run3_tfMRI_RETINO_AP_run4_hcpicafix.zip';
+% Create the functional tmp save dir if it does not exist
+saveDir = fullfile(scratchSaveDir,'v0','input','funcZip');
+if ~exist(saveDir,'dir')
+    mkdir(saveDir);
+end
 
+% Create a flywheel object
+fw = flywheel.Flywheel(getpref(projectName,'flywheelAPIKey'));
+
+% The ica-fix results for the RETINO data for one subject
+searchStruct = struct(...
+    'returnType', 'analysis', ...
+    'filters', {{...
+    struct('match', struct('analysis0x2elabel', 'icafix')), ...
+    struct('match', struct('analysis0x2elabel', 'RETINO')), ...
+    struct('match', struct('project0x2elabel', 'tome')), ...
+    struct('match', struct('subject0x2ecode', subjectName)), ...
+    }} ...
+    );
+analyses = fw.search(searchStruct);
+
+% We should only find one analysis result for this search
+if length(analyses)~=1
+    error('Search failed to find a unique analysis')
+end
+
+% Get the analysis object
+thisAnalysis = fw.getAnalysis(analyses{1}.analysis.id);
+
+% Find the file with the matching stem
+analysisFileMatchIdx = cellfun(@(x) endsWith(x.name,outputFileSuffix),thisAnalysis.files);
+
+% Get some more information about the analysis and define a saveStem
+thisName = thisAnalysis.files{analysisFileMatchIdx}.name;
+saveName = fullfile(saveDir,thisName);
+
+% If the file has not already been downloaded, get it
+if ~exist(saveName,'file')    
+    % Inform the user
+    fprintf(['Downloading: ' thisName '\n']);
+    fprintf(['         to: ' saveDir '\n']);
+    
+    % Download the matching file to the rootSaveDir. This can take a while
+    fw.downloadOutputFromAnalysis(thisAnalysis.id,thisName,saveName);        
+end
+
+% The name to be passed to the wrapper
 funcZipPath = saveName;
 
 %% Download the structural data
+outputFileSuffix = '_hcpstruct.zip';
 
-% Define a few variables
-% outputFileSuffix = '_hcpstruct.zip';
-% 
-% % Create the save dir if it does not exist
-% saveDir = fullfile(scratchSaveDir,'v0','input','structZip');
-% if ~exist(saveDir,'dir')
-%     mkdir(saveDir);
-% end
-% 
-% % Create a flywheel object
-% fw = flywheel.Flywheel(getpref(projectName,'flywheelAPIKey'));
-% 
-% % The ica-fix results for the RETINO data for one subject
-% searchStruct = struct(...
-%     'returnType', 'analysis', ...
-%     'filters', {{...
-%     struct('match', struct('analysis0x2elabel', 'hcp')), ...
-%     struct('match', struct('analysis0x2elabel', 'struct')), ...
-%     struct('match', struct('project0x2elabel', 'tome')), ...
-%     struct('match', struct('subject0x2ecode', subjectName)), ...
-%     }} ...
-%     );
-% analyses = fw.search(searchStruct);
-% 
-% % We should only find one analysis result for this search
-% if length(analyses)~=1
-%     error('Search failed to find a unique analysis')
-% end
-% 
-% % Get the analysis object
-% thisAnalysis = fw.getAnalysis(analyses{1}.analysis.id);
-% 
-% % Find the file with the matching stem
-% analysisFileMatchIdx = cellfun(@(x) endsWith(x.name,outputFileSuffix),thisAnalysis.files);
-% 
-% % Get some more information about the analysis and define a saveStem
-% thisName = thisAnalysis.files{analysisFileMatchIdx}.name;
-% saveName = fullfile(saveDir,thisName);
-% 
-% % If the file has not already been downloaded, get it
-% if ~exist(saveName,'file')    
-%     % Inform the user
-%     fprintf(['Downloading: ' thisName '\n']);
-%     fprintf(['         to: ' saveDir '\n']);
-%     
-%     % Download the matching file to the rootSaveDir. This can take a while
-%     fw.downloadOutputFromAnalysis(thisAnalysis.id,thisName,saveName);
-% end
-saveName = ...
-    '/tmp/flywheel/v0/input/structZip/TOME_3045_hcpstruct.zip';
+% Create the save dir if it does not exist
+saveDir = fullfile(scratchSaveDir,'v0','input','structZip');
+if ~exist(saveDir,'dir')
+    mkdir(saveDir);
+end
+
+% Create a flywheel object
+fw = flywheel.Flywheel(getpref(projectName,'flywheelAPIKey'));
+
+% The ica-fix results for the RETINO data for one subject
+searchStruct = struct(...
+    'returnType', 'analysis', ...
+    'filters', {{...
+    struct('match', struct('analysis0x2elabel', 'hcp')), ...
+    struct('match', struct('analysis0x2elabel', 'struct')), ...
+    struct('match', struct('project0x2elabel', 'tome')), ...
+    struct('match', struct('subject0x2ecode', subjectName)), ...
+    }} ...
+    );
+analyses = fw.search(searchStruct);
+
+% We should only find one analysis result for this search
+if length(analyses)~=1
+    error('Search failed to find a unique analysis')
+end
+
+% Get the analysis object
+thisAnalysis = fw.getAnalysis(analyses{1}.analysis.id);
+
+% Find the file with the matching stem
+analysisFileMatchIdx = cellfun(@(x) endsWith(x.name,outputFileSuffix),thisAnalysis.files);
+
+% Get some more information about the analysis and define a saveStem
+thisName = thisAnalysis.files{analysisFileMatchIdx}.name;
+saveName = fullfile(saveDir,thisName);
+
+% If the file has not already been downloaded, get it
+if ~exist(saveName,'file')    
+    % Inform the user
+    fprintf(['Downloading: ' thisName '\n']);
+    fprintf(['         to: ' saveDir '\n']);
+    
+    % Download the matching file to the rootSaveDir. This can take a while
+    fw.downloadOutputFromAnalysis(thisAnalysis.id,thisName,saveName);
+end
+
+% The name to be passed to the wrapper
 structZipPath = saveName;
 
 
