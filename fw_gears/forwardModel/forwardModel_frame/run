@@ -74,6 +74,7 @@ trimDummyStimTRs = config['trimDummyStimTRs']
 averageAcquisitions = config['averageAcquisitions']
 tr = config['tr']
 modelClass = config['modelClass']
+averageVoxels = config['averageVoxels']
 modelOpts = '{' + config['modelOpts'] + '}'
 
 # Create a folder for hcpstruct config
@@ -97,11 +98,11 @@ cmd = """%s %s -mcruserdata ParallelProfile:/usr/flywheel.mlsettings '%s' '%s' '
 'payloadPath' '%s' 'dataFileType' '%s' 'dataSourceType' '%s' \
 'trimDummyStimTRs' '%s' 'averageAcquisitions' '%s' 'tr' '%s' \
 'externalMGZMakerPath' '%s' 'RegName' '%s' 'modelClass' '%s' 'modelOpts' '%s' \
-'workbenchPath' '%s' 'outPath' '%s' 'flywheelFlag' '1' 'Subject' '%s'""" % (matlab_func, mcr_path, func_zip_path01, 
+'workbenchPath' '%s' 'outPath' '%s' 'flywheelFlag' '1' 'Subject' '%s' 'averageVoxels' '%s'""" % (matlab_func, mcr_path, func_zip_path01, 
 func_zip_path02, func_zip_path03, func_zip_path04, func_zip_path05, 
 stim_file_path, struct_zip_path, mask_file_path, payload_file_path, dataFileType, 
 dataSourceType, trimDummyStimTRs, averageAcquisitions, tr, path_to_python_func, 
-RegName, modelClass, modelOpts, workbench_path, first_output_dir, subject_id)
+RegName, modelClass, modelOpts, workbench_path, first_output_dir, subject_id, averageVoxels)
 
 os.system(cmd)        
 

@@ -6,7 +6,7 @@
 	"maintainer": "Ozenc Taskin <huseyinozenc.taskin@pennmedicine.upenn.edu>",
 	"source": "https://github.com/gkaguirrelab/forwardModelWrapper",
 	"url": "https://github.com/gkaguirrelab/forwardmodel",
-	"version": "0.4.7",
+	"version": "0.4.8",
 	"custom": {
 		"flywheel": {
 			"suite": "GKAguirreLab"
@@ -47,6 +47,11 @@
 		"modelOpts": {
 			"default":"(pixelsPerDegree), 5.18, (screenMagnification), 1, (polyDeg), [], (typicalGain), 300",
 			"description": "A formatted string that provides key-value pairs to the model. Enclose each key in parentheses, and separate all keys and values with commas. The default opts are for the prf_timeShift model. Other opts can be found by examining the readme files for different models at: https://github.com/gkaguirrelab/forwardModel",
+			"type": "string"
+		},
+		"averageVoxels": {
+			"default":"0",
+			"description": "Average voxels. 0 or 1. Default: 0",
 			"type": "string"
 		}
 	},
