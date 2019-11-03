@@ -25,7 +25,7 @@ p.addRequired('surfPath',@isstr);
 p.addRequired('outPath',@isstr);
 
 % Parse
-p.parse(inferredMapsDirPath, surfPath, outPath)
+p.parse(inferredMapsDirPath, Subject, surfPath, outPath)
 
 
 
