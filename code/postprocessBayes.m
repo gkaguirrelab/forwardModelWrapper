@@ -1,4 +1,4 @@
-function postprocessBayes(leftHemiMap, rightHemiMap, hcpStructPath, templateDtseries, workbench_path, output)
+function postprocessBayes(leftHemiMap, rightHemiMap, hcpStructPath, templateDtseries, workbench_path, Subject, output)
 
 % Load neuropythy nifti interpolated maps
 leftRaw = MRIread(leftHemiMap);
@@ -10,8 +10,8 @@ rightHemiData = rightRaw.vol(:);
 
 % Load templates
 ciftiTemplate = ciftiopen(templateDtseries, workbench_path);
-leftAtlas = gifti(fullfile(hcpStructPath,'MNINonLinear', 'fsaverage_LR32k', 'TOME_3045.L.atlasroi.32k_fs_LR.shape.gii'));
-rightAtlas = gifti(fullfile(hcpStructPath,'MNINonLinear', 'fsaverage_LR32k', 'TOME_3045.R.atlasroi.32k_fs_LR.shape.gii'));
+leftAtlas = gifti(fullfile(hcpStructPath,'MNINonLinear', 'fsaverage_LR32k', [Subject '.L.atlasroi.32k_fs_LR.shape.gii']));
+rightAtlas = gifti(fullfile(hcpStructPath,'MNINonLinear', 'fsaverage_LR32k', [Subject '.R.atlasroi.32k_fs_LR.shape.gii']));
 
 % Concatanete AtlasROI vectors. These vectors are exactly the same for the 
 % FSLR template but we concatenate to make it usable for non symetrical

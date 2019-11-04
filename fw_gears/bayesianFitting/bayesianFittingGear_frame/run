@@ -144,7 +144,7 @@ for i in os.listdir(cifti_temp):
                                            left_hemi, right_hemi, 
                                            unzipped_hcp_folder,
                                            template_dtseries, workbench_path,
-                                           save)
+                                           subject_name, save)
         os.system(cmd)
         
 ######################### Change map names ###################################
