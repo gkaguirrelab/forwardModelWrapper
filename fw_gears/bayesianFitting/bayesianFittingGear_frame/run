@@ -13,8 +13,8 @@ interpolate_function = '/opt/interpolate_cifti.py'
 os.system("mv /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libexpat.so.1 /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libexpat.so.1-appended")
 
 # Path to input folder 
-native_mgz_maps_folder = os.path.join(flywheel_base, 'input', 'NativeMgzMaps')
-struct_zip_folder = os.path.join(flywheel_base, 'input', 'structZipPath')
+native_mgz_maps_folder = os.path.join(flywheel_base, 'input', 'nativeMgzMaps')
+struct_zip_folder = os.path.join(flywheel_base, 'input', 'structZip')
 
 # Set path to required inputs
 native_mgz_maps_zip_path = os.path.join(native_mgz_maps_folder, os.listdir(native_mgz_maps_folder)[0])

@@ -6,7 +6,7 @@
 	"maintainer": "Ozenc Taskin <huseyinozenc.taskin@pennmedicine.upenn.edu>",
 	"source": "https://github.com/noahbenson/neuropythy",
 	"url": "",
-	"version": "0.1.7",
+	"version": "0.1.9",
 	"custom": {
 		"flywheel": {
 			"suite": "GKAguirreLab"
@@ -98,8 +98,8 @@
 	},
 
 	"inputs": {
-		"NativeMgzMaps": {
-			"description": "maps_nativeMGZ.zip or maps_nativeMGZpseudoHemisphere.zip outputs obtained from the analyzePRF gear can be used here as input",
+		"nativeMgzMaps": {
+			"description": "Retinotopic maps in subject-native MGZ format. The output of the prfTimeShift model using the forwardModel gear can be used here as an input.",
 			"base": "file",
 			"optional": false,
 			"type": {
@@ -108,7 +108,7 @@
 				]
 			}
 		},
-		"structZipPath": {
+		"structZip": {
 			"description": "hcp-struct zip archive",
 			"base": "file",
 			"optional": false,
