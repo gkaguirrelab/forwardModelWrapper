@@ -32,11 +32,13 @@ p.parse(inferredMapsDirPath, Subject, surfPath, outPath)
 %% The maps to save
 mapField = {'eccen','angle','sigma','varea'};
 mapScale = {'eccen','angle','logJet','varea'};
-mapBounds = {[1 90],[-180 180],[0 10],[]};
+mapBounds = {[1 90],[-180 180],[0 10],[0 0]};
+
 
 %% Save rh map images
 for mm = 1:length(mapField)
     dataPath = fullfile(inferredMapsDirPath,['rh.' Subject '_inferred_' mapField{mm} '.mgz']);
+    fprintf(mapBounds{mm})
     fig = makeSurfMap(dataPath,surfPath, ...
         'mapType',mapScale{mm}, ...
         'mapBounds',mapBounds{mm}, ...
@@ -47,8 +49,6 @@ for mm = 1:length(mapField)
 end
 
 %% Save lh map images
-mapField = {'eccen','angle','sigma','varea'};
-mapScale = {'eccen','angle','logJet','varea'};
 for mm = 1:length(mapField)
     dataPath = fullfile(inferredMapsDirPath,['lh.' Subject '_inferred_' mapField{mm} '.mgz']);
     fig = makeSurfMap(dataPath,surfPath, ...
