@@ -140,7 +140,7 @@ for i in os.listdir(cifti_temp):
         print(left_hemi)
         print(right_hemi)
         save = os.path.join(cifti_maps, i.replace('lh.', subject_name + '_').replace('.nii','') + '.dtseries.nii')
-        cmd = '%s %s %s %s %s %s %s %s' % (matlab_cifti_function, mcr_path,
+        cmd = '%s %s %s %s %s %s %s %s %s' % (matlab_cifti_function, mcr_path,
                                            left_hemi, right_hemi, 
                                            unzipped_hcp_folder,
                                            template_dtseries, workbench_path,
