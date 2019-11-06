@@ -26,6 +26,19 @@
 		"update": "",
 		"url": "https:\/\/github.com\/gkaguirrelab\/forwardModel.git"
 	},
+    {
+		"flavor": "",
+		"hook": "",
+		"importance": "",
+		"localHookTemplate": "",
+		"name": "TheilSen",
+		"pathPlacement": "append",
+		"subfolder": "",
+		"toolboxRoot": "",
+		"type": "webget",
+		"update": "",
+		"url": "https:\/\/www.mathworks.com\/matlabcentral\/mlc-downloads\/downloads\/submissions\/48294\/versions\/4\/download\/zip"
+	},
 	{
 		"flavor": "",
 		"hook": "",
