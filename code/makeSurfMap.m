@@ -267,7 +267,7 @@ switch p.Results.mapScale
         caxis([mapres(1) mapres(2)]);
         h = colorbar('southoutside');
         set(gca,'ColorScale','log') 
-        h.Ticks = logspace(log10(1), log10(mapres(3)), 8);
+        h.Ticks = logspace(log10(1), log10(mapres(2)), 8);
         h.TickLabels = num2cell( round(logspace(log10(mapres(1)), log10(mapres(2)), 8)*2)/2 );
     case 'angle'
         x = linspace(-1,1,mapres(3));
@@ -287,8 +287,8 @@ switch p.Results.mapScale
         caxis([mapres(1) mapres(2)]);
         h = colorbar('southoutside');
         set(gca,'ColorScale','log') 
-        h.Ticks = logspace(log10(1), log10(mapres(3)), 8);
-        h.TickLabels = num2cell( round(logspace(log10(mapres(1)), log10(mapres(2)), 8)*10)/10 );
+        h.Ticks = logspace(log10(mapres(1)), log10(mapres(2)), 8);
+        h.TickLabels = num2cell( round(logspace(log10(mapres(1)), log10(mapres(2)), 8)*100)/100 );
     case 'vareas'
         caxis([mapres(1) mapres(2)]);
         colormap(mycolormap);
