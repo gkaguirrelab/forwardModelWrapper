@@ -6,9 +6,10 @@ import json
 # Flywheel path
 flywheel_base ='/flywheel/v0/'
 mcr_path = '/usr/local/MATLAB/MATLAB_Runtime/v97' #path to MATLAB runtime
-matlab_plot_func = '/opt/plot_func/run_renderInferredMaps.sh'
+matlab_plot_func = '/opt/render_func/run_renderInferredMaps.sh'
 matlab_cifti_function = '/opt/postproc_func/run_postprocessBayes.sh'
 interpolate_function = '/opt/interpolate_cifti.py'
+cortical_mag_function = '/opt/cortmag_func/run_calcCorticalMag.sh'
 
 os.system("mv /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libexpat.so.1 /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libexpat.so.1-appended")
 
@@ -46,6 +47,7 @@ subject_name = os.listdir(unzipped_hcp)[0]
 unzipped_hcp_folder = os.path.join(unzipped_hcp, subject_name)
 
 ##################Parse Config Here############################
+
 with open(config_path) as config_file:
     job_config = json.load(config_file)
 config = job_config['config']
@@ -109,6 +111,26 @@ if model_sym == True:
 
 os.system(cmd)
 
+######################### Add subject ID #####################################
+
+subject_part = subject_name + '_'
+
+for i in os.listdir(first_output_dir):
+    if 'lh' in i or 'rh' in i:
+        new_path = os.path.join(first_output_dir, i[:3] + subject_part + i[3:])
+        os.system('mv %s %s' % (os.path.join(first_output_dir,i), new_path))
+
+
+################### Run cortical Magnification ################################
+
+cmd = '%s %s %s %s %s %s' % (cortical_mag_function, mcr_path, 
+                             subject_name, 
+                             first_output_dir, 
+                             os.path.join(unzipped_hcp_folder, 'T1w', subject_name, 'surf'),
+                             final_output_dir)
+
+os.system(cmd)
+
 ###################### Run interpolate_cifti ##################################
 
 print('Interpolating to cifti FS_LR space')
@@ -117,11 +139,12 @@ cifti_temp = '/opt/cifti_temp'
 if not os.path.exists(cifti_temp):
     os.system('mkdir %s'%cifti_temp)
 
-os.system('python3 %s %s %s %s'%(interpolate_function,
-                                 first_output_dir, 
-                                 unzipped_hcp_folder, 
-                                 cifti_temp))
-
+os.system('python3 %s %s %s %s %s'%(interpolate_function,
+                                    subject_name,
+                                    first_output_dir, 
+                                    unzipped_hcp_folder, 
+                                    cifti_temp))
+        
 ######################### Make cifti maps #####################################
 
 print('Making cifti maps')
@@ -139,22 +162,13 @@ for i in os.listdir(cifti_temp):
         right_hemi = os.path.join(cifti_temp, 'rh' + i[2:])
         print(left_hemi)
         print(right_hemi)
-        save = os.path.join(cifti_maps, i.replace('lh.', subject_name + '_').replace('.nii','') + '.dtseries.nii')
-        cmd = '%s %s %s %s %s %s %s %s' % (matlab_cifti_function, mcr_path,
+        save = os.path.join(cifti_maps, i.replace('lh.', '').replace('.nii','') + '.dtseries.nii')
+        cmd = '%s %s %s %s %s %s %s %s %s' % (matlab_cifti_function, mcr_path,
                                            left_hemi, right_hemi, 
                                            unzipped_hcp_folder,
                                            template_dtseries, workbench_path,
-                                           save)
+                                           subject_name, save)
         os.system(cmd)
-        
-######################### Change map names ###################################
-
-subject_part = subject_name + '_'
-
-for i in os.listdir(first_output_dir):
-    if 'lh' in i or 'rh' in i:
-        new_path = os.path.join(first_output_dir, i[:3] + subject_part + i[3:])
-        os.system('mv %s %s' % (os.path.join(first_output_dir,i), new_path))
         
 ######################### Run renderInferred ##################################
 
@@ -169,10 +183,10 @@ os.system(cmd)
 
 print('Zipping maps')
 
-os.system('cd %s; zip -q %s/cifti_maps.zip *' % (cifti_maps, final_output_dir))
+os.system('cd %s; zip -q %s/%s_cifti_maps.zip *' % (cifti_maps, final_output_dir, subject_name))
 
-volume_call = 'cd %s; zip -q %s/inferred_volume.zip' % (first_output_dir, final_output_dir)
-surface_call = 'cd %s; zip -q %s/inferred_surface.zip' % (first_output_dir, final_output_dir)
+volume_call = 'cd %s; zip -q %s/%s_inferred_volume.zip' % (first_output_dir, final_output_dir, subject_name)
+surface_call = 'cd %s; zip -q %s/%s_inferred_surface.zip' % (first_output_dir, final_output_dir, subject_name)
 
 for i in os.listdir(first_output_dir):
     if i[:8] == 'inferred':

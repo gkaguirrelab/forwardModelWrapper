@@ -1,7 +1,7 @@
 import os 
 import sys
 
-def compile_renderInferredMaps(path_to_matlab_documents, output_folder):
+def compile_renderInferredMaps(path_to_matlab_documents='/home/ozzy/Documents/MATLAB/', output_folder='/home/ozzy/Documents/MATLAB/projects/forwardModelWrapper/fw_gears/bayesianFitting/bayesianFittingGear_frame/render_func'):
     
     # This function compiles the renderInferredMaps.m MATLAB function for the 
     # BayesPRF gear.
