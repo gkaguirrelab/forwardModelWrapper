@@ -27,7 +27,7 @@ p.parse(Subject, inferredMapsDirPath, surfPath, outPath, varargin{:})
 
 
 % Prepare a figue to hold some plots
-plotFigHandle = figure('visible','on');
+plotFigHandle = figure('visible','off');
 
 %% Loop over hemispheres
 hemi = {'lh','rh'};
@@ -76,7 +76,7 @@ for hh = 1:2
     mapFigHandle = makeSurfMap(mapPathOut,surfPath, ...
         'mapLabel','M^-1 [deg/mm]', ...
         'mapScale','logJet', ...
-        'mapBounds',[0.1 10], ...
+        'mapBounds',[0.01 10], ...
         'hemisphere',hemi{hh},'visible',false);
     plotFileName = fullfile(outPath,[hemi{hh} '.' Subject '_cmf.png']);
     print(mapFigHandle,plotFileName,'-dpng')
@@ -95,15 +95,17 @@ for hh = 1:2
         [m,b] = TheilSen([eccenMap(validIdx), cmfMap(validIdx)]);
         results.(ROIs{rr}).(hemi{hh}).fit = [m, b];
         
-        figure(plotFigHandle);
+        set(0, 'CurrentFigure', plotFigHandle)        
         subplot(2,2,hh+((rr-1)*2))
-        plot(eccenMap(validIdx),cmfMap(validIdx),'.k');
+        hplot = scatter(eccenMap(validIdx),cmfMap(validIdx),'o','MarkerFaceColor','k','MarkerEdgeColor','none');
+        hplot.MarkerFaceAlpha = .1;
         hold on
         hline = refline([m,b]);
         hline.Color = 'r';
+        hline.LineWidth = 2;
         xlabel('eccentricty [deg]');
-        ylabel('M^-1 [deg/mm]');
-        title([Subject '.' ROIs{rr} '.' hemi{hh}]);
+        ylabel('M^-^1 [deg/mm]');
+        title([Subject '.' ROIs{rr} '.' hemi{hh}],'interpreter', 'none');
         xlim([0 10]);
         ylim([0 2]);
         
