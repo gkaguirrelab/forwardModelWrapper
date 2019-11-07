@@ -32,7 +32,7 @@ p.parse(inferredMapsDirPath, Subject, surfPath, outPath)
 %% The maps to save
 mapField = {'eccen','angle','sigma','varea'};
 mapScale = {'eccen','angle','logJet','varea'};
-mapBounds = {[1 90],[-180 180],[0 10],[0 0]};
+mapBounds = {[1 90],[-180 180],[0.01 10],[0 0]};
 
 
 %% Save rh map images
