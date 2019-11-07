@@ -115,7 +115,7 @@ end % Loop over hemispheres
 
 % Save the plot figure
 plotFileName = fullfile(outPath,[Subject '_cmfPlots.pdf']);
-print(plotFigHandle,plotFileName,'-dpdf')
+print(plotFigHandle,plotFileName,'-dpdf','-fillpage')
 close(plotFigHandle);
 
 % Save the results variable
