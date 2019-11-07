@@ -14,10 +14,11 @@ def compile_calcCorticalMag(path_to_matlab_documents='/home/ozzy/Documents/MATLA
     
     #mcc_path = '/usr/local/MATLAB/R2018b/bin/mcc'
     mcc_path = 'mcc'
-    mcc_call = '%s -m -R -nodisplay %s -I %s -I %s -d %s -v'%(mcc_path,
+    mcc_call = '%s -m -R -nodisplay %s -I %s -I %s -a %s -d %s -v'%(mcc_path,
                                                               os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/calcCorticalMag.m'),
                                                               os.path.join(path_to_matlab_documents,'toolboxes/freesurferMatlab/matlab/'),
                                                               os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/utilities'),
+                                                              os.path.join(path_to_matlab_documents,'toolboxes/matlabcentral/TheilSen/'),
                                                               output_folder)
     
     print('Compiling calcCorticalMag.m')

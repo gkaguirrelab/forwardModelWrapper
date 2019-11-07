@@ -14,11 +14,13 @@ def interpolate_cifti(subject_name, path_to_inferred_maps, path_to_hcp, output):
     other_maps_left = {}
     other_maps_left['lh.%s_inferred_sigma' % subject_name] = ny.load(os.path.join(path_to_inferred_maps, 'lh.%s_inferred_sigma.mgz' % subject_name))
     other_maps_left['lh.%s_inferred_varea' % subject_name] = ny.load(os.path.join(path_to_inferred_maps, 'lh.%s_inferred_varea.mgz' % subject_name))
+    other_maps_left['lh.%s_inferred_cmf' % subject_name] = ny.load(os.path.join(path_to_inferred_maps, 'lh.%s_inferred_cmf.mgz' % subject_name))
     
     other_maps_right = {}
     other_maps_right['rh.%s_inferred_sigma' % subject_name] = ny.load(os.path.join(path_to_inferred_maps, 'rh.%s_inferred_sigma.mgz' % subject_name))
     other_maps_right['rh.%s_inferred_varea' % subject_name] = ny.load(os.path.join(path_to_inferred_maps, 'rh.%s_inferred_varea.mgz' % subject_name))    
-    
+    other_maps_right['rh.%s_inferred_cmf' % subject_name] = ny.load(os.path.join(path_to_inferred_maps, 'rh.%s_inferred_cmf.mgz' % subject_name))
+     
     # Negate right hemi angles 
     right_hemi_angle = ny.load(os.path.join(path_to_inferred_maps, 'rh.%s_inferred_angle.mgz' % subject_name))
     right_hemi_angle_negated = right_hemi_angle * -1
