@@ -114,7 +114,7 @@ end
 
 %% Loop over entries in funcZipPath
 data = {};
-totalAcquisitions = 1;
+totalAcquisitions = 0;
 
 for jj=1:length(funcZipPath)
     
@@ -189,26 +189,25 @@ for jj=1:length(funcZipPath)
                 error('handleInputs:notICAFIX', errorString);
         end
         
-        % Store the acquisition data in a cell array
-        data{totalAcquisitions} = thisAcqData;
-        
         % Increment the total number of acquisitions
         totalAcquisitions = totalAcquisitions + 1;
-                       
+
+        % Store the acquisition data in a cell array
+        data{totalAcquisitions} = thisAcqData;
+                               
         % Alert the user
         if verbose
             outputString = ['Read acquisition ' num2str(ii) ' of ' num2str(nAcquisitions) ' -- ' rawName '\n'];
             fprintf(outputString)
         end
-    end % Loop over acquisitions within a funcZip file
+    end % Loop over acquisitions within a funcZip file    
     
     % Delete the temporary directory that contains the unpacked zip
     % contents
     command = ['rm -r ' zipDir];
-    %system(command);
+    system(command);
     
 end % Loop over entries in funcZipPath
-
 
 
 %% Average the acquisitions if requested
