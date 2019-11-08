@@ -304,9 +304,15 @@ if isempty(stimTime)
                 % Trim time points from the start of the stimulus to force it
                 % to match the data
                 thisStim = stimulus{ii};
-                % thisStim is now a matrix of R x C x time. We snip off the
-                % initial entries
-                thisStim = thisStim(:,:,(stimTRs-dataTRs):end);
+                % Be sensitive to the number of dimensions in the stimulus
+                switch ndim(thisStim)
+                    case 2
+                        thisStim = thisStim(:,(stimTRs-dataTRs):end);
+                    case 3
+                        thisStim = thisStim(:,:,(stimTRs-dataTRs):end);
+                    case 4
+                        thisStim = thisStim(:,:,:,(stimTRs-dataTRs):end);
+                end
                 stimulus{ii} = {thisStim};
                 % Let the user know that some trimming went on!
                 warnString = ['Stim file for acquisition ' num2str(ii) ' was trimmed at the start by ' num2str() ' TRs'];
