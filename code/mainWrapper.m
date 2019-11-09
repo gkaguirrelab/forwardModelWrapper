@@ -120,18 +120,18 @@ p.addParameter('payloadPath', 'Na', @isstr)
 
 % Config options - multiple
 p.addParameter('dataFileType', 'cifti', @isstr)
+p.addParameter('dataSourceType', 'icafix', @isstr)
 p.addParameter('Subject', '00000', @isstr)
 
 % Config options - pre-process
-p.addParameter('dataSourceType', 'icafix', @isstr)
 p.addParameter('trimDummyStimTRs', '0', @isstr)
 p.addParameter('averageAcquisitions', '0', @isstr)
-p.addParameter('averageVoxels', '0', @isstr)
 
 % Config options - forwardModel
 p.addParameter('modelClass','prfTimeShift',@isstr);
 p.addParameter('modelOpts','{}',@isstr);
 p.addParameter('tr',[],@isstr);
+p.addParameter('averageVoxels', '0', @isstr)
 
 % Config options - convert to mgz
 p.addParameter('externalMGZMakerPath', [], @isstr)
@@ -167,8 +167,12 @@ modelOpts = strrep(modelOpts,')','''');
 %% Preprocess
 [stimulus, stimTime, data, vxs, templateImage] = ...
     handleInputs(p.Results.workbenchPath, funcZipPath, stimFilePath, ...
+    'verbose',true,...      % Force verbose
     'maskFilePath',p.Results.maskFilePath, ...
-    'averageAcquisitions',p.Results.averageAcquisitions);
+    'trimDummyStimTRs',p.Results.trimDummyStimTRs, ...
+    'dataFileType',p.Results.dataFileType, ...
+    'dataSourceType',p.Results.dataSourceType, ...
+    'averageAcquisitions',logical(str2double(p.Results.averageAcquisitions)) );
 
 % If vxsPass has been defined (perhaps by the demo routine), substitute
 % this value for vxs
@@ -197,7 +201,8 @@ results = forwardModel(data,stimulus,str2double(p.Results.tr),...
     'modelOpts', eval(modelOpts), ...
     'modelPayload', payload, ...
     'vxs', vxs, ...
-    'averageVoxels', logical(str2double(p.Results.averageVoxels))  );
+    'averageVoxels', logical(str2double(p.Results.averageVoxels)),...
+    'verbose',true);    % Force verbose
 
 % Process and save the results
 mapsPath = handleOutputs(...

@@ -32,11 +32,11 @@ function [stimulus, stimTime, data, vxs, templateImage] = handleInputs(workbench
 %                           seconds.
 %
 % Optional key/value pairs:
-%   verbose               - String. Defaults to true
+%   verbose               - Logical. Defaults to true
 %   maskFilePath          - String. Path to a mask file for the data.
-%   trimDummyStimTRs      - String. Defaults to 0. On occasion "dummy" TRs
-%                           at the beginning of a scan are trimmed off by
-%                           the pre-processing routine. This causes the
+%   trimDummyStimTRs      - Logical. Defaults to false. On occasion "dummy"
+%                           TRs at the beginning of a scan are trimmed off
+%                           by the pre-processing routine. This causes the
 %                           stimulus and data lengths to be unequal. If
 %                           this flag is set to true, the start of the
 %                           stimulus is trimmed to match the data length.
@@ -82,19 +82,19 @@ p.addRequired('funcZipPath',@iscell);
 p.addRequired('stimFilePath',@isstr);
 
 % Optional
-p.addParameter('verbose', '1', @isstr)
+p.addParameter('verbose', true, @islogical)
 p.addParameter('maskFilePath', 'Na', @isstr)
-p.addParameter('trimDummyStimTRs', '0', @isstr)
+p.addParameter('trimDummyStimTRs', false, @islogical)
 p.addParameter('dataFileType', 'cifti', @isstr)
 p.addParameter('dataSourceType', 'icafix', @isstr)
-p.addParameter('averageAcquisitions', '0', @isstr)
+p.addParameter('averageAcquisitions', true, @islogical)
 
 % Parse
 p.parse(workbenchPath, funcZipPath, stimFilePath, varargin{:})
 
-% Set up a logical verbose flag
-verbose = strcmp(p.Results.verbose,'1');
-
+% Set up a logical flags
+verbose = p.Results.verbose;
+trimDummyStimTRs = p.Results.trimDummyStimTRs;
 
 %% Check inputs
 
@@ -300,9 +300,9 @@ if isempty(stimTime)
         dataTRs = size(data{ii},2);
         stimTRs = size(stimulus{ii},3);
         if dataTRs~=stimTRs
-            if stimTRs>dataTRs && strcmp(p.Results.trimDummyStimTRs,'1')
-                % Trim time points from the start of the stimulus to force it
-                % to match the data
+            if stimTRs>dataTRs && trimDummyStimTRs
+                % Trim time points from the start of the stimulus to force
+                % it to match the data
                 thisStim = stimulus{ii};
                 % Be sensitive to the number of dimensions in the stimulus
                 switch ndim(thisStim)
@@ -319,7 +319,7 @@ if isempty(stimTime)
                 warning('handleInputs:stimulusTRTrim', warnString);
                 
             else
-                errorString = ['Acquisition ' num2str(ii) ' of ' num2str(totalAcquisitions) ' has a mismatched number of TRs with its stimulus'];
+                errorString = ['Acquisition ' num2str(ii) ' of ' num2str(totalAcquisitions) ' has ' num2str(dataTRs) ' TRs, but the stimulus has ' num2str(stimTRs) ' TRs'];
                 error('handleInputs:mismatchTRs', errorString);
             end
         end
