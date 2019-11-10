@@ -6,7 +6,7 @@
 	"maintainer": "Ozenc Taskin <huseyinozenc.taskin@pennmedicine.upenn.edu>",
 	"source": "https://github.com/gkaguirrelab/forwardmodel",
 	"url": "https://github.com/noahbenson/neuropythy",
-	"version": "0.2.2",
+	"version": "0.2.5",
 	"custom": {
 		"flywheel": {
 			"suite": "GKAguirreLab"
