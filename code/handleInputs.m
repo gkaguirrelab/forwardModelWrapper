@@ -298,14 +298,14 @@ end
 if isempty(stimTime)
     for ii = 1:totalAcquisitions
         dataTRs = size(data{ii},2);
-        stimTRs = size(stimulus{ii},3);
+        stimTRs = size(stimulus{ii},ndims(stimulus{ii}));
         if dataTRs~=stimTRs
             if stimTRs>dataTRs && trimDummyStimTRs
                 % Trim time points from the start of the stimulus to force
                 % it to match the data
                 thisStim = stimulus{ii};
                 % Be sensitive to the number of dimensions in the stimulus
-                switch ndim(thisStim)
+                switch ndims(thisStim)
                     case 2
                         thisStim = thisStim(:,(stimTRs-dataTRs):end);
                     case 3
