@@ -46,7 +46,7 @@ function [stimulus, stimTime, data, vxs, templateImage] = handleInputs(workbench
 %                           zip file. This information is used to know how
 %                           to find the data files within the zip archive.
 %                           Valid options currently are: {'icafix'}
-%   averageAcquisitions   - String. Logical.
+%   averageAcquisitions   - Logical.
 %
 % Outputs:
 %   stimulus              - Stimulus is a cell vector of one or more
@@ -95,6 +95,7 @@ p.parse(workbenchPath, funcZipPath, stimFilePath, varargin{:})
 % Set up a logical flags
 verbose = p.Results.verbose;
 trimDummyStimTRs = p.Results.trimDummyStimTRs;
+averageAcquisitions = p.Results.averageAcquisitions;
 
 %% Check inputs
 
@@ -152,7 +153,7 @@ for jj=1:length(funcZipPath)
     
     % Each entry left in funcZipPaths is a different fMRI acquisition
     nAcquisitions = length(acquisitionList);
-        
+    
     % Loop through the acquisitions
     for ii = 1:nAcquisitions
         
@@ -191,16 +192,16 @@ for jj=1:length(funcZipPath)
         
         % Increment the total number of acquisitions
         totalAcquisitions = totalAcquisitions + 1;
-
+        
         % Store the acquisition data in a cell array
         data{totalAcquisitions} = thisAcqData;
-                               
+        
         % Alert the user
         if verbose
             outputString = ['Read acquisition ' num2str(ii) ' of ' num2str(nAcquisitions) ' -- ' rawName '\n'];
             fprintf(outputString)
         end
-    end % Loop over acquisitions within a funcZip file    
+    end % Loop over acquisitions within a funcZip file
     
     % Delete the temporary directory that contains the unpacked zip
     % contents
@@ -215,18 +216,18 @@ end % Loop over entries in funcZipPath
 % stimulus, then it may be desirable to average the fMRI data prior to
 % model fitting. This has the property of increasing the informativeness of
 % the R^2 fitting values, and making the analysis run more quickly.
-if strcmp(p.Results.averageAcquisitions,'1')
+if averageAcquisitions
     
     % Alert the user
     if verbose
         fprintf('Averaging data acquisitions.\n')
     end
-        
+    
     % Check that all of the data cells have the same length
     if length(unique(cellfun(@(x) length(x),data))) > 1
-            error('handleInputs:dataLengthDisagreement', 'Averaging of the acquisition data was requested, but the acquisitions are not of equal length');
+        error('handleInputs:dataLengthDisagreement', 'Averaging of the acquisition data was requested, but the acquisitions are not of equal length');
     end
-
+    
     % Perform the average
     meanData = zeros(size(data{1}));
     for ii=1:length(data)
@@ -249,7 +250,7 @@ end
 
 % Load the stimulus, and potentially stimTime, variables
 warningState = warning;
-warning('off','MATLAB:load:variableNotFound');        
+warning('off','MATLAB:load:variableNotFound');
 load(stimFilePath,'stimulus','stimTime');
 warning(warningState);
 if ~exist('stimTime','var')
