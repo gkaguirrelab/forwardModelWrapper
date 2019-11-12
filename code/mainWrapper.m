@@ -209,6 +209,10 @@ mapsPath = handleOutputs(...
     results, templateImage, p.Results.outPath, p.Results.Subject, ...
     p.Results.workbenchPath, 'dataFileType', p.Results.dataFileType);
 
+% If forwardModel didn't generate any maps, then we are done
+if isempty(mapsPath)
+    return
+end
 
 %% Convert to MGZ
 % If we are working with CIFTI files, convert the resulting maps to

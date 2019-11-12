@@ -5,12 +5,11 @@ function mapOutDirName = handleOutputs(results, templateImage, outPath, Subject,
 %  outDirName = handleOutputs(results, templateImage, outPath, Subject, workbenchPath)
 %
 % Description:
-%   This routine produces maps from the results structure returned by
-%   forwardModel.
+%   This routine saves results, plots, and maps returned by forwardModel.
 %
 % Inputs:
 %   results               - Structure. Contains the results produced by
-%                           the forwardModel routine. 
+%                           the forwardModel routine.
 %   templateImage         - Type dependent upon the nature of the input
 %                           data
 %   outPath               - String. Path to the directory in which ouput
@@ -43,18 +42,6 @@ p.addParameter('dataFileType', 'cifti', @isstr)
 p.parse(results, templateImage, outPath, Subject, workbenchPath, varargin{:})
 
 
-%% Reshape the parameters
-% For volumetric results, we need to reshape the data to have the
-% dimensions defined by the templateImage
-fieldsToSave = results.meta.mapField;
-if strcmp(p.Results.dataFileType,'volumetric')
-    sizer = size(templateImage);
-    for ii = 1:length(fieldsToSave)
-        results.(fieldsToSave{ii}) = ...
-            reshape(results.(fieldsToSave{ii}),[sizer(1:end-1) 1]);
-    end
-end
-
 
 %% Save results mat file
 save(fullfile(outPath,[Subject '_' results.model.class '_results.mat']),'results')
@@ -72,31 +59,52 @@ if ~isempty(figFields)
 end
 
 
-%% Create parameter maps
-% Create a maps directory
-mapOutDirName = fullfile(outPath,[Subject '_maps_' p.Results.dataFileType]);
-if ~exist(mapOutDirName,'dir')
-    mkdir(mapOutDirName);
-end
+%% If we have maps, save them
 
-% Loop through and save the maps
-for ii = 1:length(fieldsToSave)
-    outData = struct();
-    switch p.Results.dataFileType
-        case 'volumetric'
-            fileName = fullfile(mapOutDirName,[Subject '_' fieldsToSave{ii} '_map.nii.gz']);
-            outData.vol = results.(fieldsToSave{ii});
-            outData.nframes = 1;
-            MRIwrite(outData, fileName);
-        case 'cifti'
-            fileName = fullfile(mapOutDirName,[Subject '_' fieldsToSave{ii} '_map.dtseries.nii']);
-            outData = templateImage;
-            outData.cdata = single(results.(fieldsToSave{ii}));
-            ciftisave(outData, fileName, workbenchPath)
-        otherwise
-            error('not a recognized dataFileType')
+if ~isfield(results.meta,'mapField')
+    
+    mapOutDirName = [];
+    
+else
+    
+    %% Reshape the parameters
+    % For volumetric results, we need to reshape the data to have the
+    % dimensions defined by the templateImage
+    fieldsToSave = results.meta.mapField;
+    if strcmp(p.Results.dataFileType,'volumetric')
+        sizer = size(templateImage);
+        for ii = 1:length(fieldsToSave)
+            results.(fieldsToSave{ii}) = ...
+                reshape(results.(fieldsToSave{ii}),[sizer(1:end-1) 1]);
+        end
     end
+    
+    %% Create parameter maps
+    % Create a maps directory
+    mapOutDirName = fullfile(outPath,[Subject '_maps_' p.Results.dataFileType]);
+    if ~exist(mapOutDirName,'dir')
+        mkdir(mapOutDirName);
+    end
+    
+    % Loop through and save the maps
+    for ii = 1:length(fieldsToSave)
+        outData = struct();
+        switch p.Results.dataFileType
+            case 'volumetric'
+                fileName = fullfile(mapOutDirName,[Subject '_' fieldsToSave{ii} '_map.nii.gz']);
+                outData.vol = results.(fieldsToSave{ii});
+                outData.nframes = 1;
+                MRIwrite(outData, fileName);
+            case 'cifti'
+                fileName = fullfile(mapOutDirName,[Subject '_' fieldsToSave{ii} '_map.dtseries.nii']);
+                outData = templateImage;
+                outData.cdata = single(results.(fieldsToSave{ii}));
+                ciftisave(outData, fileName, workbenchPath)
+            otherwise
+                error('not a recognized dataFileType')
+        end
+    end
+    
 end
-
 
 end % Main function

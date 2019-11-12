@@ -130,7 +130,7 @@ for jj=1:length(funcZipPath)
     
     % Uncompress the zip archive into the zipDir.
     command = ['unzip -q -n ' funcZipPath{jj} ' -d ' zipDir];
-    system(command);
+%    system(command);
     
     % Find the files
     
@@ -206,7 +206,7 @@ for jj=1:length(funcZipPath)
     % Delete the temporary directory that contains the unpacked zip
     % contents
     command = ['rm -r ' zipDir];
-    system(command);
+%    system(command);
     
 end % Loop over entries in funcZipPath
 
