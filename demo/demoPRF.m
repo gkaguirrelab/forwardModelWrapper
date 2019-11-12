@@ -11,7 +11,7 @@ clear
 
 % Set this to true to quickly process a single voxel (seconds), vs.
 % analyzing the entire V1 region (minutes)
-doOneVoxel = false;
+doOneVoxel = true;
 
 
 %% Variable declaration
@@ -40,12 +40,17 @@ tr = '0.8';
 
 polyDeg = '5';
 
-% The 
+% The
 hrfParams = '[0.8209, -0.3822, -0.2761]';
 
 % Flag to average the acquisitions together before computing pRF
 % parameters. This makes the operation faster.
 averageAcquisitions = '1';
+
+% Flag to average the voxels within the mask together. This would be an
+% unwise thing to do for pRF mapping, as the expectation is that the
+% response is non-uniform across voxels.
+averageVoxels = '0';
 
 
 %% Download the functional data
@@ -88,13 +93,13 @@ thisName = thisAnalysis.files{analysisFileMatchIdx}.name;
 saveName = fullfile(saveDir,thisName);
 
 % If the file has not already been downloaded, get it
-if ~exist(saveName,'file')    
+if ~exist(saveName,'file')
     % Inform the user
     fprintf(['Downloading: ' thisName '\n']);
     fprintf(['         to: ' saveDir '\n']);
     
     % Download the matching file to the rootSaveDir. This can take a while
-    fw.downloadOutputFromAnalysis(thisAnalysis.id,thisName,saveName);        
+    fw.downloadOutputFromAnalysis(thisAnalysis.id,thisName,saveName);
 end
 
 % The name to be passed to the wrapper
@@ -140,7 +145,7 @@ thisName = thisAnalysis.files{analysisFileMatchIdx}.name;
 saveName = fullfile(saveDir,thisName);
 
 % If the file has not already been downloaded, get it
-if ~exist(saveName,'file')    
+if ~exist(saveName,'file')
     % Inform the user
     fprintf(['Downloading: ' thisName '\n']);
     fprintf(['         to: ' saveDir '\n']);
@@ -172,7 +177,7 @@ end
 % Setup processing one or all voxels
 if doOneVoxel
     % Process one voxel that has a great fit
-    vxsPass = 52153;
+    vxsPass = [52153];
 else
     vxsPass = [];
 end
@@ -182,17 +187,17 @@ externalMGZMakerPath = fullfile(getpref('forwardModelWrapper','projectBaseDir'),
 
 % Assemble the modelOpts
 modelOpts = ['{' ...
-               ' ''pixelsPerDegree'',' pixelsPerDegree ',' ...
-               ' ''screenMagnification'',' screenMagnification ',' ...
-               ' ''hrfParams'',' hrfParams ',' ...
-               ' ''polyDeg'',' polyDeg ...
-               '}'];
+    ' ''pixelsPerDegree'',' pixelsPerDegree ',' ...
+    ' ''screenMagnification'',' screenMagnification ',' ...
+    ' ''hrfParams'',' hrfParams ',' ...
+    ' ''polyDeg'',' polyDeg ...
+    '}'];
 
 %% Call the main routine
-[hcpStructPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath] = ...
-    mainWrapper(funcZipPath,'Na','Na','Na','Na', stimFilePath, structZipPath, ...
+mainWrapper(funcZipPath,'Na','Na','Na','Na', stimFilePath, structZipPath, ...
     'maskFilePath',maskFilePath, ...
     'averageAcquisitions',averageAcquisitions, ...
+    'averageVoxels',averageVoxels, ...
     'tr',tr, ...
     'modelClass','prfTimeShift', ...
     'modelOpts',modelOpts, ...
