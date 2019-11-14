@@ -88,6 +88,7 @@ p.addParameter('trimDummyStimTRs', false, @islogical)
 p.addParameter('dataFileType', 'cifti', @isstr)
 p.addParameter('dataSourceType', 'icafix', @isstr)
 p.addParameter('averageAcquisitions', true, @islogical)
+p.addParameter('cleanUpZips', true, @islogical)
 
 % Parse
 p.parse(workbenchPath, funcZipPath, stimFilePath, varargin{:})
@@ -146,7 +147,10 @@ for jj=1:length(funcZipPath)
         cellfun(@(x) ~startsWith(x,'.'),extractfield(acquisitionList,'name')) ...
         );
     
-    % Remove the ICAFIX concat dir
+    % Find the ICAFIX concat dir
+    icaFixConcatDir = acquisitionList(cellfun(@(x) startsWith(x,'ICAFIX'),extractfield(acquisitionList,'name')));
+
+    % Remove the ICAFIX concat dir from the acquisition list
     acquisitionList = acquisitionList(...
         cellfun(@(x) ~startsWith(x,'ICAFIX'),extractfield(acquisitionList,'name')) ...
         );
@@ -154,8 +158,21 @@ for jj=1:length(funcZipPath)
     % Each entry left in funcZipPaths is a different fMRI acquisition
     nAcquisitions = length(acquisitionList);
     
+    % We want to respect the order of the acquisitions as they were given
+    % to ICAFIX, so that this order can be matched to the order of a
+    % stimulus array. To do so, we examine the name of the ICAFIX concat
+    % dir and determine the order in which the acquisitions are listed
+    for ii=1:nAcquisitions
+        namePos(ii) = strfind(icaFixConcatDir.name,acquisitionList(ii).name);
+    end    
+    [~,acqIdxOrder] = sort(namePos);
+    
     % Loop through the acquisitions
-    for ii = 1:nAcquisitions
+    for nn = 1:nAcquisitions
+        
+        % Load the acquisitions in the order that they are specified in the
+        % ICA fix file
+        ii = acqIdxOrder(nn);
         
         % The name of the acquisition, the loading, and the initial processing
         % varies for CIFIT and volumetric data
@@ -166,7 +183,7 @@ for jj=1:length(funcZipPath)
                 % Check if this is the first acquisition. If so, retain an
                 % example of the source data to be used as a template to format
                 % the output files.
-                if ii == 1
+                if nn == 1
                     templateImage = thisAcqData;
                 end
                 thisAcqData = thisAcqData.vol;
@@ -179,7 +196,7 @@ for jj=1:length(funcZipPath)
                 % Check if this is the first acquisition. If so, retain an
                 % example of the source data to be used as a template to format
                 % the output files.
-                if ii == 1
+                if nn == 1
                     templateImage = thisAcqData;
                     % Make the time dimension a singleton
                     templateImage.cdata = templateImage.cdata(:,1);
@@ -198,15 +215,17 @@ for jj=1:length(funcZipPath)
         
         % Alert the user
         if verbose
-            outputString = ['Read acquisition ' num2str(ii) ' of ' num2str(nAcquisitions) ' -- ' rawName '\n'];
+            outputString = ['Read acquisition ' num2str(nn) ' of ' num2str(nAcquisitions) ' -- ' rawName '\n'];
             fprintf(outputString)
         end
     end % Loop over acquisitions within a funcZip file
     
     % Delete the temporary directory that contains the unpacked zip
     % contents
-    command = ['rm -r ' zipDir];
-    system(command);
+    if p.Results.cleanUpZips
+        command = ['rm -r ' zipDir];
+        system(command);
+    end
     
 end % Loop over entries in funcZipPath
 
