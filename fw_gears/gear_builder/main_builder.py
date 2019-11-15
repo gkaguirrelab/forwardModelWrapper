@@ -1,7 +1,8 @@
 import os
 from compiler_functions import *
+import sys
 
-def main_builder(which_gear='bayesianfittinggear', path_to_matlab_doc='/home/ozzy/Documents/MATLAB/', gear_version):
+def main_builder(which_gear, path_to_matlab_doc, gear_version):
     
 ###################### Set some initial paths #################################
     
@@ -9,12 +10,19 @@ def main_builder(which_gear='bayesianfittinggear', path_to_matlab_doc='/home/ozz
     # using "fw login <API-key>"
     
     # which_gear = bayesianfittinggear or forwardmodelgear
+    # path_to_matlab_doc = path to your main MATLAB folder (usually in documents)
+    # gear_version = the version number you want to bump the gear
+    # test = Is whether you want to test the gear after building. Default n - false 
+    print("Make sure you pulled all changes")
     
-    cont = raw_input('The script renames your matlab startup file to nostartup.m for the compiling process and renames it again to discard the change at the end of the compiling process. Do you want to continue ? y/n')
+    cont = input('Starting the gear building process: Warning! This script renames your matlab startup file to nostartup.m for the compiling process and discard this change at the end of the compiling process. Do you want to continue ? y/n ')
     if cont == 'y':
         
         os.system('mv %s %s' % (os.path.join(path_to_matlab_doc, 'startup.m'), os.path.join(path_to_matlab_doc, 'nostartup.m')))
-        os.system('rm /home/ozzy/matlab/*')
+        
+        startuptwo = '/home/ozzy/matlab/'
+        if os.listdir(startuptwo) != []:
+            os.system('rm /home/ozzy/matlab/*')
         
     ################### Compile Require Matlab Functions ##########################
         
@@ -59,34 +67,41 @@ def main_builder(which_gear='bayesianfittinggear', path_to_matlab_doc='/home/ozz
                                                                    which_gear,
                                                                    gear_version))
         
-        os.system('cd %s; rm *' % mainfold)
+        if os.listdir(mainfold) != []:
+            os.system('cd %s; rm *' % mainfold)
         
         if which_gear == 'bayesianfittinggear':
-            print('\nWhen asked to chose a human readable name enter the following without the quotation marks:  "bayesPRF: template fitting of retinotopic maps using neuropythy"')
             print('\n')
-            print('When asked for a gear ID enter the following without the quotation marks:  "bayesprf"')
+            print('-- When asked to chose a human readable name enter the following without the quotation marks:  "bayesPRF: template fitting of retinotopic maps using neuropythy"')
+            print('\n')
+            print('-- When asked for a gear ID enter the following without the quotation marks:  "bayesprf"')
         
         if which_gear == 'forwardmodelgear':
-            print('When asked to chose a human readable name use the following without the quotation marks:  "forwardModel: non-linear fitting of models to fMRI data"')
             print('\n')
-            print('When asked for a gear ID enter the following without the quotation marks:  "forwardmodel"')
+            print('-- When asked to chose a human readable name use the following without the quotation marks:  "forwardModel: non-linear fitting of models to fMRI data"')
+            print('\n')
+            print('-- When asked for a gear ID enter the following without the quotation marks:  "forwardmodel"')
         
-        print('\nSelect Other for the third question and enter the following as the contianer:   gkaguirrelab/%s:%s'% (which_gear, gear_version))
+        print('\n-- Select Other for the third question and enter the following as the contianer:   "gkaguirrelab/%s:%s"'% (which_gear, gear_version))
          
         os.system('cd %s; fw gear create' % mainfold)
         
-        print('Do not forget the modify main gear json file')
-        
     ############################## Test ###########################################
-        
-        if test == True:
-            if which_gear == 'bayesianfittinggear':
-                os.system('cd %s; fw gear local --nativeMgzMaps /home/ozzy/Desktop/gear_test_files/TOME_3045_maps_nativeMGZ.zip --structZip /home/ozzy/Desktop/gear_test_files/TOME_3045_hcpstruct.zip' % mainfold)
-            if which_gear == 'forwardmodelgear':
-                os.system('cd %s; fw gear local --funcZip01 /home/ozzy/Desktop/gear_test_files/TOME_3045_ICAFIX_multi_tfMRI_RETINO_PA_run1_tfMRI_RETINO_PA_run2_tfMRI_RETINO_AP_run3_tfMRI_RETINO_AP_run4_hcpicafix.zip --stimFile /home/ozzy/Documents/MATLAB/projects/forwardModelWrapper/demo/pRFStimulus_108x108x420.mat --structZip /home/ozzy/Desktop/gear_test_files/helloTOME_3045_hcpstruct.zip --tr 0.8 --maskFile /home/ozzy/Desktop/gear_test_files/hello.dscalar.nii --averageAcquisitions 1' % mainfold)
-            
-        print('Do not forget the modify main gear json file. After the changes, cd into the main_gear folder and call fw gear upload.')
-    
+        cont2 = input('Make the json changes now (fix the version, author and suite fields). Make the run script changes if applicable. Press y to continue: y/n ')
+        if cont2 == 'y':  
+            cont4 = input('Do you want to test the gear (Only available on Ozzy\'s Linux machine): y/n ')
+            if cont4 == 'y':
+                if which_gear == 'bayesianfittinggear':
+                    os.system('cd %s; fw gear local --nativeMgzMaps /home/ozzy/Desktop/gear_test_files/TOME_3045_maps_nativeMGZ.zip --structZip /home/ozzy/Desktop/gear_test_files/TOME_3045_hcpstruct.zip' % mainfold)
+                if which_gear == 'forwardmodelgear':
+                    os.system('cd %s; fw gear local --funcZip01 /home/ozzy/Desktop/gear_test_files/TOME_3045_ICAFIX_multi_tfMRI_RETINO_PA_run1_tfMRI_RETINO_PA_run2_tfMRI_RETINO_AP_run3_tfMRI_RETINO_AP_run4_hcpicafix.zip --stimFile /home/ozzy/Documents/MATLAB/projects/forwardModelWrapper/demo/pRFStimulus_108x108x420.mat --structZip /home/ozzy/Desktop/gear_test_files/TOME_3045_hcpstruct.zip --tr 0.8 --maskFile /home/ozzy/Desktop/gear_test_files/masks/hello.dscalar.nii --averageAcquisitions 1' % mainfold)
+        cont4 = input('Make the final changes now if applicable (e.g fix the flywheel flag back to 1 if you changed it for a test. Press y to continue: y/n ')          
+        if cont4 == 'y':
+            uploadcall = input('Do you want to upload the gear? : y/n ')  
+            if uploadcall == 'y':
+                os.system('cd %s; fw gear upload' % mainfold)
+
     else:
         print("process stopped")
-    
+
+main_builder(*sys.argv[1:]) 
