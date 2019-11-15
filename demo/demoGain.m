@@ -16,6 +16,10 @@ projectName = 'forwardModelWrapper';
 scratchSaveDir = getpref(projectName,'flywheelScratchDir');
 subjectName = 'KAS25';
 
+% The type of HRF model to fit
+hrfType = '''gamma''';
+hrfSearch = 'false';
+
 % TR of the acquisition in seconds
 tr = '0.8';
 
@@ -160,7 +164,9 @@ externalMGZMakerPath = fullfile(getpref('forwardModelWrapper','projectBaseDir'),
 % Assemble the modelOpts
 modelOpts = ['{' ...
                ' ''typicalGain'',' typicalGain ',' ...
-               ' ''polyDeg'',' polyDeg ...
+               ' ''polyDeg'',' polyDeg ',' ...
+               ' ''hrfType'', ' hrfType ',' ...
+               ' ''hrfSearch'', ' hrfSearch ...
                '}'];
 
 %% Call the main routine
