@@ -99,8 +99,15 @@ function [hcpStructPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath] = main
 %                           option over-rides the mask input, and is used
 %                           exclusively by demo operations acting upon a
 %                           non-compiled version of the code.
-%  
-
+%
+% Outputs:
+%   hcpStructPath         - String.
+%   subjectName           - String.
+%   nativeSpaceDirPath    - String. Will be set to empty if there are no
+%                           maps to convert from native to CIFTI space.
+%   pseudoHemiDirPath     - String. Will be set to empty if there are no
+%                           maps to convert from native to CIFTI space.
+%
 
 %% Parse inputs
 p = inputParser; p.KeepUnmatched = false;
@@ -209,8 +216,13 @@ mapsPath = handleOutputs(...
     results, templateImage, p.Results.outPath, p.Results.Subject, ...
     p.Results.workbenchPath, 'dataFileType', p.Results.dataFileType);
 
-% If forwardModel didn't generate any maps, then we are done
+% If forwardModel didn't generate any maps, then we are done. Set return
+% variables to empty.
 if isempty(mapsPath)
+    hcpStructPath = '';
+    subjectName = '';
+    nativeSpaceDirPath = '';
+    pseudoHemiDirPath = '';
     return
 end
 
