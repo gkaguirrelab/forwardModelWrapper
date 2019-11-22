@@ -145,7 +145,7 @@ structZipPath = saveName;
 %% Additional settings
 
 % Required input
-stimFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','KAS25_sess1_acq1-5.mat');
+stimFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','KAS25_sess1_icafix1.mat');
 
 % Optional input
 maskFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','V1_combined_ecc_0_to_20.dscalar.nii');
