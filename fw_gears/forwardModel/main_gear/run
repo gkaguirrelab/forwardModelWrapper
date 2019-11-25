@@ -109,9 +109,9 @@ os.system(cmd)
 ################## Zip everything and output ##################################
 
 # Move mat, pdf and png files to the final output folder
-os.system('cd %s; mv %s %s/'%(first_output_dir, '*.mat', final_output_dir)) 
-os.system('cd %s; mv %s %s/'%(first_output_dir, '*.pdf', final_output_dir)) 
-os.system('cd %s; mv %s %s/'%(first_output_dir, '*.png', final_output_dir)) 
+for i in os.listdir(first_output_dir):
+    if os.path.splitext(i)[-1].lower() == '.mat' or os.path.splitext(i)[-1].lower() == '.pdf' or os.path.splitext(i)[-1].lower() == '.png':
+        os.system('mv %s %s/'%(os.path.join(first_output_dir, i), final_output_dir)) 
 
 # Zip and move the maps if they are there
 if os.path.exists((os.path.join(first_output_dir,'%s_maps_cifti' % subject_id))):
