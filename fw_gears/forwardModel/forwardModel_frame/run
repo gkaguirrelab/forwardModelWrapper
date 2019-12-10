@@ -15,6 +15,11 @@ func_zip_folder02 = os.path.join(flywheel_base, 'input/funcZip02')
 func_zip_folder03 = os.path.join(flywheel_base, 'input/funcZip03')
 func_zip_folder04 = os.path.join(flywheel_base, 'input/funcZip04')
 func_zip_folder05 = os.path.join(flywheel_base, 'input/funcZip05')
+func_zip_folder05 = os.path.join(flywheel_base, 'input/funcZip06')
+func_zip_folder05 = os.path.join(flywheel_base, 'input/funcZip07')
+func_zip_folder05 = os.path.join(flywheel_base, 'input/funcZip08')
+func_zip_folder05 = os.path.join(flywheel_base, 'input/funcZip09')
+func_zip_folder05 = os.path.join(flywheel_base, 'input/funcZip10')
 stim_file_folder = os.path.join(flywheel_base, 'input/stimFile')
 struct_zip_folder = os.path.join(flywheel_base, 'input/structZip')
 mask_file_folder = os.path.join(flywheel_base, 'input/maskFile')
@@ -42,6 +47,26 @@ if os.path.isdir(func_zip_folder05) == True:
     func_zip_path05 = os.path.join(func_zip_folder05, os.listdir(func_zip_folder05)[0])
 else:
     func_zip_path05 = 'Na'
+if os.path.isdir(func_zip_folder06) == True:    
+    func_zip_path06 = os.path.join(func_zip_folder06, os.listdir(func_zip_folder06)[0])
+else:
+    func_zip_path06 = 'Na'
+if os.path.isdir(func_zip_folder07) == True:    
+    func_zip_path07 = os.path.join(func_zip_folder07, os.listdir(func_zip_folder07)[0])
+else:
+    func_zip_path07 = 'Na'
+if os.path.isdir(func_zip_folder08) == True:    
+    func_zip_path08 = os.path.join(func_zip_folder08, os.listdir(func_zip_folder08)[0])
+else:
+    func_zip_path08 = 'Na'
+if os.path.isdir(func_zip_folder09) == True:    
+    func_zip_path09 = os.path.join(func_zip_folder09, os.listdir(func_zip_folder09)[0])
+else:
+    func_zip_path09 = 'Na'
+if os.path.isdir(func_zip_folder10) == True:    
+    func_zip_path10 = os.path.join(func_zip_folder10, os.listdir(func_zip_folder10)[0])
+else:
+    func_zip_path10 = 'Na'
 if os.path.isdir(mask_file_folder) == True:    
     mask_file_path = os.path.join(mask_file_folder, os.listdir(mask_file_folder)[0])
 else:

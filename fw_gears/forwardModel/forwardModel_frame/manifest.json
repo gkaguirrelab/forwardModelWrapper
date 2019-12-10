@@ -6,7 +6,7 @@
 	"maintainer": "Ozenc Taskin <huseyinozenc.taskin@pennmedicine.upenn.edu>",
 	"source": "https://github.com/gkaguirrelab/forwardModelWrapper",
 	"url": "https://github.com/gkaguirrelab/forwardmodel",
-	"version": "0.5.5",
+	"version": "0.5.8",
 	"custom": {
 		"flywheel": {
 			"suite": "GKAguirreLab"
@@ -97,6 +97,56 @@
 			}
 		},
 		"funcZip05": {
+			"description": "The output functional zip file of an ICA-FIX analysis.",
+			"base": "file",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZip06": {
+			"description": "The output functional zip file of an ICA-FIX analysis.",
+			"base": "file",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZip07": {
+			"description": "The output functional zip file of an ICA-FIX analysis.",
+			"base": "file",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZip08": {
+			"description": "The output functional zip file of an ICA-FIX analysis.",
+			"base": "file",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZip09": {
+			"description": "The output functional zip file of an ICA-FIX analysis.",
+			"base": "file",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZip10": {
 			"description": "The output functional zip file of an ICA-FIX analysis.",
 			"base": "file",
 			"optional": true,
