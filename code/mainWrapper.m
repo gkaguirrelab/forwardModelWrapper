@@ -263,36 +263,35 @@ if strcmp(p.Results.dataFileType,'cifti')
     if callErrorStatus
         warning('An error occurred during execution of the external Python function for map conversion');
     end
-end
-
-
-%% Save rh map images
-surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
-for mm = 1:length(results.meta.mapField)
-    dataPath = fullfile(nativeSpaceDirPath,['R_' p.Results.Subject '_' results.meta.mapField{mm} '_map.mgz']);
-    fig = makeSurfMap(dataPath,surfPath, ...
-        'mapScale',results.meta.mapScale{mm}, ...
-        'mapLabel',results.meta.mapLabel{mm}, ...
-        'mapBounds',results.meta.mapBounds{mm}, ...
-        'hemisphere','rh','visible',false);
-    plotFileName = fullfile(p.Results.outPath,['rh.' p.Results.Subject '_' results.meta.mapField{mm} '.png']);
-    print(fig,plotFileName,'-dpng')
-    close(fig);
-end
-
-%% Save lh map images
-surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
-for mm = 1:length(results.meta.mapField)
-    dataPath = fullfile(nativeSpaceDirPath,['L_' p.Results.Subject '_' results.meta.mapField{mm} '_map.mgz']);
-    fig = makeSurfMap(dataPath,surfPath, ...
-        'mapScale',results.meta.mapScale{mm}, ...
-        'mapLabel',results.meta.mapLabel{mm}, ...
-        'mapBounds',results.meta.mapBounds{mm}, ...
-        'hemisphere','lh','visible',false);
-    plotFileName = fullfile(p.Results.outPath,['lh.'  p.Results.Subject '_' results.meta.mapField{mm} '.png']);
-    print(fig,plotFileName,'-dpng')
-    close(fig);
-end
-
+    
+    % Save rh map images
+    surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
+    for mm = 1:length(results.meta.mapField)
+        dataPath = fullfile(nativeSpaceDirPath,['R_' p.Results.Subject '_' results.meta.mapField{mm} '_map.mgz']);
+        fig = makeSurfMap(dataPath,surfPath, ...
+            'mapScale',results.meta.mapScale{mm}, ...
+            'mapLabel',results.meta.mapLabel{mm}, ...
+            'mapBounds',results.meta.mapBounds{mm}, ...
+            'hemisphere','rh','visible',false);
+        plotFileName = fullfile(p.Results.outPath,['rh.' p.Results.Subject '_' results.meta.mapField{mm} '.png']);
+        print(fig,plotFileName,'-dpng')
+        close(fig);
+    end
+    
+    % Save lh map images
+    surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
+    for mm = 1:length(results.meta.mapField)
+        dataPath = fullfile(nativeSpaceDirPath,['L_' p.Results.Subject '_' results.meta.mapField{mm} '_map.mgz']);
+        fig = makeSurfMap(dataPath,surfPath, ...
+            'mapScale',results.meta.mapScale{mm}, ...
+            'mapLabel',results.meta.mapLabel{mm}, ...
+            'mapBounds',results.meta.mapBounds{mm}, ...
+            'hemisphere','lh','visible',false);
+        plotFileName = fullfile(p.Results.outPath,['lh.'  p.Results.Subject '_' results.meta.mapField{mm} '.png']);
+        print(fig,plotFileName,'-dpng')
+        close(fig);
+    end
+    
+end % Handle CIFTI maps
 
 end % Main function
