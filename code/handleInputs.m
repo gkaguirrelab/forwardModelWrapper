@@ -109,9 +109,6 @@ for jj=1:length(funcZipPath)
         error('handleInputs:notAZip','fMRI data should be passed as the path to a zip archive');
     end
 end
-if ~strcmp(p.Results.dataSourceType,{'icafix','ldog'})
-    error('handleInputs:invalidDataSourceType','Not a valid data source type');
-end
 
 
 %% Loop over entries in funcZipPath
@@ -169,15 +166,15 @@ for jj=1:length(funcZipPath)
             end
             [~,acqIdxOrder] = sort(namePos);
             
-        case 'ldog'
+        case {'ldogfix','ldogFix'}
             
-            % The ldogFunc gear saves the acquisitions in a shallow
+            % The ldogFix gear saves the acquisitions in a shallow
             % directory structure
-            acquisitionList = dir(fullfile(zipDir,'*.nii.gz'));
+            acquisitionList = dir(fullfile(zipDir,'*','*.nii.gz'));
             
             % Some housekeeping variables
-            acqIdxOrder(jj) = jj;
-            nAcquisitions = 1;            
+           nAcquisitions = length(acquisitionList);            
+           acqIdxOrder = 1:nAcquisitions;
             
     end
     
@@ -197,7 +194,7 @@ for jj=1:length(funcZipPath)
                     case 'cifti'
                         rawName = strcat(acquisitionList(ii).folder, filesep, acquisitionList(ii).name,filesep, acquisitionList(ii).name, '_', 'Atlas_hp2000_clean.dtseries.nii');
                 end
-            case 'ldog'
+            case {'ldogfix','ldogFix'}
                 rawName = fullfile(acquisitionList(ii).folder,acquisitionList(ii).name);
         end
         
