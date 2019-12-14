@@ -20,12 +20,12 @@ scratchSaveDir = getpref(projectName,'flywheelScratchDir');
 subjectName = 'N292';
 
 % TR of the acquisition in seconds
-tr = '0.8';
+tr = '3.0';
 
 % The typical amplitude of the BOLD fMRI response
 typicalGain = '300';
 
-polyDeg = '13';
+polyDeg = '[]';
 
 % Flag to average the acquisitions together before computing pRF
 % parameters. This makes the operation faster.
@@ -142,10 +142,10 @@ structZipPath = saveName;
 %% Additional settings
 
 % Required input
-stimFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','flashStimulus_1x1x450.mat');
+stimFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','N292_lightFluxFlicker_1x112.mat');
 
 % Optional input
-maskFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','lh.V1mask.dscalar.nii');
+maskFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','ldogMask.nii.gz');
 
 % Internal paths
 workbenchPath = getpref(projectName,'wbCommand');

@@ -30,7 +30,7 @@ p = inputParser; p.KeepUnmatched = true;
 
 % Required
 p.addRequired('results', @isstruct);
-p.addRequired('templateImage', @(x)(isobject(x) | isnumeric(x)));
+p.addRequired('templateImage', @(x)(isobject(x) | isstruct(x) | isnumeric(x)));
 p.addRequired('outPath', @isstr);
 p.addRequired('Subject', @isstr);
 p.addRequired('workbenchPath', @isstr);
@@ -72,7 +72,7 @@ else
     % dimensions defined by the templateImage
     fieldsToSave = results.meta.mapField;
     if strcmp(p.Results.dataFileType,'volumetric')
-        sizer = size(templateImage);
+        sizer = size(templateImage.vol);
         for ii = 1:length(fieldsToSave)
             results.(fieldsToSave{ii}) = ...
                 reshape(results.(fieldsToSave{ii}),[sizer(1:end-1) 1]);
