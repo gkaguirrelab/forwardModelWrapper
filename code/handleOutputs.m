@@ -91,6 +91,7 @@ else
         switch p.Results.dataFileType
             case 'volumetric'
                 fileName = fullfile(mapOutDirName,[Subject '_' fieldsToSave{ii} '_map.nii.gz']);
+                outData = templateImage;
                 outData.vol = results.(fieldsToSave{ii});
                 outData.nframes = 1;
                 MRIwrite(outData, fileName);
