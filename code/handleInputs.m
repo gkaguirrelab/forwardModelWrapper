@@ -303,8 +303,15 @@ end
 if ~iscell(stimulus)
     stimulus = {stimulus};
 end
+
+% Place the stimTime into cell format if not already there.
 if ~iscell(stimTime)
     stimTime = {stimTime};
+end
+
+% Force all stimulus entries to be of type double
+for ii = 1:length(stimulus)
+    stimulus{ii}=double(stimulus{ii});
 end
 
 % Check the compatability of stimulus and data lengths
