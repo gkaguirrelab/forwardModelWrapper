@@ -62,9 +62,8 @@ end
 %% If we have maps, save them
 
 if ~isfield(results.meta,'mapField')
-    
-    mapOutDirName = [];
-    
+    % No maps
+    mapOutDirName = [];    
 else
     
     %% Reshape the parameters
