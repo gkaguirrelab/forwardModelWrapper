@@ -109,9 +109,6 @@ for jj=1:length(funcZipPath)
         error('handleInputs:notAZip','fMRI data should be passed as the path to a zip archive');
     end
 end
-if ~strcmp(p.Results.dataSourceType,'icafix')
-    error('handleInputs:notICAFIX','We have only implemented processing of ICAFIX archives so far');
-end
 
 
 %% Loop over entries in funcZipPath
@@ -133,52 +130,77 @@ for jj=1:length(funcZipPath)
     command = ['unzip -q -n ' funcZipPath{jj} ' -d ' zipDir];
     system(command);
     
-    % Find the files
-    
-    % The ICA-FIX gear saves the output data within the MNINonLinear dir
-    acquisitionList = dir(fullfile(zipDir,'*','MNINonLinear','Results'));
-    
-    % Remove the entries returned by dir that are
-    acquisitionList = acquisitionList(~ismember({acquisitionList.name},{'.','..'}));
-    
-    % Remove any entries that have a dot prefix, including the dir itself and the
-    % enclosing dir
-    acquisitionList = acquisitionList(...
-        cellfun(@(x) ~startsWith(x,'.'),extractfield(acquisitionList,'name')) ...
-        );
-    
-    % Find the ICAFIX concat dir
-    icaFixConcatDir = acquisitionList(cellfun(@(x) startsWith(x,'ICAFIX'),extractfield(acquisitionList,'name')));
-
-    % Remove the ICAFIX concat dir from the acquisition list
-    acquisitionList = acquisitionList(...
-        cellfun(@(x) ~startsWith(x,'ICAFIX'),extractfield(acquisitionList,'name')) ...
-        );
-    
-    % Each entry left in funcZipPaths is a different fMRI acquisition
-    nAcquisitions = length(acquisitionList);
-    
-    % We want to respect the order of the acquisitions as they were given
-    % to ICAFIX, so that this order can be matched to the order of a
-    % stimulus array. To do so, we examine the name of the ICAFIX concat
-    % dir and determine the order in which the acquisitions are listed
-    for ii=1:nAcquisitions
-        namePos(ii) = strfind(icaFixConcatDir.name,acquisitionList(ii).name);
-    end    
-    [~,acqIdxOrder] = sort(namePos);
+    % Find the files, which vary in name and location by dataSourceType
+    switch p.Results.dataSourceType
+        case 'icafix'
+            
+            % The ICA-FIX gear saves the output data within the MNINonLinear dir
+            acquisitionList = dir(fullfile(zipDir,'*','MNINonLinear','Results'));
+            
+            % Remove the entries returned by dir that are
+            acquisitionList = acquisitionList(~ismember({acquisitionList.name},{'.','..'}));
+            
+            % Remove any entries that have a dot prefix, including the dir itself and the
+            % enclosing dir
+            acquisitionList = acquisitionList(...
+                cellfun(@(x) ~startsWith(x,'.'),extractfield(acquisitionList,'name')) ...
+                );
+            
+            % Find the ICAFIX concat dir
+            icaFixConcatDir = acquisitionList(cellfun(@(x) startsWith(x,'ICAFIX'),extractfield(acquisitionList,'name')));
+            
+            % Remove the ICAFIX concat dir from the acquisition list
+            acquisitionList = acquisitionList(...
+                cellfun(@(x) ~startsWith(x,'ICAFIX'),extractfield(acquisitionList,'name')) ...
+                );
+            
+            % Each entry left in funcZipPaths is a different fMRI acquisition
+            nAcquisitions = length(acquisitionList);
+            
+            % We want to respect the order of the acquisitions as they were given
+            % to ICAFIX, so that this order can be matched to the order of a
+            % stimulus array. To do so, we examine the name of the ICAFIX concat
+            % dir and determine the order in which the acquisitions are listed
+            for ii=1:nAcquisitions
+                namePos(ii) = strfind(icaFixConcatDir.name,acquisitionList(ii).name);
+            end
+            [~,acqIdxOrder] = sort(namePos);
+            
+        case {'ldogfix','ldogFix'}
+            
+            % The ldogFix gear saves the acquisitions in a shallow
+            % directory structure
+            acquisitionList = dir(fullfile(zipDir,'*','*.nii.gz'));
+            
+            % Some housekeeping variables
+           nAcquisitions = length(acquisitionList);            
+           acqIdxOrder = 1:nAcquisitions;
+            
+    end
     
     % Loop through the acquisitions
     for nn = 1:nAcquisitions
         
-        % Load the acquisitions in the order that they are specified in the
-        % ICA fix file
+        % Load the acquisitions in the specified order (this is mostly
+        % relevant for ICAFIX outputs)
         ii = acqIdxOrder(nn);
         
-        % The name of the acquisition, the loading, and the initial processing
-        % varies for CIFIT and volumetric data
+        % Get the name of the acquisition
+        switch p.Results.dataSourceType
+            case 'icafix'
+                switch p.Results.dataFileType
+                    case 'volumetric'
+                        rawName = strcat(acquisitionList(ii).folder, filesep, acquisitionList(ii).name, filesep, acquisitionList(ii).name, '_', 'hp2000_clean.nii.gz');
+                    case 'cifti'
+                        rawName = strcat(acquisitionList(ii).folder, filesep, acquisitionList(ii).name,filesep, acquisitionList(ii).name, '_', 'Atlas_hp2000_clean.dtseries.nii');
+                end
+            case {'ldogfix','ldogFix'}
+                rawName = fullfile(acquisitionList(ii).folder,acquisitionList(ii).name);
+        end
+        
+        % Load the data, dependent upon dataFileType
         switch p.Results.dataFileType
             case 'volumetric'
-                rawName = strcat(acquisitionList(ii).folder, filesep, acquisitionList(ii).name, filesep, acquisitionList(ii).name, '_', 'hp2000_clean.nii.gz');
                 thisAcqData = MRIread(rawName);
                 % Check if this is the first acquisition. If so, retain an
                 % example of the source data to be used as a template to format
@@ -188,10 +210,9 @@ for jj=1:length(funcZipPath)
                 end
                 thisAcqData = thisAcqData.vol;
                 thisAcqData = single(thisAcqData);
-                thisAcqData = reshape(thisAcqData, [size(thisAcqData',1)*size(thisAcqData',2)*size(thisAcqData',3), size(thisAcqData',4)]);
+                thisAcqData = reshape(thisAcqData, [size(thisAcqData,1)*size(thisAcqData,2)*size(thisAcqData,3), size(thisAcqData,4)]);
                 thisAcqData(isnan(thisAcqData)) = 0;
             case 'cifti'
-                rawName = strcat(acquisitionList(ii).folder, filesep, acquisitionList(ii).name,filesep, acquisitionList(ii).name, '_', 'Atlas_hp2000_clean.dtseries.nii');
                 thisAcqData = ciftiopen(rawName, workbenchPath);
                 % Check if this is the first acquisition. If so, retain an
                 % example of the source data to be used as a template to format
@@ -204,7 +225,7 @@ for jj=1:length(funcZipPath)
                 thisAcqData = thisAcqData.cdata;
             otherwise
                 errorString = [p.Results.dataFileType ' is not a recognized dataFileType for this routine. Try, cifti or volumetric'];
-                error('handleInputs:notICAFIX', errorString);
+                error('handleInputs:invalidDataFileType', errorString);
         end
         
         % Increment the total number of acquisitions
@@ -282,8 +303,15 @@ end
 if ~iscell(stimulus)
     stimulus = {stimulus};
 end
+
+% Place the stimTime into cell format if not already there.
 if ~iscell(stimTime)
     stimTime = {stimTime};
+end
+
+% Force all stimulus entries to be of type double
+for ii = 1:length(stimulus)
+    stimulus{ii}=double(stimulus{ii});
 end
 
 % Check the compatability of stimulus and data lengths
