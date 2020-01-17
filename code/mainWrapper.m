@@ -30,15 +30,12 @@ function [hcpStructPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath] = main
 %  'payloadPath'          - String. Path to a .mat file that contains a
 %                           cell array of variables to be passed to the
 %                           model within forwardModel. Optional.
-%  'dataFileType'         - String. Form of the data. While there is some
-%                           code framework for "volumetric" nifit files,
-%                           only the "cifti" format has been carefully
-%                           tested as of November 1, 2019.
+%  'dataFileType'         - String. Form of the data. {"volumetric",
+%                           "cifti"}.
 %  'Subject'              - String. The subject name or ID to be used to 
 %                           label output files.
 %  'dataSourceType'       - String. The type of gear that produced the fMRI
-%                           data to be input. Only "icafix" is currently
-%                           supported as of November 1, 2019.
+%                           data to be input. {"icafix","ldogfix"}.
 %  'trimDummyStimTRs'     - String. Valid values of 1 or 0. If set to 1, 
 %                           any mismatch in temporal support between the
 %                           stimuli and data is handled by removing
@@ -144,6 +141,9 @@ p.addParameter('averageVoxels', '0', @isstr)
 p.addParameter('externalMGZMakerPath', [], @isstr)
 p.addParameter('RegName', 'FS', @isstr)
 
+% Config options - make volumetric map gifs
+p.addParameter('externalMapGifMakerPath', [], @isstr)
+
 % Internal paths
 p.addParameter('workbenchPath', '', @isstr);
 p.addParameter('outPath', '', @isstr);
@@ -226,11 +226,48 @@ if isempty(mapsPath)
     return
 end
 
-%% Convert to MGZ
+%% Save maps
+
+
+% Create gifs of the volumetric maps
+if strcmp(p.Results.dataFileType,'volumetric')
+
+    % Uncompress the structZip into the dir that holds the zip. We do this
+    % with a system call so that we can prevent over-writing a prior unzipped
+    % version of the data (which can happen in demo mode).
+    command = ['unzip -q -n ' structZipPath ' -d ' fileparts(structZipPath)];
+    system(command);
+    fileList = dir(fileparts(structZipPath));
+    fileList = fileList(...
+        cellfun(@(x) ~startsWith(x,'.'),extractfield(fileList,'name')) ...
+        );
+    fileList = fileList(cell2mat(extractfield(fileList,'isdir')));
+    
+    % Next steps depend on the dataSourceType
+    switch p.Results.dataSourceType
+        case 'ldogfix'
+            % The anatomical image to be displayed is the in-vivo canine
+            % template brain
+            
+            
+            for mm = 1:length(results.meta.mapField)
+                dataPath = fullfile(mapsPath,[p.Results.Subject '_maps_volumetric'],[p.Results.Subject '_' results.meta.mapField{mm} '_nii.gz']);
+                command =  ['python3 ' p.Results.externalMapGifMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath ' ' p.Results.Subject];
+                callErrorStatus = system(command);
+                if callErrorStatus
+                    warning('An error occurred during execution of the external Python function for map conversion');
+                end
+                
+            end
+    end
+    
+end
+
+
+
 % If we are working with CIFTI files, convert the resulting maps to
 % native-space MGZ images. These files can then serve as input to the
 % neuropythy Bayesian fitting routine.
-
 if strcmp(p.Results.dataFileType,'cifti')
     % Uncompress the structZip into the dir that holds the zip. We do this
     % with a system call so that we can prevent over-writing a prior unzipped
