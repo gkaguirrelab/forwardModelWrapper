@@ -142,7 +142,7 @@ p.addParameter('externalMGZMakerPath', [], @isstr)
 p.addParameter('RegName', 'FS', @isstr)
 
 % Config options - make volumetric map gifs
-p.addParameter('externalMapGifMakerPath', [], @isstr)
+p.addParameter('externalMapGifMakerPath', '/Users/aguirre/Documents/MATLAB/projects/forwardModelWrapper/code/plot_maps.py', @isstr)
 
 % Internal paths
 p.addParameter('workbenchPath', '', @isstr);
@@ -237,22 +237,18 @@ if strcmp(p.Results.dataFileType,'volumetric')
     % version of the data (which can happen in demo mode).
     command = ['unzip -q -n ' structZipPath ' -d ' fileparts(structZipPath)];
     system(command);
-    fileList = dir(fileparts(structZipPath));
-    fileList = fileList(...
-        cellfun(@(x) ~startsWith(x,'.'),extractfield(fileList,'name')) ...
-        );
-    fileList = fileList(cell2mat(extractfield(fileList,'isdir')));
     
     % Next steps depend on the dataSourceType
     switch p.Results.dataSourceType
         case 'ldogfix'
             % The anatomical image to be displayed is the in-vivo canine
             % template brain
-            
-            
+            displayAnat = fullfile(fileparts(structZipPath),'Atlas','invivo','2x2x2resampled_invivoTemplate.nii.gz');
+            threshold = '0.1'; 
             for mm = 1:length(results.meta.mapField)
-                dataPath = fullfile(mapsPath,[p.Results.Subject '_maps_volumetric'],[p.Results.Subject '_' results.meta.mapField{mm} '_nii.gz']);
-                command =  ['python3 ' p.Results.externalMapGifMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath ' ' p.Results.Subject];
+                mapPath = fullfile(mapsPath,[p.Results.Subject '_' results.meta.mapField{mm} '_map.nii.gz']);
+                gifOutStemName = [p.Results.Subject '_' results.meta.mapField{mm} '_statMap'];
+                command =  ['python3 ' p.Results.externalMapGifMakerPath ' ' displayAnat ' ' mapPath ' ' threshold ' ' gifOutStemName ' ' p.Results.outPath];
                 callErrorStatus = system(command);
                 if callErrorStatus
                     warning('An error occurred during execution of the external Python function for map conversion');
