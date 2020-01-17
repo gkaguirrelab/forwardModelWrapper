@@ -91,7 +91,7 @@ end
 
 % Make sure that numpy and neuropythy are present
 fprintf('Installing neuropythy\n');
-command = 'pip install neuropythy > /dev/null';
+command = 'pip install imageio neuropythy > /dev/null';
 system(command);
 
 end
