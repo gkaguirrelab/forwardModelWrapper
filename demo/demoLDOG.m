@@ -140,7 +140,7 @@ structZipPath = saveName;
 %% Additional settings
 
 % Required input
-stimFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','N292_lightFluxFlicker_1x112.mat');
+stimFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','lightFluxFlicker_1x112_On=1.mat');
 
 % Optional input
 maskFilePath = fullfile(getpref(projectName,'projectBaseDir'),'demo','ldogMask.nii.gz');
