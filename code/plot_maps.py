@@ -64,7 +64,7 @@ def plot_maps(template_path, map_path, threshold, stem_name, output):
     image_names = sorted(image_names, key=natural_key)
     for image in image_names:
         images.append(imageio.imread(os.path.join(saggital_temp, image)))
-    imageio.mimsave('/%s/%s_%s.gif' % (output, stem_name, '_saggital_plots'), images, duration=0.35) 
+    imageio.mimsave('/%s/%s_%s.gif' % (output, stem_name, 'saggital_plots'), images, duration=0.35) 
         
     images = []
     image_names = []
@@ -73,7 +73,7 @@ def plot_maps(template_path, map_path, threshold, stem_name, output):
     image_names = sorted(image_names, key=natural_key)
     for image in image_names:
         images.append(imageio.imread(os.path.join(axial_temp, image)))
-    imageio.mimsave('/%s/%s_%s.gif' % (output, stem_name, '_axial_plots'), images, duration=0.35)  
+    imageio.mimsave('/%s/%s_%s.gif' % (output, stem_name, 'axial_plots'), images, duration=0.35)  
 
     images = []
     image_names = []
@@ -82,7 +82,7 @@ def plot_maps(template_path, map_path, threshold, stem_name, output):
     image_names = sorted(image_names, key=natural_key)
     for image in image_names:
         images.append(imageio.imread(os.path.join(coronal_temp, image)))
-    imageio.mimsave('/%s/%s_%s.gif' % (output, stem_name, '_coronal_plots'), images, duration=0.35)    
+    imageio.mimsave('/%s/%s_%s.gif' % (output, stem_name, 'coronal_plots'), images, duration=0.35)    
     
     os.system('rm -r %s' % saggital_temp)
     os.system('rm -r %s' % coronal_temp)
