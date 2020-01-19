@@ -6,7 +6,7 @@
 	"maintainer": "Ozenc Taskin <huseyinozenc.taskin@pennmedicine.upenn.edu>",
 	"source": "https://github.com/gkaguirrelab/forwardModelWrapper",
 	"url": "https://github.com/gkaguirrelab/forwardmodel",
-	"version": "0.5.8",
+	"version": "0.5.9",
 	"custom": {
 		"flywheel": {
 			"suite": "GKAguirreLab"
