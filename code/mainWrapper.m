@@ -1,4 +1,7 @@
-function [hcpStructPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath] = mainWrapper(funcZipPath01, funcZipPath02, funcZipPath03, funcZipPath04, funcZipPath05, stimFilePath, structZipPath, varargin)
+function [hcpStructPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath] = mainWrapper( ...
+    funcZipPath01, funcZipPath02, funcZipPath03, funcZipPath04, ...
+    funcZipPath05, funcZipPath06, funcZipPath07, funcZipPath08, ...
+    funcZipPath09, funcZipPath10, stimFilePath, structZipPath, varargin)
 % Wrapper function for forwardModel, designed to used within Flywheel
 %
 % Syntax:
@@ -15,7 +18,7 @@ function [hcpStructPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath] = main
 %   funcZipPath01,02,...  - String. Path to zip files that contain the
 %                           fMRI data to be analyzed. These zip files are
 %                           typically the output of the hcp-icafix or
-%                           hcp-func gears. All five inputs are required,
+%                           hcp-func gears. All ten inputs are required,
 %                           although 'Na' can be passed.
 %   stimFilePath          - String. Path to a .mat file that contains the
 %                           stimulus description.
