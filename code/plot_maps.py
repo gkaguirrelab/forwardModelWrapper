@@ -5,6 +5,8 @@ import numpy as np
 import imageio
 import re 
 import sys
+import warnings
+warnings.filterwarnings("ignore")
 
 def plot_maps(template_path, map_path, threshold, stem_name, output):
     
@@ -89,3 +91,4 @@ def plot_maps(template_path, map_path, threshold, stem_name, output):
     os.system('rm -r %s' % axial_temp)
     
 plot_maps(*sys.argv[1:])   
+    
