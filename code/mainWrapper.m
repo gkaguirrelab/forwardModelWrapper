@@ -115,6 +115,11 @@ p.addRequired('funcZipPath02',@isstr);
 p.addRequired('funcZipPath03',@isstr);
 p.addRequired('funcZipPath04',@isstr);
 p.addRequired('funcZipPath05',@isstr);
+p.addRequired('funcZipPath06',@isstr);
+p.addRequired('funcZipPath07',@isstr);
+p.addRequired('funcZipPath08',@isstr);
+p.addRequired('funcZipPath09',@isstr);
+p.addRequired('funcZipPath10',@isstr);
 p.addRequired('stimFilePath',@isstr);
 p.addRequired('structZipPath',@isstr);
 
@@ -156,12 +161,15 @@ p.addParameter('vxsPass', [], @isnumeric)
 
 
 % Parse
-p.parse(funcZipPath01, funcZipPath02, funcZipPath03, funcZipPath04, funcZipPath05, stimFilePath, structZipPath, varargin{:})
+p.parse(funcZipPath01, funcZipPath02, funcZipPath03, funcZipPath04, ...
+    funcZipPath05, funcZipPath06, funcZipPath07, funcZipPath08, ...
+    funcZipPath09, funcZipPath10, stimFilePath, structZipPath, varargin{:})
 
 
 %% Assemble the funcZipPaths into a cell array
-funcZipPath = {funcZipPath01, funcZipPath02, funcZipPath03, funcZipPath04, funcZipPath05};
-
+funcZipPath = {funcZipPath01, funcZipPath02, funcZipPath03, ...
+    funcZipPath04, funcZipPath05, funcZipPath06, funcZipPath07, ...
+    funcZipPath08, funcZipPath09, funcZipPath10 };
 
 %% Parse the modelOpts string
 % modelOpts may be passed in with parens substituted for single quotes. We
