@@ -52,7 +52,7 @@ def compile_forwardModel(path_to_matlab_documents='/home/ozzy/Documents/MATLAB/'
     os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/handleOutputs.m'),
     os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/makeSurfMap.m'),
     os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/startParpool.m'),
-    os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/renderInferredMaps.m'),
+    os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/bayesPRF/renderInferredMaps.m'),
     os.path.join(path_to_matlab_documents,'toolboxes/forwardModel/'),
     os.path.join(path_to_matlab_documents,'toolboxes/HCPpipelines/global/matlab/'),
     os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/utilities/'),    
