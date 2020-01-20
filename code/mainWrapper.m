@@ -248,6 +248,7 @@ if strcmp(p.Results.dataFileType,'volumetric')
     % version of the data (which can happen in demo mode).
     command = ['unzip -q -n ' structZipPath ' -d ' fileparts(structZipPath)];
     system(command);
+    structDirPath = fileparts(structZipPath);
     
     % Next steps depend on the dataSourceType
     switch p.Results.dataSourceType
@@ -289,7 +290,6 @@ if strcmp(p.Results.dataFileType,'cifti')
     % version of the data (which can happen in demo mode).
     command = ['unzip -q -n ' structZipPath ' -d ' fileparts(structZipPath)];
     system(command);
-    structDirPath = fileparts(structZipPath);
     
     % Find the directory that is produced by this unzip operation
     fileList = dir(fileparts(structZipPath));
