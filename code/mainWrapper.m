@@ -259,6 +259,7 @@ if strcmp(p.Results.dataFileType,'volumetric')
             % some early runs of the ldogStruct gear), just use the
             % template volume as the display anatomy.
             if ~isfile(displayAnat)
+                displayAnat = fullfile(tempdir,'2x2x2resampled_invivoTemplate.nii.gz');
                 MRIwrite(templateImage,displayAnat)
             end
             threshold = '0.1';
