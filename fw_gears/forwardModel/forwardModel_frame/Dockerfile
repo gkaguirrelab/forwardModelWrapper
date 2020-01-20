@@ -14,6 +14,7 @@ COPY func_input/ /opt/func_input
 COPY flywheel.mlsettings /usr/flywheel.mlsettings
 RUN chmod +x /flywheel/v0/run
 RUN chmod +x /opt/func_input/*          
+RUN pip install matplotlib nibabel numpy imageio
 
 # Set the entrypoint  
 ENTRYPOINT /flywheel/v0/run
