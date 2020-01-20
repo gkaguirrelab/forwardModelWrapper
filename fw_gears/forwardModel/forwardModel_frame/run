@@ -84,7 +84,8 @@ first_output_dir = '/firstOutput'
 final_output_dir = os.path.join(flywheel_base, 'output')
 mcr_path = '/usr/local/MATLAB/MATLAB_Runtime/v97' #path to MATLAB runtime
 workbench_path = '/usr/bin/wb_command'
-path_to_python_func = '/opt/make_fsaverage.py'
+externalMGZMakerPath = '/opt/make_fsaverage.py'
+externalMapGifMakerPath = '/opt/plot_maps.py'
 
 os.system('mkdir %s'%first_output_dir)
 ###################Parse Config Here############################
@@ -102,46 +103,61 @@ modelClass = config['modelClass']
 averageVoxels = config['averageVoxels']
 modelOpts = '{' + config['modelOpts'] + '}'
 
-# Create a folder for hcpstruct config
-hcpconfpath = '/opt/hcpconf'
-os.system('mkdir %s' % hcpconfpath)
-
-# Extract the hcp config into the configfolder
-os.system('unzip -j %s \'*/*.json\' -d %s' % (struct_zip_path, hcpconfpath))
-
-hcpconfig = os.path.join(hcpconfpath, os.listdir(hcpconfpath)[0])
-with open(hcpconfig) as hcpconf:
-    job_config2 = json.load(hcpconf)
-config2 = job_config2['config']
-
-subject_id = config2['Subject']
-RegName = config2['RegName']
-
+if dataSourceType == 'icafix':
+    # Create a folder for hcpstruct config
+    hcpconfpath = '/opt/hcpconf'
+    os.system('mkdir %s' % hcpconfpath)
+    
+    # Extract the hcp config into the configfolder
+    os.system('unzip -j %s \'*/*.json\' -d %s' % (struct_zip_path, hcpconfpath))
+    
+    hcpconfig = os.path.join(hcpconfpath, os.listdir(hcpconfpath)[0])
+    with open(hcpconfig) as hcpconf:
+        job_config2 = json.load(hcpconf)
+    config2 = job_config2['config']
+    
+    subject_id = config2['Subject']
+    RegName = config2['RegName']
+elif dataSourceType == 'ldogfix': 
+    # Create a folder for ldog subject file
+    subjecttext = '/tmp/subjectPathFolder'
+    os.system('mkdir %s' % subjecttext)
+    os.system('unzip -j %s \'subject_id.txt\' -d %s' % (struct_zip_path, subjecttext))
+    textfile = os.path.join(subjecttext, os.listdir(subjecttext)[0])
+    with open (textfile, 'r') as idfile:
+        subject_id = idfile.readlines()[0]
+    RegName = 'Na'
 ###################Run Algorithm################################
     
-cmd = """%s %s -mcruserdata ParallelProfile:/usr/flywheel.mlsettings '%s' '%s' '%s' '%s' '%s' '%s' '%s' 'maskFilePath' '%s' \
+cmd = """%s %s -mcruserdata ParallelProfile:/usr/flywheel.mlsettings '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' 'maskFilePath' '%s' \
 'payloadPath' '%s' 'dataFileType' '%s' 'dataSourceType' '%s' \
 'trimDummyStimTRs' '%s' 'averageAcquisitions' '%s' 'tr' '%s' \
 'externalMGZMakerPath' '%s' 'RegName' '%s' 'modelClass' '%s' 'modelOpts' '%s' \
-'workbenchPath' '%s' 'outPath' '%s' 'flywheelFlag' '1' 'Subject' '%s' 'averageVoxels' '%s'""" % (matlab_func, mcr_path, func_zip_path01, 
-func_zip_path02, func_zip_path03, func_zip_path04, func_zip_path05, 
+'workbenchPath' '%s' 'outPath' '%s' 'flywheelFlag' '1' 'Subject' '%s' 'averageVoxels' '%s' externalMapGifMakerPath '%s'""" % (matlab_func, mcr_path, func_zip_path01, 
+func_zip_path02, func_zip_path03, func_zip_path04, func_zip_path05, func_zip_path06,
+func_zip_path07, func_zip_path08, func_zip_path09, func_zip_path10,
 stim_file_path, struct_zip_path, mask_file_path, payload_file_path, dataFileType, 
-dataSourceType, trimDummyStimTRs, averageAcquisitions, tr, path_to_python_func, 
-RegName, modelClass, modelOpts, workbench_path, first_output_dir, subject_id, averageVoxels)
+dataSourceType, trimDummyStimTRs, averageAcquisitions, tr, externalMGZMakerPath, 
+RegName, modelClass, modelOpts, workbench_path, first_output_dir, subject_id, averageVoxels, externalMapGifMakerPath)
 
 os.system(cmd)        
 
 ################## Zip everything and output ##################################
-
-# Move mat, pdf and png files to the final output folder
-for i in os.listdir(first_output_dir):
-    if os.path.splitext(i)[-1].lower() == '.mat' or os.path.splitext(i)[-1].lower() == '.pdf' or os.path.splitext(i)[-1].lower() == '.png':
-        os.system('mv %s %s/'%(os.path.join(first_output_dir, i), final_output_dir)) 
-
-# Zip and move the maps if they are there
-if os.path.exists((os.path.join(first_output_dir,'%s_maps_cifti' % subject_id))):
-    os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'%s_maps_cifti' % subject_id), os.path.join(final_output_dir,'%s_maps_cifti.zip' % subject_id)))
-if os.path.exists((os.path.join(first_output_dir,'%s_maps_nativeMGZ' % subject_id))):
-    os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'%s_maps_nativeMGZ' % subject_id), os.path.join(final_output_dir,'%s_maps_nativeMGZ.zip' % subject_id)))
-if os.path.exists((os.path.join(first_output_dir,'%s_maps_nativeMGZ_pseudoHemisphere' % subject_id))):    
-    os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'%s_maps_nativeMGZ_pseudoHemisphere' % subject_id), os.path.join(final_output_dir,'%s_maps_nativeMGZ_pseudoHemisphere.zip' % subject_id)))
+if dataSourceType == 'icafix':
+    # Move mat, pdf and png files to the final output folder
+    for i in os.listdir(first_output_dir):
+        if os.path.splitext(i)[-1].lower() == '.mat' or os.path.splitext(i)[-1].lower() == '.pdf' or os.path.splitext(i)[-1].lower() == '.png':
+            os.system('mv %s %s/'%(os.path.join(first_output_dir, i), final_output_dir)) 
+    
+    # Zip and move the maps if they are there
+    if os.path.exists((os.path.join(first_output_dir,'%s_maps_cifti' % subject_id))):
+        os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'%s_maps_cifti' % subject_id), os.path.join(final_output_dir,'%s_maps_cifti.zip' % subject_id)))
+    if os.path.exists((os.path.join(first_output_dir,'%s_maps_nativeMGZ' % subject_id))):
+        os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'%s_maps_nativeMGZ' % subject_id), os.path.join(final_output_dir,'%s_maps_nativeMGZ.zip' % subject_id)))
+    if os.path.exists((os.path.join(first_output_dir,'%s_maps_nativeMGZ_pseudoHemisphere' % subject_id))):    
+        os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'%s_maps_nativeMGZ_pseudoHemisphere' % subject_id), os.path.join(final_output_dir,'%s_maps_nativeMGZ_pseudoHemisphere.zip' % subject_id)))
+if dataSourceType == 'ldogfix':
+    os.system('cp %s/*.gif %s/' % (first_output_dir, final_output_dir))
+    if os.path.exists((os.path.join(first_output_dir,'%s_maps_volumetric' % subject_id))):
+        os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'%s_maps_volumetric' % subject_id), os.path.join(final_output_dir,'%s_maps_volumetric.zip' % subject_id)))
+        

@@ -20,9 +20,9 @@ def main_builder(which_gear, path_to_matlab_doc, gear_version):
         
         os.system('mv %s %s' % (os.path.join(path_to_matlab_doc, 'startup.m'), os.path.join(path_to_matlab_doc, 'nostartup.m')))
         
-        startuptwo = '/home/ozzy/matlab/'
+        startuptwo = '/home/ozenc/matlab/'
         if os.listdir(startuptwo) != []:
-            os.system('rm /home/ozzy/matlab/*')
+            os.system('rm /home/ozenc/matlab/*')
         
     ################### Compile Require Matlab Functions ##########################
         
