@@ -1,4 +1,4 @@
-function [hcpStructPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath] = mainWrapper( ...
+function [structDirPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath] = mainWrapper( ...
     funcZipPath01, funcZipPath02, funcZipPath03, funcZipPath04, ...
     funcZipPath05, funcZipPath06, funcZipPath07, funcZipPath08, ...
     funcZipPath09, funcZipPath10, stimFilePath, structZipPath, varargin)
@@ -230,7 +230,7 @@ mapsPath = handleOutputs(...
 % If forwardModel didn't generate any maps, then we are done. Set return
 % variables to empty.
 if isempty(mapsPath)
-    hcpStructPath = '';
+    structDirPath = '';
     subjectName = '';
     nativeSpaceDirPath = '';
     pseudoHemiDirPath = '';
@@ -289,6 +289,7 @@ if strcmp(p.Results.dataFileType,'cifti')
     % version of the data (which can happen in demo mode).
     command = ['unzip -q -n ' structZipPath ' -d ' fileparts(structZipPath)];
     system(command);
+    structDirPath = fileparts(structZipPath);
     
     % Find the directory that is produced by this unzip operation
     fileList = dir(fileparts(structZipPath));
@@ -296,7 +297,7 @@ if strcmp(p.Results.dataFileType,'cifti')
         cellfun(@(x) ~startsWith(x,'.'),extractfield(fileList,'name')) ...
         );
     fileList = fileList(cell2mat(extractfield(fileList,'isdir')));
-    hcpStructPath = fullfile(fileList.folder,fileList.name);
+    structDirPath = fullfile(fileList.folder,fileList.name);
     subjectName = fileList.name;
     
     % Create directories for the output files
@@ -310,14 +311,14 @@ if strcmp(p.Results.dataFileType,'cifti')
     end
     
     % Perform the call and report if an error occurred
-    command =  ['python3 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' hcpStructPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath ' ' p.Results.Subject];
+    command =  ['python3 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' structDirPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath ' ' p.Results.Subject];
     callErrorStatus = system(command);
     if callErrorStatus
         warning('An error occurred during execution of the external Python function for map conversion');
     end
     
     % Save rh map images
-    surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
+    surfPath = fullfile(structDirPath,'T1w',subjectName,'surf');
     for mm = 1:length(results.meta.mapField)
         dataPath = fullfile(nativeSpaceDirPath,['R_' p.Results.Subject '_' results.meta.mapField{mm} '_map.mgz']);
         fig = makeSurfMap(dataPath,surfPath, ...
@@ -331,7 +332,7 @@ if strcmp(p.Results.dataFileType,'cifti')
     end
     
     % Save lh map images
-    surfPath = fullfile(hcpStructPath,'T1w',subjectName,'surf');
+    surfPath = fullfile(structDirPath,'T1w',subjectName,'surf');
     for mm = 1:length(results.meta.mapField)
         dataPath = fullfile(nativeSpaceDirPath,['L_' p.Results.Subject '_' results.meta.mapField{mm} '_map.mgz']);
         fig = makeSurfMap(dataPath,surfPath, ...
