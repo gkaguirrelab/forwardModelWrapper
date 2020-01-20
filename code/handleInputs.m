@@ -207,6 +207,8 @@ for jj=1:length(funcZipPath)
                 % the output files.
                 if nn == 1
                     templateImage = thisAcqData;
+                    templateImage.vol = squeeze(templateImage.vol(:,:,:,1));
+                    templateImage.nframes = 1;
                 end
                 thisAcqData = thisAcqData.vol;
                 thisAcqData = single(thisAcqData);

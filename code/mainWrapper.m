@@ -35,11 +35,11 @@ function [hcpStructPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath] = main
 %                           model within forwardModel. Optional.
 %  'dataFileType'         - String. Form of the data. {"volumetric",
 %                           "cifti"}.
-%  'Subject'              - String. The subject name or ID to be used to 
+%  'Subject'              - String. The subject name or ID to be used to
 %                           label output files.
 %  'dataSourceType'       - String. The type of gear that produced the fMRI
 %                           data to be input. {"icafix","ldogfix"}.
-%  'trimDummyStimTRs'     - String. Valid values of 1 or 0. If set to 1, 
+%  'trimDummyStimTRs'     - String. Valid values of 1 or 0. If set to 1,
 %                           any mismatch in temporal support between the
 %                           stimuli and data is handled by removing
 %                           timepoints from the start of the stimulus. This
@@ -47,23 +47,23 @@ function [hcpStructPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath] = main
 %                           has decided that some initial data time points
 %                           have not reached steady state T1 levels and
 %                           thus are "dummy" scans and are removed.
-%  'averageAcquisitions'  - String. Valid values of 1 or 0. If set to 1, 
+%  'averageAcquisitions'  - String. Valid values of 1 or 0. If set to 1,
 %                           the data acquisitions are averaged into a
 %                           single timeseries per voxel/vertex. This is
 %                           obviously only a valid operation if the same
 %                           stimulus sequence was used for every
 %                           acquisition.
-%  'averageVoxels'        - String. Valid values of 1 or 0. If set to 1, 
+%  'averageVoxels'        - String. Valid values of 1 or 0. If set to 1,
 %                           all time series (or the subset specified by the
 %                           mask) are averaged prior to model fitting
 %                           within the forwardModel routine.
 %  'modelClass'           - String. The type of model to be fit within the
 %                           forwardModel function.
 %  'modelOpts'            - String. The model options to be passed to the
-%                           model within forwardModel. This string is 
+%                           model within forwardModel. This string is
 %                           a list of key-value pairs, and is formatted so
 %                           that if passed to the eval() function, returns
-%                           a cell array. Therefore, a valid string is 
+%                           a cell array. Therefore, a valid string is
 %                           enclosed in curly brackets. Each key can be
 %                           enclosed either in single quotes, or in open/
 %                           close parens. The parens are replaced by single
@@ -75,7 +75,7 @@ function [hcpStructPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath] = main
 %                           space MGZ files.
 %  'RegName'              - String. The registration algorithm that was
 %                           used to map subject native space to the atlas
-%                           space used in HCP CIFTI files (32k_fs_LR). 
+%                           space used in HCP CIFTI files (32k_fs_LR).
 %                           Options here include 'FS' (which is the
 %                           freesurfer cortical surface registration
 %                           algorithm), 'MSMSULC' or 'MSMAll' (which are
@@ -242,7 +242,7 @@ end
 
 % Create gifs of the volumetric maps
 if strcmp(p.Results.dataFileType,'volumetric')
-
+    
     % Uncompress the structZip into the dir that holds the zip. We do this
     % with a system call so that we can prevent over-writing a prior unzipped
     % version of the data (which can happen in demo mode).
@@ -254,8 +254,15 @@ if strcmp(p.Results.dataFileType,'volumetric')
         case 'ldogfix'
             % The anatomical image to be displayed is the in-vivo canine
             % template brain
-            displayAnat = fullfile(fileparts(structZipPath),'Atlas','invivo','2x2x2resampled_invivoTemplate.nii.gz');
-            threshold = '0.1'; 
+            displayAnat = fullfile(fileparts(structZipPath),'Atlas','2x2x2resampled_invivoTemplate.nii.gz');
+            % If there is no template anatomical image (as was the case for
+            % some early runs of the ldogStruct gear), just use the
+            % template volume as the display anatomy.
+            if ~isfile(displayAnat)
+                MRIwrite(templateImage,displayAnat)
+            end
+            threshold = '0.1';
+            % Loop over the maps and save
             for mm = 1:length(results.meta.mapField)
                 mapPath = fullfile(mapsPath,[p.Results.Subject '_' results.meta.mapField{mm} '_map.nii.gz']);
                 gifOutStemName = [p.Results.Subject '_' results.meta.mapField{mm} '_statMap'];
@@ -266,11 +273,11 @@ if strcmp(p.Results.dataFileType,'volumetric')
                 end
                 
             end
+        otherwise
+            error('Only the dataSourceType ldogfix is implemented for dataFileType volumetric');
     end
     
 end
-
-
 
 % If we are working with CIFTI files, convert the resulting maps to
 % native-space MGZ images. These files can then serve as input to the

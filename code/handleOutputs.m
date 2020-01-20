@@ -74,7 +74,7 @@ else
         sizer = size(templateImage.vol);
         for ii = 1:length(fieldsToSave)
             results.(fieldsToSave{ii}) = ...
-                reshape(results.(fieldsToSave{ii}),[sizer(1:end-1) 1]);
+                reshape(results.(fieldsToSave{ii}),[sizer 1]);
         end
     end
     
