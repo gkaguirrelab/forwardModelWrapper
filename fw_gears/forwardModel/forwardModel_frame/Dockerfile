@@ -13,7 +13,8 @@ COPY plot_maps.py /opt/plot_maps.py
 COPY func_input/ /opt/func_input 
 COPY flywheel.mlsettings /usr/flywheel.mlsettings
 RUN chmod +x /flywheel/v0/run
-RUN chmod +x /opt/func_input/*          
+RUN chmod +x /opt/func_input/*  
+RUN apt-get install python-pip -y      
 RUN pip install matplotlib nibabel numpy imageio
 
 # Set the entrypoint  
