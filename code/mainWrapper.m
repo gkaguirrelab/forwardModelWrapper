@@ -229,11 +229,12 @@ mapsPath = handleOutputs(...
 
 % If forwardModel didn't generate any maps, then we are done. Set return
 % variables to empty.
+structDirPath = '';
+subjectName = '';
+nativeSpaceDirPath = '';
+pseudoHemiDirPath = '';
+
 if isempty(mapsPath)
-    structDirPath = '';
-    subjectName = '';
-    nativeSpaceDirPath = '';
-    pseudoHemiDirPath = '';
     return
 end
 
