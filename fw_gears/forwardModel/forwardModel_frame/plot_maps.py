@@ -117,6 +117,6 @@ def plot_maps(template_path, map_path, threshold, stem_name, output):
     html_file.write(message)
     html_file.close()
     
-plot_maps('/home/ozzy/Desktop/lal/invivoTemplate.nii.gz', '/home/ozzy/Desktop/lal/N292_R2_map.nii.gz', 0.1, 'abab', '/home/ozzy/Desktop/lal/')    
-#plot_maps(*sys.argv[1:])   
+#plot_maps('/home/ozzy/Desktop/lal/invivoTemplate.nii.gz', '/home/ozzy/Desktop/lal/N292_R2_map.nii.gz', 0.1, 'abab', '/home/ozzy/Desktop/lal/')    
+plot_maps(*sys.argv[1:])   
     
