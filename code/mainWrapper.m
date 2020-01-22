@@ -256,12 +256,12 @@ if strcmp(p.Results.dataFileType,'volumetric')
         case 'ldogfix'
             % The anatomical image to be displayed is the in-vivo canine
             % template brain
-            displayAnat = fullfile(fileparts(structZipPath),'Atlas','2x2x2resampled_invivoTemplate.nii.gz');
+            displayAnat = fullfile(fileparts(structZipPath),'Atlas','invivoTemplate.nii.gz');
             % If there is no template anatomical image (as was the case for
             % some early runs of the ldogStruct gear), just use the
             % template volume as the display anatomy.
             if ~isfile(displayAnat)
-                displayAnat = fullfile(tempdir,'2x2x2resampled_invivoTemplate.nii.gz');
+                displayAnat = fullfile(tempdir,'invivoTemplate.nii.gz');
                 MRIwrite(templateImage,displayAnat)
             end
             threshold = '0.1';
