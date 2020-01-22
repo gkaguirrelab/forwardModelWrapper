@@ -145,7 +145,7 @@ os.system(cmd)
 ################## Zip everything and output ##################################
 # Move mat, pdf and png files to the final output folder
 for i in os.listdir(first_output_dir):
-    if os.path.splitext(i)[-1].lower() == '.mat' or os.path.splitext(i)[-1].lower() == '.pdf' or os.path.splitext(i)[-1].lower() == '.png' or os.path.splitext(i)[-1].lower() == '.gif' or os.path.splitext(i)[-1].lower() == '.html':
+    if os.path.splitext(i)[-1].lower() == '.mat' or os.path.splitext(i)[-1].lower() == '.pdf' or os.path.splitext(i)[-1].lower() == '.png':
         os.system('mv %s %s/'%(os.path.join(first_output_dir, i), final_output_dir)) 
 
 if dataSourceType == 'icafix':
@@ -159,4 +159,4 @@ if dataSourceType == 'icafix':
 if dataSourceType == 'ldogfix':
     if os.path.exists((os.path.join(first_output_dir,'%s_maps_volumetric' % subject_id))):
         os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'%s_maps_volumetric' % subject_id), os.path.join(final_output_dir,'%s_maps_volumetric.zip' % subject_id)))
-        
+    os.system('cd %s; zip -q -r %s *.gif *.html' % (first_output_dir, os.path.join(final_output_dir, subject_id + '_R2_results.zip')))
