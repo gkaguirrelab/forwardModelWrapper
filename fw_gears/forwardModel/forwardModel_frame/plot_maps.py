@@ -22,15 +22,15 @@ def plot_maps(template_path, map_path, threshold, stem_name, output):
     template_dimensions = [template_header['pixdim'][1], template_header['pixdim'][2], template_header['pixdim'][3]]
     map_dimensions = [map_header['pixdim'][1], map_header['pixdim'][2], map_header['pixdim'][3]]
     
-    print(template_dimensions == map_dimensions)
     if template_dimensions == map_dimensions:        
         map_load = nb.load(map_path) 
     else:
         resampled_image_folder = '/tmp/resampled_image_folder'
-        os.system('mkdir %s' % resampled_image_folder)
-        os.system('flirt -in %s -ref %s -out %s -applyxfm' % (map_path,
-                                                              template_path,
-                                                              os.path.join(resampled_image_folder, 'resampled_map.nii.gz')))
+        if not os.path.exists(resampled_image_folder):
+            os.system('mkdir %s' % resampled_image_folder)
+        os.system('FSLDIR=/usr/lib/fsl/5.0;. /etc/fsl/5.0/fsl.sh;PATH=${FSLDIR}:${PATH};export FSLDIR PATH;/usr/lib/fsl/5.0/flirt -in %s -ref %s -out %s -applyxfm' % (map_path,
+                                                                                                                                                                       template_path,
+                                                                                                                                                                       os.path.join(resampled_image_folder, 'resampled_map.nii.gz')))
         map_load = nb.load(os.path.join(resampled_image_folder, 'resampled_map.nii.gz'))
      
     template_data = template_load.get_data()
@@ -84,7 +84,7 @@ def plot_maps(template_path, map_path, threshold, stem_name, output):
     for image in image_names:
         images.append(imageio.imread(os.path.join(saggital_temp, image)))
     imageio.mimsave('/%s/%s_%s.gif' % (output, stem_name, 'saggital_plots'), images, duration=0.30) 
-    saggital_gif = os.path.join(output, stem_name + '_saggital_plots.gif')
+    # saggital_gif = os.path.join(output, stem_name + '_saggital_plots.gif')
         
     images = []
     image_names = []
@@ -94,7 +94,7 @@ def plot_maps(template_path, map_path, threshold, stem_name, output):
     for image in image_names:
         images.append(imageio.imread(os.path.join(axial_temp, image)))
     imageio.mimsave('/%s/%s_%s.gif' % (output, stem_name, 'axial_plots'), images, duration=0.30)  
-    axial_gif = os.path.join(output, stem_name + '_axial_plots.gif')
+    # axial_gif = os.path.join(output, stem_name + '_axial_plots.gif')
 
     images = []
     image_names = []
@@ -104,19 +104,18 @@ def plot_maps(template_path, map_path, threshold, stem_name, output):
     for image in image_names:
         images.append(imageio.imread(os.path.join(coronal_temp, image)))
     imageio.mimsave('/%s/%s_%s.gif' % (output, stem_name, 'coronal_plots'), images, duration=0.30)    
-    coronal_gif = os.path.join(output, stem_name + '_coronal_plots.gif')
+    # coronal_gif = os.path.join(output, stem_name + '_coronal_plots.gif')
     
     os.system('rm -r %s' % saggital_temp)
     os.system('rm -r %s' % coronal_temp)
     os.system('rm -r %s' % axial_temp)
     
-    html_file = open('%s/%s_R2maps.html' % (output, stem_name),'w')
-    message = '<html>\n<body>\n<h1>Saggital</h1>\n<img src="%s">\n</body>\n</html>''<html>\n<body>\n<h1>Axial</h1>\n<img src="%s">\n</body>\n</html>''<html>\n<body>\n<h1>Coronal</h1>\n<img src="%s">\n</body>\n</html>' % (saggital_gif,
-                                                                                                                                                                                                                             axial_gif,
-                                                                                                                                                                                                                             coronal_gif)
-    html_file.write(message)
-    html_file.close()
-    
-#plot_maps('/home/ozzy/Desktop/lal/invivoTemplate.nii.gz', '/home/ozzy/Desktop/lal/N292_R2_map.nii.gz', 0.1, 'abab', '/home/ozzy/Desktop/lal/')    
+    # html_file = open('%s/%s_R2maps.html' % (output, stem_name),'w')
+    # content = '<html>\n<body>\n<h1>Saggital</h1>\n<img src="%s">\n</body>\n</html>''<html>\n<body>\n<h1>Axial</h1>\n<img src="%s">\n</body>\n</html>''<html>\n<body>\n<h1>Coronal</h1>\n<img src="%s">\n</body>\n</html>' % (saggital_gif,
+    #                                                                                                                                                                                                                          axial_gif,
+    #                                                                                                                                                                                                                          coronal_gif)
+    # html_file.write(content)
+    # html_file.close()
+        
 plot_maps(*sys.argv[1:])   
     

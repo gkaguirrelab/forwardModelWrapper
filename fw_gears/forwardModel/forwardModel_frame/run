@@ -159,4 +159,71 @@ if dataSourceType == 'icafix':
 if dataSourceType == 'ldogfix':
     if os.path.exists((os.path.join(first_output_dir,'%s_maps_volumetric' % subject_id))):
         os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'%s_maps_volumetric' % subject_id), os.path.join(final_output_dir,'%s_maps_volumetric.zip' % subject_id)))
-    os.system('cd %s; zip -q -r %s *.gif *.html' % (first_output_dir, os.path.join(final_output_dir, subject_id + '_R2_results.zip')))
+    os.system('mkdir %s/images' % first_output_dir)
+    gif_folder = os.path.join(first_output_dir, 'images')    
+    saggital_gif = os.path.join(first_output_dir, subject_id + '_R2_statMap_saggital_plots.gif') 
+    axial_gif = os.path.join(first_output_dir, subject_id + '_R2_statMap_axial_plots.gif') 
+    coronal_gif = os.path.join(first_output_dir, subject_id + '_R2_statMap_coronal_plots.gif') 
+    saggital_gif_eigen1 = os.path.join(first_output_dir, subject_id + '_eigen1_statMap_saggital_plots.gif') 
+    axial_gif_eigen1 = os.path.join(first_output_dir, subject_id + '_eigen1_statMap_axial_plots.gif') 
+    coronal_gif_eigen1 = os.path.join(first_output_dir, subject_id + '_eigen1_statMap_coronal_plots.gif')   
+    saggital_gif_eigen2 = os.path.join(first_output_dir, subject_id + '_eigen2_statMap_saggital_plots.gif') 
+    axial_gif_eigen2 = os.path.join(first_output_dir, subject_id + '_eigen2_statMap_axial_plots.gif') 
+    coronal_gif_eigen2 = os.path.join(first_output_dir, subject_id + '_eigen2_statMap_coronal_plots.gif') 
+    saggital_gif_eigen3 = os.path.join(first_output_dir, subject_id + '_eigen3_statMap_saggital_plots.gif') 
+    axial_gif_eigen3 = os.path.join(first_output_dir, subject_id + '_eigen3_statMap_axial_plots.gif') 
+    coronal_gif_eigen3 = os.path.join(first_output_dir, subject_id + '_eigen3_statMap_coronal_plots.gif') 
+    saggital_gif_log = os.path.join(first_output_dir, subject_id + '_log10pMVN_statMap_saggital_plots.gif') 
+    axial_gif_log = os.path.join(first_output_dir, subject_id + '_log10pMVN_statMap_axial_plots.gif') 
+    coronal_gif_log = os.path.join(first_output_dir, subject_id + '_log10pMVN_statMap_coronal_plots.gif')     
+    os.system('mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s' % (saggital_gif, gif_folder, axial_gif, gif_folder, coronal_gif, gif_folder,
+                                                                                                                                                                        saggital_gif_eigen1, gif_folder, axial_gif_eigen1, gif_folder, coronal_gif_eigen1, gif_folder,
+                                                                                                                                                                        saggital_gif_eigen2, gif_folder, axial_gif_eigen2, gif_folder, coronal_gif_eigen2, gif_folder,
+                                                                                                                                                                        saggital_gif_eigen3, gif_folder, axial_gif_eigen3, gif_folder, coronal_gif_eigen3, gif_folder,
+                                                                                                                                                                        saggital_gif_log, gif_folder, axial_gif_log, gif_folder, coronal_gif_log, gif_folder,))
+    html_file = open('%s/%s_R2_maps.html' % (first_output_dir, subject_id),'w')
+    html_content = """
+    <h1>R2</h1>\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">\n \
+    <p style="clear: both;">\n \
+    <h1>Eigen1</h1>\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">\n \
+    <p style="clear: both;">\n \
+    <h1>Eigen2</h1>\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">\n \
+    <p style="clear: both;">\n \ 
+    <h1>Eigen3</h1>\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">\n \
+    <p style="clear: both;">\n \
+    <h1>log10pMVN</h1>\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">\n \
+    <p style="clear: both;">
+    """ % ('images/%s_R2_statMap_saggital_plots.gif' % subject_id,
+           'images/%s_R2_statMap_axial_plots.gif' % subject_id,
+           'images/%s_R2_statMap_coronal_plots.gif' % subject_id,
+           'images/%s_eigen1_statMap_axial_plots.gif' % subject_id,
+           'images/%s_eigen1_statMap_axial_plots.gif' % subject_id,
+           'images/%s_eigen1_statMap_axial_plots.gif' % subject_id,
+           'images/%s_eigen2_statMap_axial_plots.gif' % subject_id,
+           'images/%s_eigen2_statMap_axial_plots.gif' % subject_id,
+           'images/%s_eigen2_statMap_axial_plots.gif' % subject_id,
+           'images/%s_eigen3_statMap_axial_plots.gif' % subject_id,
+           'images/%s_eigen3_statMap_axial_plots.gif' % subject_id,
+           'images/%s_eigen3_statMap_axial_plots.gif' % subject_id,
+           'images/%s_log10pMVN_statMap_axial_plots.gif' % subject_id,
+           'images/%s_log10pMVN_statMap_axial_plots.gif' % subject_id,
+           'images/%s_log10pMVN_statMap_axial_plots.gif' % subject_id)
+        
+    html_file.write(html_content)
+    html_file.close()   
+    os.system('cd %s; zip -q -r %s images *.html' % (first_output_dir, os.path.join(final_output_dir, subject_id + '_results.zip')))
