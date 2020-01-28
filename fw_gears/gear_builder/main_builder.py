@@ -2,7 +2,7 @@ import os
 from compiler_functions import *
 import sys
 
-def main_builder(which_gear, path_to_matlab_doc, gear_version):
+def main_builder():
     
 ###################### Set some initial paths #################################
     
@@ -13,78 +13,84 @@ def main_builder(which_gear, path_to_matlab_doc, gear_version):
     # path_to_matlab_doc = path to your main MATLAB folder (usually in documents)
     # gear_version = the version number you want to bump the gear
     # test = Is whether you want to test the gear after building. Default n - false 
-    print("Make sure you pulled all changes")
-    
-    cont = input('Starting the gear building process: Warning! This script renames your matlab startup file to nostartup.m for the compiling process and discard this change at the end of the compiling process. Do you want to continue ? y/n ')
+    print("The gear builder is starting. Make sure you pulled all changes on github")    
+    path_to_matlab_doc = '/home/%s/Documents/MATLAB/' % os.getlogin()
+ 
+    cont = input('Warning! This script temporarily renames your matlab startup file to nostartup.m for the compiling process. The script discards this change at the end of the compiling process. Do you want to continue ? y/n ')
     if cont == 'y':
-        
         os.system('mv %s %s' % (os.path.join(path_to_matlab_doc, 'startup.m'), os.path.join(path_to_matlab_doc, 'nostartup.m')))
-        
         startuptwo = '/home/ozzy/matlab/'
         if os.listdir(startuptwo) != []:
-            os.system('rm /home/ozzy/matlab/*')
+            os.system('rm /home/ozzy/matlab/*')    
+    else:
+        sys.exit("Application Stopped")
+
+####################### Compile the required functions ########################        
+    which_number = input('Enter the number of the gear you want to update:\n1-forwardmodel\n2-bayesianfitting\n3-ldogstruct\n4-ldogfunc\n5-ldogfix\nEnter a number:')
+    if which_number == '1':
+        gear_name = 'forwardmodel'
+        gear_version = input('What will be the new gear version:')
+        print('starting forwardmodel building')
+        frame = os.path.join(path_to_matlab_doc, 'projects', 
+                             'forwardModelWrapper', 
+                             'fw_gears', 'forwardModel',
+                             'forwardModel_frame')       
+        func_input = os.path.join(frame, 'func_input')
+        os.system('rm -r %s' % func_input)
+        compile_forwardModel(path_to_matlab_doc, func_input)
+        mainfold = os.path.join(path_to_matlab_doc, 'projects', 
+                                'forwardModelWrapper', 
+                                'fw_gears', 'forwardModel',
+                                'main_gear')
+    if which_number == '2':
+        gear_name = 'bayesianfitting'        
+        gear_version = input('What will be the new gear version:')
+        frame = os.path.join(path_to_matlab_doc, 'projects', 
+                             'forwardMtheodelWrapper', 
+                             'fw_gears', 'bayesianFitting',
+                             'bayesianFittingGear_frame')
+        cortmag_func = os.path.join(frame, 'cortmag_func')
+        postproc_func = os.path.join(frame, 'postproc_func')
+        render_func = os.path.join(frame, 'render_func')
+        os.system('rm -r %s' % cortmag_func)
+        os.system('rm -r %s' % postproc_func)
+        os.system('rm -r %s' % render_func)
+        compile_calcCorticalMag(path_to_matlab_doc, cortmag_func)
+        compile_postprocessBayes(path_to_matlab_doc, postproc_func)
+        compile_renderInferredMaps(path_to_matlab_doc, render_func)
+        mainfold = os.path.join(path_to_matlab_doc, 'projects', 
+                                'forwardModelWrapper', 
+                                'fw_gears', 'bayesianFitting',
+                                'main_gear')      
         
-    ################### Compile Require Matlab Functions ##########################
         
-        if which_gear == "bayesianfittinggear":   
-            frame = os.path.join(path_to_matlab_doc, 'projects', 
-                                 'forwardMtheodelWrapper', 
-                                 'fw_gears', 'bayesianFitting',
-                                 'bayesianFittingGear_frame')
-            cortmag_func = os.path.join(frame, 'cortmag_func')
-            postproc_func = os.path.join(frame, 'postproc_func')
-            render_func = os.path.join(frame, 'render_func')
-            os.system('rm -r %s' % cortmag_func)
-            os.system('rm -r %s' % postproc_func)
-            os.system('rm -r %s' % render_func)
-            compile_calcCorticalMag(path_to_matlab_doc, cortmag_func)
-            compile_postprocessBayes(path_to_matlab_doc, postproc_func)
-            compile_renderInferredMaps(path_to_matlab_doc, render_func)
-            mainfold = os.path.join(path_to_matlab_doc, 'projects', 
-                                    'forwardModelWrapper', 
-                                    'fw_gears', 'bayesianFitting',
-                                    'main_gear')
-            
-        if which_gear == "forwardmodelgear":  
-            frame = os.path.join(path_to_matlab_doc, 'projects', 
-                                 'forwardModelWrapper', 
-                                 'fw_gears', 'forwardModel',
-                                 'forwardModel_frame')       
-            func_input = os.path.join(frame, 'func_input')
-            os.system('rm -r %s' % func_input)
-            compile_forwardModel(path_to_matlab_doc, func_input)
-            mainfold = os.path.join(path_to_matlab_doc, 'projects', 
-                                    'forwardModelWrapper', 
-                                    'fw_gears', 'forwardModel',
-                                    'main_gear')
-        
-        os.system('mv %s %s' % (os.path.join(path_to_matlab_doc, 'nostartup.m'), os.path.join(path_to_matlab_doc, 'startup.m')))
-    
+    os.system('mv %s %s' % (os.path.join(path_to_matlab_doc, 'nostartup.m'), os.path.join(path_to_matlab_doc, 'startup.m')))
+
     ##################### Build the docker images #################################
         
-        # This process might take a while if you have not pulled the gear base before     
-        os.system('cd %s; docker build -t gkaguirrelab/%s:%s .' % (frame,
-                                                                   which_gear,
-                                                                   gear_version))
+    # This process might take a while if you have not pulled the gear base before     
+    os.system('cd %s; docker build -t gkaguirrelab/%s:%s .' % (frame,
+                                                               which_gear,
+                                                               gear_version))        
+    # Delete the content of the main_gear folder
+    if os.listdir(mainfold) != []:
+        os.system('cd %s; rm *' % mainfold)
         
-        if os.listdir(mainfold) != []:
-            os.system('cd %s; rm *' % mainfold)
+    if gear_name == 'bayesianfitting':
+        print('\n')
+        print('-- When asked to chose a human readable name enter the following without the quotation marks:  "bayesPRF: template fitting of retinotopic maps using neuropythy"')
+        print('\n')
+        print('-- When asked for a gear ID enter the following without the quotation marks:  "bayesprf"')
         
-        if which_gear == 'bayesianfittinggear':
-            print('\n')
-            print('-- When asked to chose a human readable name enter the following without the quotation marks:  "bayesPRF: template fitting of retinotopic maps using neuropythy"')
-            print('\n')
-            print('-- When asked for a gear ID enter the following without the quotation marks:  "bayesprf"')
+    if gear_name == 'forwardmodel':
+        print('\n')
+        print('-- When asked to chose a human readable name use the following without the quotation marks:  "forwardModel: non-linear fitting of models to fMRI data"')
+        print('\n')
+        print('-- When asked for a gear ID enter the following without the quotation marks:  "forwardmodel"')
         
-        if which_gear == 'forwardmodelgear':
-            print('\n')
-            print('-- When asked to chose a human readable name use the following without the quotation marks:  "forwardModel: non-linear fitting of models to fMRI data"')
-            print('\n')
-            print('-- When asked for a gear ID enter the following without the quotation marks:  "forwardmodel"')
-        
-        print('\n-- Select Other for the third question and enter the following as the contianer:   "gkaguirrelab/%s:%s"'% (which_gear, gear_version))
+    print('\n-- Select Other for the third question and enter the following as the contianer:   "gkaguirrelab/%s:%s"'% (which_gear, gear_version))
          
-        os.system('cd %s; fw gear create' % mainfold)
+    os.system('cd %s; fw gear create' % mainfold)
         
     ############################## Test ###########################################
         cont2 = input('Make the json changes now (fix the version, author and suite fields). Make the run script changes if applicable. Press y to continue: y/n ')
