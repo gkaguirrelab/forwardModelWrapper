@@ -110,4 +110,4 @@ def main_builder():
     else:
         print("process stopped")
 
-main_builder(*sys.argv[1:]) 
+main_builder()
