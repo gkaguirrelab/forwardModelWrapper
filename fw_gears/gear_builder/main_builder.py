@@ -1,6 +1,7 @@
 import os
 from compiler_functions import *
 import sys
+import json
 
 def main_builder():
     
@@ -145,13 +146,21 @@ def main_builder():
          
     os.system('cd %s; fw gear create' % mainfold)
         
-############################## Test ###########################################
+###################### Modify the json and upload #############################
+    
+    with open('/home/ozzy/Desktop/manifest.json', 'r+') as f:
+        data = json.load(f)
+        data['version'] = gear_version 
+        data['author'] = 'Ozenc Taskin' 
+        data['maintainer'] = 'Ozenc Taskin' 
+        data['custom'] = {'flywheel': {'suite': 'GKAguirreLab'}, 'gear-builder': {'category': 'analysis', 'image': 'gkaguirrelab/forwardmodelgear:0.6.9'}}
+        f.seek(0)
+        json.dump(data, f, indent=4)
+        f.truncate()
 
-    cont2 = input('Make the final changes now if applicable (e.g fix the run file if you had to change it for the gear or update the manifest. Press y to continue: y/n ')          
-    if cont2 == 'y':
-        uploadcall = input('Do you want to upload the gear? : y/n ')  
-        if uploadcall == 'y':
-            os.system('cd %s; fw gear upload' % mainfold)
+    uploadcall = input('Do you want to upload the gear now? You can do it later by cd-ing into the main_folder and running fw gear upload : y/n ')  
+    if uploadcall == 'y':
+        os.system('cd %s; fw gear upload' % mainfold)
     else:
         sys.exit("Application Stopped")
 
