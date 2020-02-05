@@ -44,7 +44,7 @@ def main_builder():
                                 'forwardModelWrapper', 
                                 'fw_gears', 'forwardModel',
                                 'main_gear')
-    if which_number == '2':
+    elif which_number == '2':
         gear_name = 'bayesianfitting'        
         gear_version = input('What will be the new gear version:')
         frame = os.path.join(path_to_matlab_doc, 'projects', 
@@ -64,7 +64,7 @@ def main_builder():
                                 'forwardModelWrapper', 
                                 'fw_gears', 'bayesianFitting',
                                 'main_gear')   
-    if which_number == '3':
+    elif which_number == '3':
         gear_name = 'ldogstruct'
         gear_version = input('What will be the new gear version:')
         frame = os.path.join(path_to_matlab_doc, 'projects', 
@@ -79,14 +79,17 @@ def main_builder():
         fw download "gkaguirrelab/canineFovea/atlas/Canine Atlas/invivoTemplate/files/invivoTemplate.nii.gz" -o %s -f;
         fw download "gkaguirrelab/canineFovea/atlas/Canine Atlas/downsampled Atlas/files/2x2x2resampled_invivoTemplate.nii.gz" -o %s -f;
         fw download "gkaguirrelab/canineFovea/atlas/Canine Atlas/exvivo template/files/Woofsurfer.zip" -o %s -f;
-        fw download "gkaguirrelab/canineFovea/atlas/Canine Atlas/invivo2exvivo warp calculations/files/exvivo_warp_files.zip" -o %s -f
+        fw download "gkaguirrelab/canineFovea/atlas/Canine Atlas/invivo2exvivo warp calculations/files/exvivo_warp_files.zip" -o %s -f;
+        fw download "gkaguirrelab/canineFovea/atlas/Canine Atlas/invivoTemplate-WithSkull/files/invivoTemplate-WithSkull.nii.gz" -o %s -f;        
         ''' % (os.path.join(path_to_matlab_doc, 'projects', 'mriLDOGAnalysis', 'fw_gears', 'ldog_struct', 'ldog_struct_frame', 'invivoTemplate.nii.gz'),
                os.path.join(path_to_matlab_doc, 'projects', 'mriLDOGAnalysis', 'fw_gears', 'ldog_struct', 'ldog_struct_frame', '2x2x2resampled_invivoTemplate.nii.gz'),
                os.path.join(path_to_matlab_doc, 'projects', 'mriLDOGAnalysis', 'fw_gears', 'ldog_struct', 'ldog_struct_frame', 'Woofsurfer.zip'),
-               os.path.join(path_to_matlab_doc, 'projects', 'mriLDOGAnalysis', 'fw_gears', 'ldog_struct', 'ldog_struct_frame', 'exvivo_warp_files.zip'))
+               os.path.join(path_to_matlab_doc, 'projects', 'mriLDOGAnalysis', 'fw_gears', 'ldog_struct', 'ldog_struct_frame', 'exvivo_warp_files.zip'),
+               os.path.join(path_to_matlab_doc, 'projects', 'mriLDOGAnalysis', 'fw_gears', 'ldog_struct', 'ldog_struct_frame', 'invivoTemplate-WithSkull.nii.gz'))
+        print('Downloading the Atlases from Flywheel')
         os.system(fw_download_command)
         
-    if which_number == '4':
+    elif which_number == '4':
         gear_name = 'ldogfunc'
         gear_version = input('What will be the new gear version:')
         frame = os.path.join(path_to_matlab_doc, 'projects', 
@@ -97,7 +100,7 @@ def main_builder():
                                 'mriLDOGAnalysis', 
                                 'fw_gears', 'ldog_func',
                                 'main_gear')     
-    if which_number == '5':
+    elif which_number == '5':
         gear_name = 'ldogfix'
         gear_version = input('What will be the new gear version:')
         frame = os.path.join(path_to_matlab_doc, 'projects', 
@@ -132,26 +135,28 @@ def main_builder():
         print('-- When asked to chose a human readable name use the following without the quotation marks:  "forwardModel: non-linear fitting of models to fMRI data"')
         print('\n')
         print('-- When asked for a gear ID enter the following without the quotation marks:  "forwardmodel"')        
-    if gear_name == 'bayesianfitting':
+    elif gear_name == 'bayesianfitting':
         print('\n')
         print('-- When asked to chose a human readable name enter the following without the quotation marks:  "bayesPRF: template fitting of retinotopic maps using neuropythy"')
         print('\n')
         print('-- When asked for a gear ID enter the following without the quotation marks:  "bayesprf"')     
-    if gear_name == 'ldogstruct':
+    elif gear_name == 'ldogstruct':
         print('\n')
         print('-- When asked to chose a human readable name use the following without the quotation marks:  "ldogStruct: anatomical pre-processing for the LDOG project"')
         print('\n')
         print('-- When asked for a gear ID enter the following without the quotation marks:  "ldogstruct"')     
-    if gear_name == 'ldogfunc':
+    elif gear_name == 'ldogfunc':
         print('\n')
         print('-- When asked to chose a human readable name use the following without the quotation marks:  "ldogFunc: functional pre-processing for the LDOG project"')
         print('\n')
         print('-- When asked for a gear ID enter the following without the quotation marks:  "ldogfunc"')            
-    if gear_name == 'ldogfix':
+    elif gear_name == 'ldogfix':
         print('\n')
         print('-- When asked to chose a human readable name use the following without the quotation marks:  "ldogFix: archiving ldogfunc outputs"')
         print('\n')
-        print('-- When asked for a gear ID enter the following without the quotation marks:  "ldogfix"')            
+        print('-- When asked for a gear ID enter the following without the quotation marks:  "ldogfix"')    
+    else:
+        print('Unknown gear')        
                 
     print('\n-- Select "Other" for the third question and decide whether you want an Analysis or Converter gear and enter the following as the container name:   "gkaguirrelab/%s:%s"'% (gear_name, gear_version))
          
@@ -159,7 +164,7 @@ def main_builder():
         
 ###################### Modify the json and upload #############################
     
-    with open('/home/ozzy/Desktop/manifest.json', 'r+') as f:
+    with open('%s' % os.path.join(mainfold, 'manifest.json') , 'r+') as f:
         data = json.load(f)
         data['version'] = gear_version 
         if gear_name == 'forwardmodel':
@@ -169,7 +174,7 @@ def main_builder():
         else:
             data['author'] = 'Ozenc Taskin'
         data['maintainer'] = 'Ozenc Taskin' 
-        data['custom'] = {'flywheel': {'suite': 'GKAguirreLab'}, 'gear-builder': {'category': 'analysis', 'image': 'gkaguirrelab/forwardmodelgear:0.6.9'}}
+        data['custom'] = {'flywheel': {'suite': 'GKAguirreLab'}, 'gear-builder': {'category': 'analysis', 'image': 'gkaguirrelab/%s:%s' % (gear_name, gear_version)}}
         f.seek(0)
         json.dump(data, f, indent=4)
         f.truncate()
