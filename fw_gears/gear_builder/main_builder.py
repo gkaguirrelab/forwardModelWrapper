@@ -75,6 +75,17 @@ def main_builder():
                                 'mriLDOGAnalysis', 
                                 'fw_gears', 'ldog_struct',
                                 'main_gear')     
+        fw_download_command = '''
+        fw download "gkaguirrelab/canineFovea/atlas/Canine Atlas/invivoTemplate/files/invivoTemplate.nii.gz" -o %s -f;
+        fw download "gkaguirrelab/canineFovea/atlas/Canine Atlas/downsampled Atlas/files/2x2x2resampled_invivoTemplate.nii.gz" -o %s -f;
+        fw download "gkaguirrelab/canineFovea/atlas/Canine Atlas/exvivo template/files/Woofsurfer.zip" -o %s -f;
+        fw download "gkaguirrelab/canineFovea/atlas/Canine Atlas/invivo2exvivo warp calculations/files/exvivo_warp_files.zip" -o %s -f
+        ''' % (os.path.join(path_to_matlab_doc, 'projects', 'mriLDOGAnalysis', 'fw_gears', 'ldog_struct', 'ldog_struct_frame', 'invivoTemplate.nii.gz'),
+               os.path.join(path_to_matlab_doc, 'projects', 'mriLDOGAnalysis', 'fw_gears', 'ldog_struct', 'ldog_struct_frame', '2x2x2resampled_invivoTemplate.nii.gz'),
+               os.path.join(path_to_matlab_doc, 'projects', 'mriLDOGAnalysis', 'fw_gears', 'ldog_struct', 'ldog_struct_frame', 'Woofsurfer.zip'),
+               os.path.join(path_to_matlab_doc, 'projects', 'mriLDOGAnalysis', 'fw_gears', 'ldog_struct', 'ldog_struct_frame', 'exvivo_warp_files.zip'))
+        os.system(fw_download_command)
+        
     if which_number == '4':
         gear_name = 'ldogfunc'
         gear_version = input('What will be the new gear version:')
@@ -151,7 +162,12 @@ def main_builder():
     with open('/home/ozzy/Desktop/manifest.json', 'r+') as f:
         data = json.load(f)
         data['version'] = gear_version 
-        data['author'] = 'Ozenc Taskin' 
+        if gear_name == 'forwardmodel':
+            data['author'] == 'Geoffrey Aguirre'
+        if gear_name == 'bayesianfitting':
+            data['author'] == 'Noah C. Benson'            
+        else:
+            data['author'] = 'Ozenc Taskin'
         data['maintainer'] = 'Ozenc Taskin' 
         data['custom'] = {'flywheel': {'suite': 'GKAguirreLab'}, 'gear-builder': {'category': 'analysis', 'image': 'gkaguirrelab/forwardmodelgear:0.6.9'}}
         f.seek(0)
@@ -162,6 +178,13 @@ def main_builder():
     if uploadcall == 'y':
         os.system('cd %s; fw gear upload' % mainfold)
     else:
-        sys.exit("Application Stopped")
+        print("Not uploading")
 
+    if which_number == '3':
+        delete_call = input('The files downloaded from Flywheel into ldgog_struct_frame will be deleted now. Do you want to continue : y/n ')
+        if delete_call == 'y':
+            frame_path = os.path.join(path_to_matlab_doc, 'projects', 'mriLDOGAnalysis', 'fw_gears', 'ldog_struct', 'ldog_struct_frame')
+            os.system('cd %s; rm *.zip *.gz' % frame_path)
+        if delete_call == 'n':
+            print('Not deleting the files downloaded from Flywheel. These files are too large to store on the lab github repo. Consider deleting them')
 main_builder()
