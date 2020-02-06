@@ -109,7 +109,7 @@ def main_builder():
                              'ldog_fix_frame') 
         regressMotion = os.path.join(frame, 'regressMotion')
         os.system('rm -r %s' % regressMotion)   
-        compile_calcCorticalMag(path_to_matlab_doc, regressMotion)
+        compile_regressMotion(path_to_matlab_doc, regressMotion)
         mainfold = os.path.join(path_to_matlab_doc, 'projects', 
                                 'mriLDOGAnalysis', 
                                 'fw_gears', 'ldog_fix',
