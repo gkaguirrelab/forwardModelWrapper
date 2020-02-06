@@ -193,10 +193,10 @@ if dataSourceType == 'ldogfix':
                                                                                             secondary_linear,
                                                                                             initial_linear))    
     
-    # Make the left and right hemispheres ADD PATH HERE
+    # Make the left and right hemispheres
     surfaces_folder = '/tmp/surfaces_folder'
-    os.system('mri_vol2surf --mov %s --ref %s --reg %s --hemi %s --o %s' % (interpolated_map, interpolated_map, register_dat, 'lh', os.path.join(surfaces_folder, 'left_hemi.mgz')))
-    os.system('mri_vol2surf --mov %s --ref %s --reg %s --hemi %s --o %s' % (interpolated_map, interpolated_map, register_dat, 'rh', os.path.join(surfaces_folder, 'right_hemi.mgz')))
+    os.system('/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --hemi %s --o %s' % (interpolated_map, interpolated_map, register_dat, 'lh', os.path.join(surfaces_folder, 'left_hemi.mgz')))
+    os.system('/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --hemi %s --o %s' % (interpolated_map, interpolated_map, register_dat, 'rh', os.path.join(surfaces_folder, 'right_hemi.mgz')))
   
     # Make the surface plots
     sulc_map_lh = os.path.join(surface_items, 'Woofsurfer', 'surf', 'lh.sulc')

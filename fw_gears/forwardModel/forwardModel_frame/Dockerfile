@@ -29,11 +29,16 @@ RUN apt-get update \
 RUN pip3 install --upgrade pip
 RUN pip3 install matplotlib nibabel==2.5.1 numpy imageio nilearn
 
-# Install MCR on call
+# Download and install MCR on call
 RUN wget http://ssd.mathworks.com/supportfiles/downloads/R2019b/Release/2/deployment_files/installer/complete/glnxa64/MATLAB_Runtime_R2019b_Update_2_glnxa64.zip
 RUN mkdir matlabins
 RUN unzip MATLAB_Runtime_R2019b_Update_2_glnxa64.zip -d /matlabins/
 RUN /matlabins/install -mode silent -agreeToLicense yes
+
+# Download and install Freesurfer on call
+RUN wget https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/6.0.0/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz
+RUN mkdir freesurfer
+RUN tar -zxf freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz -C /freesurfer/
 
 # Set the entrypoint  
 ENTRYPOINT /flywheel/v0/run
