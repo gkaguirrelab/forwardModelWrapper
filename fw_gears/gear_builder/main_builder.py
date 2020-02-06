@@ -169,7 +169,7 @@ def main_builder():
         data['version'] = gear_version 
         if gear_name == 'forwardmodel':
             data['author'] == 'Geoffrey Aguirre'
-        if gear_name == 'bayesianfitting':
+        elif gear_name == 'bayesianfitting':
             data['author'] == 'Noah C. Benson'            
         else:
             data['author'] = 'Ozenc Taskin'
