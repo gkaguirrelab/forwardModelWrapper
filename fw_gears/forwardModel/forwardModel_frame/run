@@ -165,10 +165,10 @@ if dataSourceType == 'ldogfix':
     # Set paths and unzip
     surface_items = '/tmp/surface_items'
     os.system('mkdir %s' % surface_items)
-    os.system('unzip -j %s exvivo_warp_files.zip -d %s' % (struct_zip_path, surface_items))
-    os.system('unzip -j %s Woofsurfer.zip -d %s' % (struct_zip_path, surface_items))    
-    os.system('unzip -q %s/Atlas/Woofsurfer.zip -d %s/' % (surface_items, surface_items))
-    os.system('unzip -q %s/Atlas/exvivo_warp_files.zip -d %s/' % (surface_items, surface_items))    
+    os.system('unzip -j %s Atlas/exvivo_warp_files.zip -d %s' % (struct_zip_path, surface_items))
+    os.system('unzip -j %s Atlas/Woofsurfer.zip -d %s' % (struct_zip_path, surface_items))    
+    os.system('unzip -q %s/Woofsurfer.zip -d %s/' % (surface_items, surface_items))
+    os.system('unzip -q %s/exvivo_warp_files.zip -d %s/' % (surface_items, surface_items))    
     
     # Set paths to the calculation files
     initial_linear = os.path.join(surface_items, 'exvivo_warp_files', 'initialLinearAnts.mat')
@@ -186,7 +186,7 @@ if dataSourceType == 'ldogfix':
     # Do the surface interpolation 
     R2_map = os.path.join(first_output_dir,'%s_maps_volumetric' % subject_id, '%s_R2_map.nii.gz' % subject_id)
     interpolated_map = os.path.join(surface_items, '%s_surface_interpolated.nii.gz' % subject_id)
-    os.system('/usr/lib/ants/antsApplyTransforms -d 3 -i %s -r % -o % -t %s -t %s -t %s' % (R2_map,
+    os.system('/usr/lib/ants/antsApplyTransforms -d 3 -i %s -r %s -o %s -t %s -t %s -t %s' % (R2_map,
                                                                                             orig_image,
                                                                                             interpolated_map,
                                                                                             warp,
@@ -195,8 +195,8 @@ if dataSourceType == 'ldogfix':
     
     # Make the left and right hemispheres
     surfaces_folder = '/tmp/surfaces_folder'
-    os.system('/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --hemi %s --o %s' % (interpolated_map, interpolated_map, register_dat, 'lh', os.path.join(surfaces_folder, 'left_hemi.mgz')))
-    os.system('/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --hemi %s --o %s' % (interpolated_map, interpolated_map, register_dat, 'rh', os.path.join(surfaces_folder, 'right_hemi.mgz')))
+    os.system('/freesurfer/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --hemi %s --o %s' % (interpolated_map, interpolated_map, register_dat, 'lh', os.path.join(surfaces_folder, 'left_hemi.mgz')))
+    os.system('/freesurfer/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --hemi %s --o %s' % (interpolated_map, interpolated_map, register_dat, 'rh', os.path.join(surfaces_folder, 'right_hemi.mgz')))
   
     # Make the surface plots
     sulc_map_lh = os.path.join(surface_items, 'Woofsurfer', 'surf', 'lh.sulc')
@@ -278,24 +278,24 @@ if dataSourceType == 'ldogfix':
     <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">\n \
     <p style="clear: both;">
     """ % ('images/%s_left_lateral.png' % subject_id,
-           'images/%s_right_lateral.png' % subject_id,
-           'images/%s_left_medial.png' % subject_id,
-           'images/%s_right_medial.png' % subject_id,
-           'images/%s_R2_statMap_saggital_plots.gif' % subject_id,
-           'images/%s_R2_statMap_axial_plots.gif' % subject_id,
-           'images/%s_R2_statMap_coronal_plots.gif' % subject_id,
-           'images/%s_eigen1_statMap_axial_plots.gif' % subject_id,
-           'images/%s_eigen1_statMap_axial_plots.gif' % subject_id,
-           'images/%s_eigen1_statMap_axial_plots.gif' % subject_id,
-           'images/%s_eigen2_statMap_axial_plots.gif' % subject_id,
-           'images/%s_eigen2_statMap_axial_plots.gif' % subject_id,
-           'images/%s_eigen2_statMap_axial_plots.gif' % subject_id,
-           'images/%s_eigen3_statMap_axial_plots.gif' % subject_id,
-           'images/%s_eigen3_statMap_axial_plots.gif' % subject_id,
-           'images/%s_eigen3_statMap_axial_plots.gif' % subject_id,
-           'images/%s_log10pMVN_statMap_axial_plots.gif' % subject_id,
-           'images/%s_log10pMVN_statMap_axial_plots.gif' % subject_id,
-           'images/%s_log10pMVN_statMap_axial_plots.gif' % subject_id)
+            'images/%s_right_lateral.png' % subject_id,
+            'images/%s_left_medial.png' % subject_id,
+            'images/%s_right_medial.png' % subject_id,
+            'images/%s_R2_statMap_saggital_plots.gif' % subject_id,
+            'images/%s_R2_statMap_axial_plots.gif' % subject_id,
+            'images/%s_R2_statMap_coronal_plots.gif' % subject_id,
+            'images/%s_eigen1_statMap_axial_plots.gif' % subject_id,
+            'images/%s_eigen1_statMap_axial_plots.gif' % subject_id,
+            'images/%s_eigen1_statMap_axial_plots.gif' % subject_id,
+            'images/%s_eigen2_statMap_axial_plots.gif' % subject_id,
+            'images/%s_eigen2_statMap_axial_plots.gif' % subject_id,
+            'images/%s_eigen2_statMap_axial_plots.gif' % subject_id,
+            'images/%s_eigen3_statMap_axial_plots.gif' % subject_id,
+            'images/%s_eigen3_statMap_axial_plots.gif' % subject_id,
+            'images/%s_eigen3_statMap_axial_plots.gif' % subject_id,
+            'images/%s_log10pMVN_statMap_axial_plots.gif' % subject_id,
+            'images/%s_log10pMVN_statMap_axial_plots.gif' % subject_id,
+            'images/%s_log10pMVN_statMap_axial_plots.gif' % subject_id)
         
     html_file.write(html_content)
     html_file.close()   
