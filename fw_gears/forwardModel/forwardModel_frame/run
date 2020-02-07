@@ -192,12 +192,11 @@ if dataSourceType == 'ldogfix':
                                                                                             warp,
                                                                                             secondary_linear,
                                                                                             initial_linear))    
-    
     # Make the left and right hemispheres
-    os.system('echo \'export SUBJECTS_DIR=%s\' >> ~/.bashrc' % surface_items) 
     surfaces_folder = '/tmp/surfaces_folder'
-    os.system('/freesurfer/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --hemi %s --o %s' % (interpolated_map, interpolated_map, register_dat, 'lh', os.path.join(surfaces_folder, 'left_hemi.mgz')))
-    os.system('/freesurfer/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --hemi %s --o %s' % (interpolated_map, interpolated_map, register_dat, 'rh', os.path.join(surfaces_folder, 'right_hemi.mgz')))
+    os.system('mkdir %s' % surfaces_folder)
+    os.system('/bin/bash -c \'source $FREESURFER_HOME/FreeSurferEnv.sh &>/dev/null\';export SUBJECTS_DIR=%s;/freesurfer/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --srcsubject Woofsurfer --hemi %s --o %s' % (surface_items, interpolated_map, interpolated_map, register_dat, 'lh', os.path.join(surfaces_folder, 'left_hemi.mgz')))
+    os.system('/bin/bash -c \'source $FREESURFER_HOME/FreeSurferEnv.sh &>/dev/null\';export SUBJECTS_DIR=%s;/freesurfer/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --srcsubject Woofsurfer --hemi %s --o %s' % (surface_items, interpolated_map, interpolated_map, register_dat, 'rh', os.path.join(surfaces_folder, 'right_hemi.mgz')))
   
     # Make the surface plots
     sulc_map_lh = os.path.join(surface_items, 'Woofsurfer', 'surf', 'lh.sulc')
@@ -243,7 +242,7 @@ if dataSourceType == 'ldogfix':
                                                                                                                                                                         saggital_gif_eigen2, plot_folder, axial_gif_eigen2, plot_folder, coronal_gif_eigen2, plot_folder,
                                                                                                                                                                         saggital_gif_eigen3, plot_folder, axial_gif_eigen3, plot_folder, coronal_gif_eigen3, plot_folder,
                                                                                                                                                                         saggital_gif_log, plot_folder, axial_gif_log, plot_folder, coronal_gif_log, plot_folder))
-    html_file = open('%s/index.html' % (first_output_dir, subject_id),'w')
+    html_file = open('%s/index.html' % first_output_dir,'w')
     html_content = """
     <h1>Lateral Surface</h1>\n \
     <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">\n \
