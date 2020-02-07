@@ -194,6 +194,7 @@ if dataSourceType == 'ldogfix':
                                                                                             initial_linear))    
     
     # Make the left and right hemispheres
+    os.system('echo \'export SUBJECTS_DIR=%s\' >> ~/.bashrc' % surface_items) 
     surfaces_folder = '/tmp/surfaces_folder'
     os.system('/freesurfer/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --hemi %s --o %s' % (interpolated_map, interpolated_map, register_dat, 'lh', os.path.join(surfaces_folder, 'left_hemi.mgz')))
     os.system('/freesurfer/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --hemi %s --o %s' % (interpolated_map, interpolated_map, register_dat, 'rh', os.path.join(surfaces_folder, 'right_hemi.mgz')))
