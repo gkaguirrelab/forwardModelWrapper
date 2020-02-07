@@ -15,11 +15,15 @@ COPY flywheel.mlsettings /usr/flywheel.mlsettings
 RUN chmod +x /flywheel/v0/run
 RUN chmod +x /opt/func_input/*  
 
-# Install required packages    
+# Install required packages     
 RUN apt-get update \
     && apt-get install -y \
+    software-properties-common
+RUN add-apt-repository ppa:deadsnakes/ppa
+RUN apt-get update
+RUN apt-get install -y \
     wget \
-    python3 \
+    python3.7 \
     python3-pip \
     zip \
     unzip \
