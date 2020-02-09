@@ -2,6 +2,7 @@ import os
 from compiler_functions import *
 import sys
 import json
+import pwd
 
 def main_builder():
     
@@ -15,7 +16,7 @@ def main_builder():
     # gear_version = the version number you want to bump the gear
     # test = Is whether you want to test the gear after building. Default n - false 
     print("The gear builder is starting. Make sure you pulled all changes on github")    
-    path_to_matlab_doc = '/home/%s/Documents/MATLAB/' % os.getlogin()
+    path_to_matlab_doc = '/home/%s/Documents/MATLAB/' % pwd.getpwuid(os.getuid()).pw_name
  
     cont = input('Warning! This script temporarily renames your matlab startup file to nostartup.m for the compiling process. The script discards this change at the end of the compiling process. Do you want to continue ? y/n ')
     if cont == 'y':
