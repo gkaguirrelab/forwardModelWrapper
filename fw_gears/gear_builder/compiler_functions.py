@@ -24,10 +24,14 @@ def compile_forwardModel(path_to_matlab_documents, output_folder):
         os.system("mkdir %s"%output_folder)
     
     mcc_path = 'mcc'
-    mcc_call2 = '%s -m -R -nodisplay %s -I %s -I %s -I %s -I %s -I %s \
-    -I %s -I %s -d %s -v'%(mcc_path, os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/mainWrapper.m'),
-    os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/'),
-    os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/bayesPRF/'),
+    mcc_call2 = '%s -m -R -nodisplay %s -a %s -a %s -a %s -a %s -a %s -a %s -a %s -I %s -I %s -I %s \
+    -I %s -d %s -v'%(mcc_path, os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/mainWrapper.m'),
+    os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/handleInputs.m'),
+    os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/handleOutputs.m'),
+    os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/makeSurfMap.m'),
+    os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/startParpool.m'),
+    os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/handleInputs.m'),
+    os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/bayesPRF/renderInferredMaps.m'),
     os.path.join(path_to_matlab_documents,'toolboxes/forwardModel/'),
     os.path.join(path_to_matlab_documents,'toolboxes/HCPpipelines/global/matlab/'),
     os.path.join(path_to_matlab_documents,'projects/forwardModelWrapper/code/utilities/'),    

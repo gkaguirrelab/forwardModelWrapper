@@ -269,7 +269,7 @@ if strcmp(p.Results.dataFileType,'volumetric')
             for mm = 1:length(results.meta.mapField)
                 mapPath = fullfile(mapsPath,[p.Results.Subject '_' results.meta.mapField{mm} '_map.nii.gz']);
                 gifOutStemName = [p.Results.Subject '_' results.meta.mapField{mm} '_statMap'];
-                command =  ['python3 ' p.Results.externalMapGifMakerPath ' ' displayAnat ' ' mapPath ' ' threshold ' ' gifOutStemName ' ' p.Results.outPath];
+                command =  ['python3.7 ' p.Results.externalMapGifMakerPath ' ' displayAnat ' ' mapPath ' ' threshold ' ' gifOutStemName ' ' p.Results.outPath];
                 callErrorStatus = system(command);
                 if callErrorStatus
                     warning('An error occurred during execution of the external Python function for map conversion');
@@ -312,7 +312,7 @@ if strcmp(p.Results.dataFileType,'cifti')
     end
     
     % Perform the call and report if an error occurred
-    command =  ['python3 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' structDirPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath ' ' p.Results.Subject];
+    command =  ['python3.7 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' structDirPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath ' ' p.Results.Subject];
     callErrorStatus = system(command);
     if callErrorStatus
         warning('An error occurred during execution of the external Python function for map conversion');
