@@ -31,8 +31,8 @@ RUN apt-get install -y \
     ants
 
 # Install python packages   
-RUN pip3 install --upgrade pip
-RUN pip3 install matplotlib nibabel==2.5.1 numpy imageio nilearn
+RUN python3.7 -m pip install --upgrade pip
+RUN python3.7 -m pip install matplotlib nibabel==2.5.1 numpy imageio nilearn neuropythy
 
 # Download and install MCR on call
 RUN wget http://ssd.mathworks.com/supportfiles/downloads/R2019b/Release/2/deployment_files/installer/complete/glnxa64/MATLAB_Runtime_R2019b_Update_2_glnxa64.zip
