@@ -192,11 +192,11 @@ if dataSourceType == 'ldogfix':
                                                                                             warp,
                                                                                             secondary_linear,
                                                                                             initial_linear))    
+    
     # Make the left and right hemispheres
     surfaces_folder = '/tmp/surfaces_folder'
-    os.system('mkdir %s' % surfaces_folder)
-    os.system('/bin/bash -c \'source $FREESURFER_HOME/FreeSurferEnv.sh &>/dev/null\';export SUBJECTS_DIR=%s;/freesurfer/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --srcsubject Woofsurfer --hemi %s --o %s' % (surface_items, interpolated_map, interpolated_map, register_dat, 'lh', os.path.join(surfaces_folder, 'left_hemi.mgz')))
-    os.system('/bin/bash -c \'source $FREESURFER_HOME/FreeSurferEnv.sh &>/dev/null\';export SUBJECTS_DIR=%s;/freesurfer/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --srcsubject Woofsurfer --hemi %s --o %s' % (surface_items, interpolated_map, interpolated_map, register_dat, 'rh', os.path.join(surfaces_folder, 'right_hemi.mgz')))
+    os.system('/freesurfer/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --hemi %s --o %s' % (interpolated_map, interpolated_map, register_dat, 'lh', os.path.join(surfaces_folder, 'left_hemi.mgz')))
+    os.system('/freesurfer/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --hemi %s --o %s' % (interpolated_map, interpolated_map, register_dat, 'rh', os.path.join(surfaces_folder, 'right_hemi.mgz')))
   
     # Make the surface plots
     sulc_map_lh = os.path.join(surface_items, 'Woofsurfer', 'surf', 'lh.sulc')
@@ -242,15 +242,15 @@ if dataSourceType == 'ldogfix':
                                                                                                                                                                         saggital_gif_eigen2, plot_folder, axial_gif_eigen2, plot_folder, coronal_gif_eigen2, plot_folder,
                                                                                                                                                                         saggital_gif_eigen3, plot_folder, axial_gif_eigen3, plot_folder, coronal_gif_eigen3, plot_folder,
                                                                                                                                                                         saggital_gif_log, plot_folder, axial_gif_log, plot_folder, coronal_gif_log, plot_folder))
-    html_file = open('%s/index.html' % first_output_dir,'w')
+    html_file = open('%s/index.html' % (first_output_dir, subject_id),'w')
     html_content = """
     <h1>Lateral Surface</h1>\n \
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">\n \
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Left_lateral">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Right_lateral">\n \
     <p style="clear: both;">\n \ 
     <h1>Medial Surface</h1>\n \        
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">\n \
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Left_medial">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Right_medial">\n \
     <p style="clear: both;">\n \  
     <h1>R2</h1>\n \
     <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">\n \
@@ -277,25 +277,25 @@ if dataSourceType == 'ldogfix':
     <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">\n \
     <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">\n \
     <p style="clear: both;">
-    """ % ('images/%s_left_lateral.png' % subject_id,
-            'images/%s_right_lateral.png' % subject_id,
-            'images/%s_left_medial.png' % subject_id,
-            'images/%s_right_medial.png' % subject_id,
-            'images/%s_R2_statMap_saggital_plots.gif' % subject_id,
-            'images/%s_R2_statMap_axial_plots.gif' % subject_id,
-            'images/%s_R2_statMap_coronal_plots.gif' % subject_id,
-            'images/%s_eigen1_statMap_axial_plots.gif' % subject_id,
-            'images/%s_eigen1_statMap_axial_plots.gif' % subject_id,
-            'images/%s_eigen1_statMap_axial_plots.gif' % subject_id,
-            'images/%s_eigen2_statMap_axial_plots.gif' % subject_id,
-            'images/%s_eigen2_statMap_axial_plots.gif' % subject_id,
-            'images/%s_eigen2_statMap_axial_plots.gif' % subject_id,
-            'images/%s_eigen3_statMap_axial_plots.gif' % subject_id,
-            'images/%s_eigen3_statMap_axial_plots.gif' % subject_id,
-            'images/%s_eigen3_statMap_axial_plots.gif' % subject_id,
-            'images/%s_log10pMVN_statMap_axial_plots.gif' % subject_id,
-            'images/%s_log10pMVN_statMap_axial_plots.gif' % subject_id,
-            'images/%s_log10pMVN_statMap_axial_plots.gif' % subject_id)
+    """ % (os.path.join(plot_folder, '%s_left_lateral.png' % subject_id),
+           os.path.join(plot_folder, '%s_right_lateral.png' % subject_id),
+           os.path.join(plot_folder, '%s_left_medial.png' % subject_id), 
+           os.path.join(plot_folder, '%s_right_medial.png' % subject_id), 
+           os.path.join(plot_folder, '%s_R2_statMap_saggital_plots.gif' % subject_id), 
+           os.path.join(plot_folder, '%s_R2_statMap_axial_plots.gif' % subject_id),
+           os.path.join(plot_folder, '%s_R2_statMap_coronal_plots.gif' % subject_id),
+           os.path.join(plot_folder, '%s_eigen1_statMap_saggital_plots.gif' % subject_id),
+           os.path.join(plot_folder, '%s_eigen1_statMap_axial_plots.gif' % subject_id),
+           os.path.join(plot_folder, '%s_eigen1_statMap_coronal_plots.gif' % subject_id),
+           os.path.join(plot_folder, '%s_eigen2_statMap_saggital_plots.gif' % subject_id),
+           os.path.join(plot_folder, '%s_eigen2_statMap_axial_plots.gif' % subject_id),
+           os.path.join(plot_folder, '%s_eigen2_statMap_coronal_plots.gif' % subject_id),
+           os.path.join(plot_folder, '%s_eigen3_statMap_saggital_plots.gif' % subject_id),
+           os.path.join(plot_folder, '%s_eigen3_statMap_axial_plots.gif' % subject_id),
+           os.path.join(plot_folder, '%s_eigen3_statMap_coronal_plots.gif' % subject_id),
+           os.path.join(plot_folder, '%s_log10pMVN_statMap_saggital_plots.gif' % subject_id), 
+           os.path.join(plot_folder, '%s_log10pMVN_statMap_axial_plots.gif' % subject_id),
+           os.path.join(plot_folder, '%s_log10pMVN_statMap_coronal_plots.gif' % subject_id))
         
     html_file.write(html_content)
     html_file.close()   
