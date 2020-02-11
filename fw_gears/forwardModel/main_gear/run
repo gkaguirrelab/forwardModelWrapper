@@ -5,6 +5,7 @@ os.system("mv /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libexpat.so.1 /us
 import json
 import nilearn
 from nilearn import plotting
+import matplotlib.pyplot as plt
 
 os.system('cat /proc/cpuinfo')
 
@@ -207,15 +208,19 @@ if dataSourceType == 'ldogfix':
     loaded_inflated_right = nilearn.surface.load_surf_mesh(rh_inf)  
     os.system('mkdir %s/images' % first_output_dir)
     plot_folder = os.path.join(first_output_dir, 'images')
+    fig1 = plt.figure(figsize=[11,6])
+    fig2 = plt.figure(figsize=[11,6])
+    fig3 = plt.figure(figsize=[11,6])
+    fig4 = plt.figure(figsize=[11,6])
     plotting.plot_surf_stat_map(loaded_inflated_left, loaded_lh_data, bg_map=sulc_map_lh,
-                                threshold=0.1, view='medial', title='left', output_file=os.path.join(plot_folder,'%s_left_medial.png' % subject_id))
+                                threshold=0.1, view='medial', title='left', figure=fig1, output_file=os.path.join(plot_folder,'%s_left_medial.png' % subject_id))
     plotting.plot_surf_stat_map(loaded_inflated_left, loaded_lh_data, bg_map=sulc_map_lh,
-                                threshold=0.1, view='lateral', title='left', output_file=os.path.join(plot_folder,'%s_left_lateral.png' % subject_id))    
+                                threshold=0.1, view='lateral', title='left', figure=fig2, output_file=os.path.join(plot_folder,'%s_left_lateral.png' % subject_id))    
     
     plotting.plot_surf_stat_map(loaded_inflated_right, loaded_rh_data, bg_map=sulc_map_rh,
-                                threshold=0.1, view='medial', title='right', output_file=os.path.join(plot_folder,'%s_right_medial.png' % subject_id))   
+                                threshold=0.1, view='medial', title='right', figure=fig3, output_file=os.path.join(plot_folder,'%s_right_medial.png' % subject_id))   
     plotting.plot_surf_stat_map(loaded_inflated_right, loaded_rh_data, bg_map=sulc_map_rh,
-                                threshold=0.1, view='lateral', title='right', output_file=os.path.join(plot_folder,'%s_right_lateral.png' % subject_id))     
+                                threshold=0.1, view='lateral', title='right', figure=fig4, output_file=os.path.join(plot_folder,'%s_right_lateral.png' % subject_id))     
     
     # First zip and output the results
     if os.path.exists((os.path.join(first_output_dir,'%s_maps_volumetric' % subject_id))):
@@ -244,42 +249,41 @@ if dataSourceType == 'ldogfix':
                                                                                                                                                                         saggital_gif_log, plot_folder, axial_gif_log, plot_folder, coronal_gif_log, plot_folder))
     html_file = open('%s/index.html' % first_output_dir,'w')
     html_content = """
-    <h1>Lateral Surface</h1>\n \
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Left_lateral">\n \
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Right_lateral">\n \
-    <p style="clear: both;">\n \ 
-    <h1>Medial Surface</h1>\n \        
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Left_medial">\n \
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Right_medial">\n \
-    <p style="clear: both;">\n \  
-    <h1>R2</h1>\n \
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">\n \
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">\n \
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">\n \
-    <p style="clear: both;">\n \      
-    <h1>Eigen1</h1>\n \
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">\n \
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">\n \
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">\n \
-    <p style="clear: both;">\n \
-    <h1>Eigen2</h1>\n \
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">\n \
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">\n \
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">\n \
-    <p style="clear: both;">\n \ 
-    <h1>Eigen3</h1>\n \
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">\n \
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">\n \
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">\n \
-    <p style="clear: both;">\n \
-    <h1>log10pMVN</h1>\n \
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">\n \
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">\n \
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">\n \
+    <h1>Surface</h1>
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Left_lateral">
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Right_lateral">
+    <p style="clear: both;">      
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Left_medial">
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Right_medial">
     <p style="clear: both;">
-    """ % ('images/%s_left_lateral.png' % subject_id,
+    <h1>R2</h1>
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">
+    <p style="clear: both;">   
+    <h1>Eigen1</h1>
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">
+    <p style="clear: both;">
+    <h1>Eigen2</h1>
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">
+    <p style="clear: both;"> 
+    <h1>Eigen3</h1>
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">
+    <p style="clear: both;">
+    <h1>log10pMVN</h1>
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">
+    <p style="clear: both;">
+    """ % ('images/%s_left_medial.png' % subject_id,
            'images/%s_right_lateral.png' % subject_id,
-           'images/%s_left_medial.png' % subject_id, 
+           'images/%s_left_lateral.png' % subject_id, 
            'images/%s_right_medial.png' % subject_id, 
            'images/%s_R2_statMap_saggital_plots.gif' % subject_id, 
            'images/%s_R2_statMap_axial_plots.gif' % subject_id,
