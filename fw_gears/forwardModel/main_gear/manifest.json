@@ -2,7 +2,7 @@
     "name": "forwardmodel",
     "label": "forwardModel: non-linear fitting of models to fMRI data",
     "description": "This gear takes as input the functional outputs from ICA-FIX, and then conducts non-linear fitting of parameterized models to the time-series across voxels and vertices. One application is pRF mapping. Model selection and option specification is performed in the config panel.",
-    "version": "0.7.6",
+    "version": "0.7.7",
     "inputs": {
         "funcZip01": {
             "base": "file",
@@ -186,7 +186,7 @@
             "type": "string"
         }
     },
-    "author": "Ozzy Taskin",
+    "author": "Geoffrey Aguirre",
     "maintainer": "Ozenc Taskin",
     "license": "Other",
     "source": "https://github.com/gkaguirrelab/forwardModelWrapper",
