@@ -195,8 +195,8 @@ if dataSourceType == 'ldogfix':
     # Make the left and right hemispheres
     surfaces_folder = '/tmp/surfaces_folder'
     os.system('mkdir %s' % surfaces_folder)
-    os.system('/bin/bash -c \'source $FREESURFER_HOME/FreeSurferEnv.sh &>/dev/null\';export SUBJECTS_DIR=%s;/freesurfer/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --srcsubject Woofsurfer --hemi %s --o %s' % (surface_items, interpolated_map, interpolated_map, register_dat, 'lh', os.path.join(surfaces_folder, 'left_hemi.mgz')))
-    os.system('/bin/bash -c \'source $FREESURFER_HOME/FreeSurferEnv.sh &>/dev/null\';export SUBJECTS_DIR=%s;/freesurfer/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --srcsubject Woofsurfer --hemi %s --o %s' % (surface_items, interpolated_map, interpolated_map, register_dat, 'rh', os.path.join(surfaces_folder, 'right_hemi.mgz')))
+    os.system('export FREESURFER_HOME=/freesurfer;/bin/bash -c \'source $FREESURFER_HOME/FreeSurferEnv.sh &>/dev/null\';export SUBJECTS_DIR=%s;/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --srcsubject Woofsurfer --hemi %s --o %s' % (surface_items, interpolated_map, interpolated_map, register_dat, 'lh', os.path.join(surfaces_folder, 'left_hemi.mgz')))
+    os.system('export FREESURFER_HOME=/freesurfer;/bin/bash -c \'source $FREESURFER_HOME/FreeSurferEnv.sh &>/dev/null\';export SUBJECTS_DIR=%s;/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --srcsubject Woofsurfer --hemi %s --o %s' % (surface_items, interpolated_map, interpolated_map, register_dat, 'rh', os.path.join(surfaces_folder, 'right_hemi.mgz')))
   
     # Make the surface plots
     sulc_map_lh = os.path.join(surface_items, 'Woofsurfer', 'surf', 'lh.sulc')
@@ -208,14 +208,14 @@ if dataSourceType == 'ldogfix':
     os.system('mkdir %s/images' % first_output_dir)
     plot_folder = os.path.join(first_output_dir, 'images')
     plotting.plot_surf_stat_map(loaded_inflated_left, loaded_lh_data, bg_map=sulc_map_lh,
-                                threshold=0.2, view='medial', title='left', output_file=os.path.join(plot_folder,'%s_left_medial.png' % subject_id))
+                                threshold=0.1, view='medial', title='left', output_file=os.path.join(plot_folder,'%s_left_medial.png' % subject_id))
     plotting.plot_surf_stat_map(loaded_inflated_left, loaded_lh_data, bg_map=sulc_map_lh,
-                                threshold=0.2, view='lateral', title='left', output_file=os.path.join(plot_folder,'%s_left_lateral.png' % subject_id))    
+                                threshold=0.1, view='lateral', title='left', output_file=os.path.join(plot_folder,'%s_left_lateral.png' % subject_id))    
     
     plotting.plot_surf_stat_map(loaded_inflated_right, loaded_rh_data, bg_map=sulc_map_rh,
-                                threshold=0.2, view='medial', title='right', output_file=os.path.join(plot_folder,'%s_right_medial.png' % subject_id))   
+                                threshold=0.1, view='medial', title='right', output_file=os.path.join(plot_folder,'%s_right_medial.png' % subject_id))   
     plotting.plot_surf_stat_map(loaded_inflated_right, loaded_rh_data, bg_map=sulc_map_rh,
-                                threshold=0.2, view='lateral', title='right', output_file=os.path.join(plot_folder,'%s_right_lateral.png' % subject_id))     
+                                threshold=0.1, view='lateral', title='right', output_file=os.path.join(plot_folder,'%s_right_lateral.png' % subject_id))     
     
     # First zip and output the results
     if os.path.exists((os.path.join(first_output_dir,'%s_maps_volumetric' % subject_id))):

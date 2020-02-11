@@ -195,8 +195,8 @@ if dataSourceType == 'ldogfix':
     # Make the left and right hemispheres
     surfaces_folder = '/tmp/surfaces_folder'
     os.system('mkdir %s' % surfaces_folder)
-    os.system('/bin/bash -c \'source $FREESURFER_HOME/FreeSurferEnv.sh &>/dev/null\';export SUBJECTS_DIR=%s;/freesurfer/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --srcsubject Woofsurfer --hemi %s --o %s' % (surface_items, interpolated_map, interpolated_map, register_dat, 'lh', os.path.join(surfaces_folder, 'left_hemi.mgz')))
-    os.system('/bin/bash -c \'source $FREESURFER_HOME/FreeSurferEnv.sh &>/dev/null\';export SUBJECTS_DIR=%s;/freesurfer/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --srcsubject Woofsurfer --hemi %s --o %s' % (surface_items, interpolated_map, interpolated_map, register_dat, 'rh', os.path.join(surfaces_folder, 'right_hemi.mgz')))
+    os.system('export FREESURFER_HOME=/freesurfer;/bin/bash -c \'source $FREESURFER_HOME/FreeSurferEnv.sh &>/dev/null\';export SUBJECTS_DIR=%s;/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --srcsubject Woofsurfer --hemi %s --o %s' % (surface_items, interpolated_map, interpolated_map, register_dat, 'lh', os.path.join(surfaces_folder, 'left_hemi.mgz')))
+    os.system('export FREESURFER_HOME=/freesurfer;/bin/bash -c \'source $FREESURFER_HOME/FreeSurferEnv.sh &>/dev/null\';export SUBJECTS_DIR=%s;/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --srcsubject Woofsurfer --hemi %s --o %s' % (surface_items, interpolated_map, interpolated_map, register_dat, 'rh', os.path.join(surfaces_folder, 'right_hemi.mgz')))
   
     # Make the surface plots
     sulc_map_lh = os.path.join(surface_items, 'Woofsurfer', 'surf', 'lh.sulc')
@@ -244,38 +244,38 @@ if dataSourceType == 'ldogfix':
                                                                                                                                                                         saggital_gif_log, plot_folder, axial_gif_log, plot_folder, coronal_gif_log, plot_folder))
     html_file = open('%s/index.html' % first_output_dir,'w')
     html_content = """
-    <h1>Lateral Surface</h1>
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Left_lateral">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Right_lateral">
-    <p style="clear: both;"> 
-    <h1>Medial Surface</h1>        
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Left_medial">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Right_medial">
-    <p style="clear: both;">
-    <h1>R2</h1>
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">
-    <p style="clear: both;">    
-    <h1>Eigen1</h1>
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">
-    <p style="clear: both;">
-    <h1>Eigen2</h1>
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">
-    <p style="clear: both;">
-    <h1>Eigen3</h1>
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">
-    <p style="clear: both;">
-    <h1>log10pMVN</h1>
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">
+    <h1>Lateral Surface</h1>\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Left_lateral">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Right_lateral">\n \
+    <p style="clear: both;">\n \ 
+    <h1>Medial Surface</h1>\n \        
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Left_medial">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Right_medial">\n \
+    <p style="clear: both;">\n \  
+    <h1>R2</h1>\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">\n \
+    <p style="clear: both;">\n \      
+    <h1>Eigen1</h1>\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">\n \
+    <p style="clear: both;">\n \
+    <h1>Eigen2</h1>\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">\n \
+    <p style="clear: both;">\n \ 
+    <h1>Eigen3</h1>\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">\n \
+    <p style="clear: both;">\n \
+    <h1>log10pMVN</h1>\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">\n \
+    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">\n \
     <p style="clear: both;">
     """ % ('images/%s_left_lateral.png' % subject_id,
            'images/%s_right_lateral.png' % subject_id,
