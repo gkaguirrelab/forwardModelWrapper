@@ -9,10 +9,38 @@ import matplotlib.pyplot as plt
 
 os.system('cat /proc/cpuinfo')
 
-# Flywheel path
+# Set initial Flywheel and function paths
 flywheel_base ='/flywheel/v0/'
+manifest_file = os.path.join(flywheel_base, 'manifest.json')
+config_path = os.path.join(flywheel_base, 'config.json')
+matlab_func = '/opt/func_input/run_mainWrapper.sh'
+first_output_dir = '/firstOutput'
+final_output_dir = os.path.join(flywheel_base, 'output')
+mcr_path = '/usr/local/MATLAB/MATLAB_Runtime/v97' #path to MATLAB runtime
+workbench_path = '/usr/bin/wb_command'
+externalMGZMakerPath = '/opt/make_fsaverage.py'
+externalMapGifMakerPath = '/opt/plot_maps.py'
 
-# Path to input folder 
+os.system('mkdir %s'%first_output_dir)
+
+###################Parse Config Here###########################################
+
+with open(config_path) as config_file:
+    job_config = json.load(config_file)
+config = job_config['config']
+
+dataFileType = config['dataFileType']
+dataSourceType = config['dataSourceType']
+trimDummyStimTRs = config['trimDummyStimTRs']
+averageAcquisitions = config['averageAcquisitions']
+tr = config['tr']
+modelClass = config['modelClass']
+averageVoxels = config['averageVoxels']
+modelOpts = '{' + config['modelOpts'] + '}'
+
+################### Input Files ###############################################
+
+# Path to input folders 
 func_zip_folder01 = os.path.join(flywheel_base, 'input/funcZip01')
 func_zip_folder02 = os.path.join(flywheel_base, 'input/funcZip02')
 func_zip_folder03 = os.path.join(flywheel_base, 'input/funcZip03')
@@ -28,12 +56,12 @@ struct_zip_folder = os.path.join(flywheel_base, 'input/structZip')
 mask_file_folder = os.path.join(flywheel_base, 'input/maskFile')
 payload_file_folder = os.path.join(flywheel_base, 'input/payloadFile')
 
-# Set path to required inputs
+# Path to required inputs
 func_zip_path01 = os.path.join(func_zip_folder01, os.listdir(func_zip_folder01)[0])
 stim_file_path = os.path.join(stim_file_folder, os.listdir(stim_file_folder)[0])
 struct_zip_path = os.path.join(struct_zip_folder, os.listdir(struct_zip_folder)[0])
 
-# Set path to optional paths   
+# Path to optional inputs   
 if os.path.isdir(func_zip_folder02) == True:    
     func_zip_path02 = os.path.join(func_zip_folder02, os.listdir(func_zip_folder02)[0])
 else:
@@ -79,32 +107,6 @@ if os.path.isdir(payload_file_folder) == True:
 else:
     payload_file_path = 'Na'
 
-# Set other paths
-manifest_file = os.path.join(flywheel_base, 'manifest.json')
-config_path = os.path.join(flywheel_base, 'config.json')
-matlab_func = '/opt/func_input/run_mainWrapper.sh'
-first_output_dir = '/firstOutput'
-final_output_dir = os.path.join(flywheel_base, 'output')
-mcr_path = '/usr/local/MATLAB/MATLAB_Runtime/v97' #path to MATLAB runtime
-workbench_path = '/usr/bin/wb_command'
-externalMGZMakerPath = '/opt/make_fsaverage.py'
-externalMapGifMakerPath = '/opt/plot_maps.py'
-
-os.system('mkdir %s'%first_output_dir)
-###################Parse Config Here############################
-
-with open(config_path) as config_file:
-    job_config = json.load(config_file)
-config = job_config['config']
-
-dataFileType = config['dataFileType']
-dataSourceType = config['dataSourceType']
-trimDummyStimTRs = config['trimDummyStimTRs']
-averageAcquisitions = config['averageAcquisitions']
-tr = config['tr']
-modelClass = config['modelClass']
-averageVoxels = config['averageVoxels']
-modelOpts = '{' + config['modelOpts'] + '}'
 
 if dataSourceType == 'icafix':
     # Create a folder for hcpstruct config
@@ -121,7 +123,8 @@ if dataSourceType == 'icafix':
     
     subject_id = config2['Subject']
     RegName = config2['RegName']
-elif dataSourceType == 'ldogfix': 
+
+elif dataSourceType == 'ldogfix':  
     # Create a folder for ldog subject file
     subjecttext = '/tmp/subjectPathFolder'
     os.system('mkdir %s' % subjecttext)
@@ -130,6 +133,28 @@ elif dataSourceType == 'ldogfix':
     with open (textfile, 'r') as idfile:
         subject_id = idfile.readlines()[0]
     RegName = 'Na'
+   
+    # Set paths and unzip
+    surface_items = '/tmp/surface_items'
+    os.system('mkdir %s' % surface_items)
+    os.system('unzip -j %s Atlas/exvivo_warp_files.zip -d %s' % (struct_zip_path, surface_items))
+    os.system('unzip -j %s Atlas/Woofsurfer.zip -d %s' % (struct_zip_path, surface_items))    
+    os.system('unzip -q %s/Woofsurfer.zip -d %s/' % (surface_items, surface_items))
+    os.system('unzip -q %s/exvivo_warp_files.zip -d %s/' % (surface_items, surface_items))    
+    
+    # Set paths to the calculation files
+    initial_linear = os.path.join(surface_items, 'exvivo_warp_files', 'initialLinearAnts.mat')
+    secondary_linear = os.path.join(surface_items, 'exvivo_warp_files', 'secondLinearAnts.mat')
+    warp = os.path.join(surface_items, 'exvivo_warp_files', 'toEx1Warp.nii.gz')
+    register_dat = os.path.join(surface_items, 'exvivo_warp_files', 'register.dat')
+    
+    # Set paths to the surfaces 
+    orig_image = os.path.join(surface_items, 'Woofsurfer', 'mri', 'T1.nii')
+    lh_inf = os.path.join(surface_items, 'Woofsurfer', 'surf', 'lh.inflated')
+    rh_inf = os.path.join(surface_items, 'Woofsurfer', 'surf', 'rh.inflated')
+    lh_white = os.path.join(surface_items, 'Woofsurfer', 'surf', 'lh_white')
+    rh_white = os.path.join(surface_items, 'Woofsurfer', 'surf', 'rh_white')
+
 ###################Run Algorithm################################
     
 cmd = """%s %s -mcruserdata ParallelProfile:/usr/flywheel.mlsettings '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' 'maskFilePath' '%s' \
@@ -161,29 +186,7 @@ if dataSourceType == 'icafix':
         os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'%s_maps_nativeMGZ_pseudoHemisphere' % subject_id), os.path.join(final_output_dir,'%s_maps_nativeMGZ_pseudoHemisphere.zip' % subject_id)))
 
 if dataSourceType == 'ldogfix':   
-    # Plot maps on surface 
-    
-    # Set paths and unzip
-    surface_items = '/tmp/surface_items'
-    os.system('mkdir %s' % surface_items)
-    os.system('unzip -j %s Atlas/exvivo_warp_files.zip -d %s' % (struct_zip_path, surface_items))
-    os.system('unzip -j %s Atlas/Woofsurfer.zip -d %s' % (struct_zip_path, surface_items))    
-    os.system('unzip -q %s/Woofsurfer.zip -d %s/' % (surface_items, surface_items))
-    os.system('unzip -q %s/exvivo_warp_files.zip -d %s/' % (surface_items, surface_items))    
-    
-    # Set paths to the calculation files
-    initial_linear = os.path.join(surface_items, 'exvivo_warp_files', 'initialLinearAnts.mat')
-    secondary_linear = os.path.join(surface_items, 'exvivo_warp_files', 'secondLinearAnts.mat')
-    warp = os.path.join(surface_items, 'exvivo_warp_files', 'toEx1Warp.nii.gz')
-    register_dat = os.path.join(surface_items, 'exvivo_warp_files', 'register.dat')
-    
-    # Set paths to the surfaces 
-    orig_image = os.path.join(surface_items, 'Woofsurfer', 'mri', 'T1.nii')
-    lh_inf = os.path.join(surface_items, 'Woofsurfer', 'surf', 'lh.inflated')
-    rh_inf = os.path.join(surface_items, 'Woofsurfer', 'surf', 'rh.inflated')
-    lh_white = os.path.join(surface_items, 'Woofsurfer', 'surf', 'lh_white')
-    rh_white = os.path.join(surface_items, 'Woofsurfer', 'surf', 'rh_white')
-    
+    # Plot maps on surface   
     # Do the surface interpolation 
     R2_map = os.path.join(first_output_dir,'%s_maps_volumetric' % subject_id, '%s_R2_map.nii.gz' % subject_id)
     interpolated_map = os.path.join(surface_items, '%s_surface_interpolated.nii.gz' % subject_id)
