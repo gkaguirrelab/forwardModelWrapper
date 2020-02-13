@@ -152,6 +152,13 @@ p.addParameter('RegName', 'FS', @isstr)
 % Config options - make volumetric map gifs
 p.addParameter('externalMapGifMakerPath', '/Users/aguirre/Documents/MATLAB/projects/forwardModelWrapper/code/plot_maps.py', @isstr)
 
+% Config options - make surface plots
+p.addParameter('externalSurfaceMakerPath', '/Users/aguirre/Documents/MATLAB/projects/forwardModelWrapper/code/plot_surface.py', @isstr)
+p.addParameter('ldogSurfaceAndCalculations', 'Na', @isstr)
+
+% Config options - make html from the plots 
+p.addParameter('externalHtmlMakerPath', '/Users/aguirre/Documents/MATLAB/projects/forwardModelWrapper/code/ldog_make_html.py', @isstr)
+
 % Internal paths
 p.addParameter('workbenchPath', '', @isstr);
 p.addParameter('outPath', '', @isstr);
@@ -275,6 +282,21 @@ if strcmp(p.Results.dataFileType,'volumetric')
                     warning('An error occurred during execution of the external Python function for map conversion');
                 end
                 
+            end
+            if ~strcmp(p.Results.ldogSurfaceAndCalculations, 'Na')
+                R2MapPath = fullfile(mapsPath,[p.Results.Subject 'R2_map.nii.gz']);
+                plotSurfCommand = ['python3.7 ' p.Results.externalSurfaceMakerPath ' ' p.Results.Subject ' ' R2MapPath ' ' p.Results.ldogSurfaceAndCalculations ' ' threshold ' ' p.Results.outPath];
+                callErrorStatus = system(plotSurfCommand);
+                if callErrorStatus
+                    warning('An error occurred during execution of the external Python function for surface plotting');
+                end
+                htmlMakerCommand = ['python3.7 ' p.Results.externalHtmlMakerPath ' ' p.Results.Subject ' ' p.Results.outPath];
+                callErrorStatus = system(htmlMakerCommand);
+                if callErrorStatus
+                    warning('An error occurred during execution of the external Python function for html generation');
+                end
+            else
+                warning('No ldogSurfaceAndCalculations path is specified. Skipping the surface making and html generation steps')
             end
         otherwise
             error('Only the dataSourceType ldogfix is implemented for dataFileType volumetric');
