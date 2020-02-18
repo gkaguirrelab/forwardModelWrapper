@@ -284,7 +284,8 @@ if strcmp(p.Results.dataFileType,'volumetric')
                 
             end
             if ~strcmp(p.Results.ldogSurfaceAndCalculations, 'Na')
-                R2MapPath = fullfile(mapsPath,[p.Results.Subject 'R2_map.nii.gz']);
+                R2MapPath = fullfile(mapsPath,[p.Results.Subject '_R2_map.nii.gz']);
+                setenv('PATH', [getenv('PATH') ':/usr/lib/ants/:/freesurfer/bin/']);
                 plotSurfCommand = ['python3.7 ' p.Results.externalSurfaceMakerPath ' ' p.Results.Subject ' ' R2MapPath ' ' p.Results.ldogSurfaceAndCalculations ' ' threshold ' ' p.Results.outPath];
                 callErrorStatus = system(plotSurfCommand);
                 if callErrorStatus
