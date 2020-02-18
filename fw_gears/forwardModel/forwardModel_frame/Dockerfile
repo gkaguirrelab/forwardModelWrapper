@@ -8,8 +8,11 @@ MAINTAINER Ozzy(ozenctaskin@hotmail.com)
 ENV FLYWHEEL /flywheel/v0/
 RUN mkdir -p ${FLYWHEEL}
 COPY manifest.json run ${FLYWHEEL}
-COPY make_fsaverage.py /opt/make_fsaverage.py
-COPY plot_maps.py /opt/plot_maps.py
+
+COPY /python_functions/make_fsaverage.py /opt/make_fsaverage.py
+COPY /python_functions/plot_maps.py /opt/plot_maps.py
+COPY /python_functions/plot_surface.py /opt/plot_surface.py
+COPY /python_functions/ldog_make_html.py /opt/ldog_make_html.py
 COPY func_input/ /opt/func_input 
 COPY flywheel.mlsettings /usr/flywheel.mlsettings
 RUN chmod +x /flywheel/v0/run

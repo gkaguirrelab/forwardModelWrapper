@@ -1,18 +1,52 @@
 #!/usr/bin/python3.7
 
 import os
-os.system("mv /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libexpat.so.1 /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libexpat.so.1-appended")
 import json
-import nilearn
-from nilearn import plotting
-import matplotlib.pyplot as plt
 
+# Some of the libraries supplied by MATLAB runtime are old and runtime prioritize them over system libraries. So we rename them and make runtime use the system libraries instead
+os.system("mv /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libexpat.so.1 /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libexpat.so.1-appended")
+os.system("mv /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libtiff.so.5 /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libtiff.so.5-appended")
+
+# Print the system specs in the log file
 os.system('cat /proc/cpuinfo')
 
-# Flywheel path
+# Set initial Flywheel paths
 flywheel_base ='/flywheel/v0/'
+manifest_file = os.path.join(flywheel_base, 'manifest.json')
+config_path = os.path.join(flywheel_base, 'config.json')
+first_output_dir = '/firstOutput' # Working in the flywheel output folder might cause issues so creating a first level output folder 
+os.system('mkdir %s'%first_output_dir)
+final_output_dir = os.path.join(flywheel_base, 'output')
 
-# Path to input folder 
+# Set paths to the functions
+matlab_func = '/opt/func_input/run_mainWrapper.sh'
+externalMGZMakerPath = '/opt/make_fsaverage.py'
+externalMapGifMakerPath = '/opt/plot_maps.py'
+externalSurfaceMakerPath = '/opt/plot_surface.py'
+externalHtmlMakerPath = '/opt/ldog_make_html.py'
+
+# Set paths to the tools 
+mcr_path = '/usr/local/MATLAB/MATLAB_Runtime/v97' #path to MATLAB runtime
+workbench_path = '/usr/bin/wb_command'
+
+###################Parse Config Here###########################################
+
+with open(config_path) as config_file:
+    job_config = json.load(config_file)
+config = job_config['config']
+
+dataFileType = config['dataFileType']
+dataSourceType = config['dataSourceType']
+trimDummyStimTRs = config['trimDummyStimTRs']
+averageAcquisitions = config['averageAcquisitions']
+tr = config['tr']
+modelClass = config['modelClass']
+averageVoxels = config['averageVoxels']
+modelOpts = '{' + config['modelOpts'] + '}'
+
+################### Input Files ###############################################
+
+# Path to input folders 
 func_zip_folder01 = os.path.join(flywheel_base, 'input/funcZip01')
 func_zip_folder02 = os.path.join(flywheel_base, 'input/funcZip02')
 func_zip_folder03 = os.path.join(flywheel_base, 'input/funcZip03')
@@ -28,12 +62,12 @@ struct_zip_folder = os.path.join(flywheel_base, 'input/structZip')
 mask_file_folder = os.path.join(flywheel_base, 'input/maskFile')
 payload_file_folder = os.path.join(flywheel_base, 'input/payloadFile')
 
-# Set path to required inputs
+# Path to required inputs
 func_zip_path01 = os.path.join(func_zip_folder01, os.listdir(func_zip_folder01)[0])
 stim_file_path = os.path.join(stim_file_folder, os.listdir(stim_file_folder)[0])
 struct_zip_path = os.path.join(struct_zip_folder, os.listdir(struct_zip_folder)[0])
 
-# Set path to optional paths   
+# Path to optional inputs   
 if os.path.isdir(func_zip_folder02) == True:    
     func_zip_path02 = os.path.join(func_zip_folder02, os.listdir(func_zip_folder02)[0])
 else:
@@ -79,32 +113,6 @@ if os.path.isdir(payload_file_folder) == True:
 else:
     payload_file_path = 'Na'
 
-# Set other paths
-manifest_file = os.path.join(flywheel_base, 'manifest.json')
-config_path = os.path.join(flywheel_base, 'config.json')
-matlab_func = '/opt/func_input/run_mainWrapper.sh'
-first_output_dir = '/firstOutput'
-final_output_dir = os.path.join(flywheel_base, 'output')
-mcr_path = '/usr/local/MATLAB/MATLAB_Runtime/v97' #path to MATLAB runtime
-workbench_path = '/usr/bin/wb_command'
-externalMGZMakerPath = '/opt/make_fsaverage.py'
-externalMapGifMakerPath = '/opt/plot_maps.py'
-
-os.system('mkdir %s'%first_output_dir)
-###################Parse Config Here############################
-
-with open(config_path) as config_file:
-    job_config = json.load(config_file)
-config = job_config['config']
-
-dataFileType = config['dataFileType']
-dataSourceType = config['dataSourceType']
-trimDummyStimTRs = config['trimDummyStimTRs']
-averageAcquisitions = config['averageAcquisitions']
-tr = config['tr']
-modelClass = config['modelClass']
-averageVoxels = config['averageVoxels']
-modelOpts = '{' + config['modelOpts'] + '}'
 
 if dataSourceType == 'icafix':
     # Create a folder for hcpstruct config
@@ -121,8 +129,9 @@ if dataSourceType == 'icafix':
     
     subject_id = config2['Subject']
     RegName = config2['RegName']
-elif dataSourceType == 'ldogfix': 
-    # Create a folder for ldog subject file
+
+elif dataSourceType == 'ldogfix':  
+    # Create a folder for ldog subject text file
     subjecttext = '/tmp/subjectPathFolder'
     os.system('mkdir %s' % subjecttext)
     os.system('unzip -j %s \'subject_id.txt\' -d %s' % (struct_zip_path, subjecttext))
@@ -130,177 +139,56 @@ elif dataSourceType == 'ldogfix':
     with open (textfile, 'r') as idfile:
         subject_id = idfile.readlines()[0]
     RegName = 'Na'
-###################Run Algorithm################################
+   
+    # Set paths to the surface items (mesh, calculations, etc.) and unzip
+    ldogSurfaceAndCalculations = '/tmp/surface_items' #ldog_surface_calculations_folder
+    os.system('mkdir %s' % ldogSurfaceAndCalculations)
+    os.system('unzip -j %s Atlas/exvivo_warp_files.zip -d %s' % (struct_zip_path, ldogSurfaceAndCalculations))
+    os.system('unzip -j %s Atlas/Woofsurfer.zip -d %s' % (struct_zip_path, ldogSurfaceAndCalculations))    
+    os.system('unzip -q %s/Woofsurfer.zip -d %s/' % (ldogSurfaceAndCalculations, ldogSurfaceAndCalculations))
+    os.system('unzip -q %s/exvivo_warp_files.zip -d %s/' % (ldogSurfaceAndCalculations, ldogSurfaceAndCalculations))    
+
+######################### Run Algorithm #######################################
     
 cmd = """%s %s -mcruserdata ParallelProfile:/usr/flywheel.mlsettings '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' 'maskFilePath' '%s' \
 'payloadPath' '%s' 'dataFileType' '%s' 'dataSourceType' '%s' \
 'trimDummyStimTRs' '%s' 'averageAcquisitions' '%s' 'tr' '%s' \
 'externalMGZMakerPath' '%s' 'RegName' '%s' 'modelClass' '%s' 'modelOpts' '%s' \
-'workbenchPath' '%s' 'outPath' '%s' 'flywheelFlag' '1' 'Subject' '%s' 'averageVoxels' '%s' externalMapGifMakerPath '%s'""" % (matlab_func, mcr_path, func_zip_path01, 
-func_zip_path02, func_zip_path03, func_zip_path04, func_zip_path05, func_zip_path06,
-func_zip_path07, func_zip_path08, func_zip_path09, func_zip_path10,
-stim_file_path, struct_zip_path, mask_file_path, payload_file_path, dataFileType, 
-dataSourceType, trimDummyStimTRs, averageAcquisitions, tr, externalMGZMakerPath, 
-RegName, modelClass, modelOpts, workbench_path, first_output_dir, subject_id, averageVoxels, externalMapGifMakerPath)
+'workbenchPath' '%s' 'outPath' '%s' 'flywheelFlag' '1' 'Subject' '%s' 'averageVoxels' '%s' externalMapGifMakerPath '%s' externalSurfaceMakerPath '%s' \
+'externalHtmlMakerPath' '%s' ldogSurfaceAndCalculations '%s'""" % (matlab_func, mcr_path, func_zip_path01, func_zip_path02, func_zip_path03, func_zip_path04, func_zip_path05, 
+                                                                   func_zip_path06, func_zip_path07, func_zip_path08, func_zip_path09, func_zip_path10, stim_file_path, 
+                                                                   struct_zip_path, mask_file_path, payload_file_path, dataFileType, dataSourceType, trimDummyStimTRs, 
+                                                                   averageAcquisitions, tr, externalMGZMakerPath, RegName, modelClass, modelOpts, workbench_path, first_output_dir, 
+                                                                   subject_id, averageVoxels, externalMapGifMakerPath, externalSurfaceMakerPath, externalHtmlMakerPath, ldogSurfaceAndCalculations)
 
 os.system(cmd)        
 
-################## Zip everything and output ##################################
-# Move mat, pdf and png files to the final output folder
+################### Zip everything and output #################################
+
+# Move mat and pdf to the final output directory
 for i in os.listdir(first_output_dir):
-    if os.path.splitext(i)[-1].lower() == '.mat' or os.path.splitext(i)[-1].lower() == '.pdf' or os.path.splitext(i)[-1].lower() == '.png':
+    if os.path.splitext(i)[-1].lower() == '.mat' or os.path.splitext(i)[-1].lower() == '.pdf':
         os.system('mv %s %s/'%(os.path.join(first_output_dir, i), final_output_dir)) 
+ 
+# Move the folders containing any mri image files to the final output     
+if os.path.exists((os.path.join(first_output_dir,'%s_maps_cifti' % subject_id))):
+    os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'%s_maps_cifti' % subject_id), os.path.join(final_output_dir,'%s_maps_cifti.zip' % subject_id)))
+if os.path.exists((os.path.join(first_output_dir,'%s_maps_nativeMGZ' % subject_id))):
+    os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'%s_maps_nativeMGZ' % subject_id), os.path.join(final_output_dir,'%s_maps_nativeMGZ.zip' % subject_id)))
+if os.path.exists((os.path.join(first_output_dir,'%s_maps_nativeMGZ_pseudoHemisphere' % subject_id))):    
+    os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'%s_maps_nativeMGZ_pseudoHemisphere' % subject_id), os.path.join(final_output_dir,'%s_maps_nativeMGZ_pseudoHemisphere.zip' % subject_id)))
+if os.path.exists((os.path.join(first_output_dir,'%s_maps_volumetric' % subject_id))):
+    os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'%s_maps_volumetric' % subject_id), os.path.join(final_output_dir,'%s_maps_volumetric.zip' % subject_id)))
 
+# If the icafix protocol is used, move the brain plots directly to the final output folder     
 if dataSourceType == 'icafix':
-    # Zip and move the maps if they are there
-    if os.path.exists((os.path.join(first_output_dir,'%s_maps_cifti' % subject_id))):
-        os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'%s_maps_cifti' % subject_id), os.path.join(final_output_dir,'%s_maps_cifti.zip' % subject_id)))
-    if os.path.exists((os.path.join(first_output_dir,'%s_maps_nativeMGZ' % subject_id))):
-        os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'%s_maps_nativeMGZ' % subject_id), os.path.join(final_output_dir,'%s_maps_nativeMGZ.zip' % subject_id)))
-    if os.path.exists((os.path.join(first_output_dir,'%s_maps_nativeMGZ_pseudoHemisphere' % subject_id))):    
-        os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'%s_maps_nativeMGZ_pseudoHemisphere' % subject_id), os.path.join(final_output_dir,'%s_maps_nativeMGZ_pseudoHemisphere.zip' % subject_id)))
+    for i in os.listdir(first_output_dir):
+        if os.path.splitext(i)[-1].lower() == '.png':
+            os.system('mv %s %s/'%(os.path.join(first_output_dir, i), final_output_dir))
 
+# If ldog protocol is used create an html from the brain plots
 if dataSourceType == 'ldogfix':   
-    # Plot maps on surface 
-    
-    # Set paths and unzip
-    surface_items = '/tmp/surface_items'
-    os.system('mkdir %s' % surface_items)
-    os.system('unzip -j %s Atlas/exvivo_warp_files.zip -d %s' % (struct_zip_path, surface_items))
-    os.system('unzip -j %s Atlas/Woofsurfer.zip -d %s' % (struct_zip_path, surface_items))    
-    os.system('unzip -q %s/Woofsurfer.zip -d %s/' % (surface_items, surface_items))
-    os.system('unzip -q %s/exvivo_warp_files.zip -d %s/' % (surface_items, surface_items))    
-    
-    # Set paths to the calculation files
-    initial_linear = os.path.join(surface_items, 'exvivo_warp_files', 'initialLinearAnts.mat')
-    secondary_linear = os.path.join(surface_items, 'exvivo_warp_files', 'secondLinearAnts.mat')
-    warp = os.path.join(surface_items, 'exvivo_warp_files', 'toEx1Warp.nii.gz')
-    register_dat = os.path.join(surface_items, 'exvivo_warp_files', 'register.dat')
-    
-    # Set paths to the surfaces 
-    orig_image = os.path.join(surface_items, 'Woofsurfer', 'mri', 'T1.nii')
-    lh_inf = os.path.join(surface_items, 'Woofsurfer', 'surf', 'lh.inflated')
-    rh_inf = os.path.join(surface_items, 'Woofsurfer', 'surf', 'rh.inflated')
-    lh_white = os.path.join(surface_items, 'Woofsurfer', 'surf', 'lh_white')
-    rh_white = os.path.join(surface_items, 'Woofsurfer', 'surf', 'rh_white')
-    
-    # Do the surface interpolation 
-    R2_map = os.path.join(first_output_dir,'%s_maps_volumetric' % subject_id, '%s_R2_map.nii.gz' % subject_id)
-    interpolated_map = os.path.join(surface_items, '%s_surface_interpolated.nii.gz' % subject_id)
-    os.system('/usr/lib/ants/antsApplyTransforms -d 3 -i %s -r %s -o %s -t %s -t %s -t %s' % (R2_map,
-                                                                                            orig_image,
-                                                                                            interpolated_map,
-                                                                                            warp,
-                                                                                            secondary_linear,
-                                                                                            initial_linear))    
-    # Make the left and right hemispheres
-    surfaces_folder = '/tmp/surfaces_folder'
-    os.system('mkdir %s' % surfaces_folder)
-    os.system('export FREESURFER_HOME=/freesurfer;/bin/bash -c \'source $FREESURFER_HOME/FreeSurferEnv.sh &>/dev/null\';export SUBJECTS_DIR=%s;/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --srcsubject Woofsurfer --hemi %s --o %s' % (surface_items, interpolated_map, interpolated_map, register_dat, 'lh', os.path.join(surfaces_folder, 'left_hemi.mgz')))
-    os.system('export FREESURFER_HOME=/freesurfer;/bin/bash -c \'source $FREESURFER_HOME/FreeSurferEnv.sh &>/dev/null\';export SUBJECTS_DIR=%s;/freesurfer/bin/mri_vol2surf --mov %s --ref %s --reg %s --srcsubject Woofsurfer --hemi %s --o %s' % (surface_items, interpolated_map, interpolated_map, register_dat, 'rh', os.path.join(surfaces_folder, 'right_hemi.mgz')))
-  
-    # Make the surface plots
-    sulc_map_lh = os.path.join(surface_items, 'Woofsurfer', 'surf', 'lh.sulc')
-    sulc_map_rh = os.path.join(surface_items, 'Woofsurfer', 'surf', 'rh.sulc')
-    loaded_lh_data = nilearn.surface.load_surf_data(os.path.join(surfaces_folder, 'left_hemi.mgz'))
-    loaded_rh_data = nilearn.surface.load_surf_data(os.path.join(surfaces_folder, 'right_hemi.mgz'))
-    loaded_inflated_left = nilearn.surface.load_surf_mesh(lh_inf)
-    loaded_inflated_right = nilearn.surface.load_surf_mesh(rh_inf)  
-    os.system('mkdir %s/images' % first_output_dir)
-    plot_folder = os.path.join(first_output_dir, 'images')
-    fig1 = plt.figure(figsize=[11,6])
-    fig2 = plt.figure(figsize=[11,6])
-    fig3 = plt.figure(figsize=[11,6])
-    fig4 = plt.figure(figsize=[11,6])
-    plotting.plot_surf_stat_map(loaded_inflated_left, loaded_lh_data, bg_map=sulc_map_lh,
-                                threshold=0.1, view='medial', title='left', figure=fig1, output_file=os.path.join(plot_folder,'%s_left_medial.png' % subject_id))
-    plotting.plot_surf_stat_map(loaded_inflated_left, loaded_lh_data, bg_map=sulc_map_lh,
-                                threshold=0.1, view='lateral', title='left', figure=fig2, output_file=os.path.join(plot_folder,'%s_left_lateral.png' % subject_id))    
-    
-    plotting.plot_surf_stat_map(loaded_inflated_right, loaded_rh_data, bg_map=sulc_map_rh,
-                                threshold=0.1, view='medial', title='right', figure=fig3, output_file=os.path.join(plot_folder,'%s_right_medial.png' % subject_id))   
-    plotting.plot_surf_stat_map(loaded_inflated_right, loaded_rh_data, bg_map=sulc_map_rh,
-                                threshold=0.1, view='lateral', title='right', figure=fig4, output_file=os.path.join(plot_folder,'%s_right_lateral.png' % subject_id))     
-    
-    # First zip and output the results
-    if os.path.exists((os.path.join(first_output_dir,'%s_maps_volumetric' % subject_id))):
-        os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'%s_maps_volumetric' % subject_id), os.path.join(final_output_dir,'%s_maps_volumetric.zip' % subject_id)))
-    
-    # Move all the gifs and images into another folder   
-    saggital_gif = os.path.join(first_output_dir, subject_id + '_R2_statMap_saggital_plots.gif') 
-    axial_gif = os.path.join(first_output_dir, subject_id + '_R2_statMap_axial_plots.gif') 
-    coronal_gif = os.path.join(first_output_dir, subject_id + '_R2_statMap_coronal_plots.gif') 
-    saggital_gif_eigen1 = os.path.join(first_output_dir, subject_id + '_eigen1_statMap_saggital_plots.gif') 
-    axial_gif_eigen1 = os.path.join(first_output_dir, subject_id + '_eigen1_statMap_axial_plots.gif') 
-    coronal_gif_eigen1 = os.path.join(first_output_dir, subject_id + '_eigen1_statMap_coronal_plots.gif')   
-    saggital_gif_eigen2 = os.path.join(first_output_dir, subject_id + '_eigen2_statMap_saggital_plots.gif') 
-    axial_gif_eigen2 = os.path.join(first_output_dir, subject_id + '_eigen2_statMap_axial_plots.gif') 
-    coronal_gif_eigen2 = os.path.join(first_output_dir, subject_id + '_eigen2_statMap_coronal_plots.gif') 
-    saggital_gif_eigen3 = os.path.join(first_output_dir, subject_id + '_eigen3_statMap_saggital_plots.gif') 
-    axial_gif_eigen3 = os.path.join(first_output_dir, subject_id + '_eigen3_statMap_axial_plots.gif') 
-    coronal_gif_eigen3 = os.path.join(first_output_dir, subject_id + '_eigen3_statMap_coronal_plots.gif') 
-    saggital_gif_log = os.path.join(first_output_dir, subject_id + '_log10pMVN_statMap_saggital_plots.gif') 
-    axial_gif_log = os.path.join(first_output_dir, subject_id + '_log10pMVN_statMap_axial_plots.gif') 
-    coronal_gif_log = os.path.join(first_output_dir, subject_id + '_log10pMVN_statMap_coronal_plots.gif')     
-    os.system('mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s; mv %s %s' % (saggital_gif, plot_folder, axial_gif, plot_folder, coronal_gif, plot_folder,
-                                                                                                                                                                        saggital_gif_eigen1, plot_folder, axial_gif_eigen1, plot_folder, coronal_gif_eigen1, plot_folder,
-                                                                                                                                                                        saggital_gif_eigen2, plot_folder, axial_gif_eigen2, plot_folder, coronal_gif_eigen2, plot_folder,
-                                                                                                                                                                        saggital_gif_eigen3, plot_folder, axial_gif_eigen3, plot_folder, coronal_gif_eigen3, plot_folder,
-                                                                                                                                                                        saggital_gif_log, plot_folder, axial_gif_log, plot_folder, coronal_gif_log, plot_folder))
-    html_file = open('%s/index.html' % first_output_dir,'w')
-    html_content = """
-    <h1>Surface</h1>
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Left_lateral">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Right_lateral">
-    <p style="clear: both;">      
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Left_medial">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Right_medial">
-    <p style="clear: both;">
-    <h1>R2</h1>
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">
-    <p style="clear: both;">   
-    <h1>Eigen1</h1>
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">
-    <p style="clear: both;">
-    <h1>Eigen2</h1>
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">
-    <p style="clear: both;"> 
-    <h1>Eigen3</h1>
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">
-    <p style="clear: both;">
-    <h1>log10pMVN</h1>
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Saggital">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Axial">
-    <img src="./%s" style="float: left; width: 30%%; margin-right: 1%%; margin-bottom: 0.5em;" alt="Coronal">
-    <p style="clear: both;">
-    """ % ('images/%s_left_medial.png' % subject_id,
-           'images/%s_right_lateral.png' % subject_id,
-           'images/%s_left_lateral.png' % subject_id, 
-           'images/%s_right_medial.png' % subject_id, 
-           'images/%s_R2_statMap_saggital_plots.gif' % subject_id, 
-           'images/%s_R2_statMap_axial_plots.gif' % subject_id,
-           'images/%s_R2_statMap_coronal_plots.gif' % subject_id,
-           'images/%s_eigen1_statMap_saggital_plots.gif' % subject_id,
-           'images/%s_eigen1_statMap_axial_plots.gif' % subject_id,
-           'images/%s_eigen1_statMap_coronal_plots.gif' % subject_id,
-           'images/%s_eigen2_statMap_saggital_plots.gif' % subject_id,
-           'images/%s_eigen2_statMap_axial_plots.gif' % subject_id,
-           'images/%s_eigen2_statMap_coronal_plots.gif' % subject_id,
-           'images/%s_eigen3_statMap_saggital_plots.gif' % subject_id,
-           'images/%s_eigen3_statMap_axial_plots.gif' % subject_id,
-           'images/%s_eigen3_statMap_coronal_plots.gif' % subject_id,
-           'images/%s_log10pMVN_statMap_saggital_plots.gif' % subject_id, 
-           'images/%s_log10pMVN_statMap_axial_plots.gif' % subject_id,
-           'images/%s_log10pMVN_statMap_coronal_plots.gif' % subject_id)
-        
-    html_file.write(html_content)
-    html_file.close()   
+    images_folder = os.path.join(first_output_dir, 'images')
+    os.system('mkdir %s' % images_folder)
+    os.system('cd %s; mv *.png *.gif %s' % (first_output_dir, images_folder))    
     os.system('cd %s; zip -q -r %s images *.html' % (first_output_dir, os.path.join(final_output_dir, subject_id + '_results.html.zip')))

@@ -10,6 +10,7 @@ warnings.filterwarnings("ignore")
 
 def plot_maps(template_path, map_path, threshold, stem_name, output):
     
+    print('Generating gifs')
     threshold = float(threshold)	    
     
     def natural_key(string_):
