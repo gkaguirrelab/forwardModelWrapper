@@ -35,6 +35,7 @@ RUN apt-get install -y \
 
 # Install python packages   
 RUN python3.7 -m pip install --upgrade pip
+RUN pip install numpy
 RUN python3.7 -m pip install matplotlib nibabel==2.5.1 numpy imageio nilearn neuropythy
 
 # Download and install MCR on call
