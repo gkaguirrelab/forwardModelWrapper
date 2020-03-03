@@ -31,7 +31,8 @@ RUN apt-get install -y \
     zip \
     unzip \
     fsl-core \
-    ants
+    ants \
+    connectome-workbench
 
 # Install python packages   
 RUN python3.7 -m pip install --upgrade pip
