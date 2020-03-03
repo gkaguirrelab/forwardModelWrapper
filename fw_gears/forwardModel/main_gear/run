@@ -129,6 +129,7 @@ if dataSourceType == 'icafix':
     
     subject_id = config2['Subject']
     RegName = config2['RegName']
+    ldogSurfaceAndCalculations = 'Na'
 
 elif dataSourceType == 'ldogfix':  
     # Create a folder for ldog subject text file
