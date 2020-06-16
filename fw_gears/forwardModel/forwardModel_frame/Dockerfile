@@ -37,7 +37,7 @@ RUN apt-get install -y \
 # Install python packages   
 RUN python3.7 -m pip install --upgrade pip
 RUN pip install numpy
-RUN python3.7 -m pip install matplotlib nibabel==2.5.1 numpy imageio nilearn neuropythy
+RUN python3.7 -m pip install 'matplotlib==3.1.3' 'nibabel==2.5.1' 'numpy==1.18.1' 'imageio==2.8.0' 'nilearn==0.6.2' 'neuropythy==0.11.5'
 
 # Download and install MCR on call
 RUN wget http://ssd.mathworks.com/supportfiles/downloads/R2019b/Release/2/deployment_files/installer/complete/glnxa64/MATLAB_Runtime_R2019b_Update_2_glnxa64.zip
