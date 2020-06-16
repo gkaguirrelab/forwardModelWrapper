@@ -176,6 +176,14 @@ for jj=1:length(funcZipPath)
            nAcquisitions = length(acquisitionList);            
            acqIdxOrder = 1:nAcquisitions;
             
+        case 'vol2surf'
+            
+            % vol2surf gear saves the acquisitions in a cifti folder
+            % located in the main directory
+            acquisitionList = dir(fullfile(zipDir,'ciftiFSLR_32k','*.nii'));
+            nAcquisitions = length(acquisitionList); 
+            acqIdxOrder = 1:nAcquisitions;
+            
     end
     
     % Loop through the acquisitions
@@ -195,6 +203,8 @@ for jj=1:length(funcZipPath)
                         rawName = strcat(acquisitionList(ii).folder, filesep, acquisitionList(ii).name,filesep, acquisitionList(ii).name, '_', 'Atlas_hp2000_clean.dtseries.nii');
                 end
             case {'ldogfix','ldogFix'}
+                rawName = fullfile(acquisitionList(ii).folder,acquisitionList(ii).name);
+            case 'vol2surf'
                 rawName = fullfile(acquisitionList(ii).folder,acquisitionList(ii).name);
         end
         
