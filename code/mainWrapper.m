@@ -23,7 +23,8 @@ function [structDirPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath] = main
 %   stimFilePath          - String. Path to a .mat file that contains the
 %                           stimulus description.
 %   structZipPath         - String. Path to a zip file that is the output
-%                           of an hcp-struct gear operation.
+%                           of an hcp-struct gear operation. If you are
+%                           using the vol2surf protocol, pass 'Na' here.
 %
 % Optional key/value pairs:
 %  'maskFilePath'         - String. Path to a file that defines a boolean
@@ -309,66 +310,74 @@ end
 % native-space MGZ images. These files can then serve as input to the
 % neuropythy Bayesian fitting routine.
 if strcmp(p.Results.dataFileType,'cifti')
-    % Uncompress the structZip into the dir that holds the zip. We do this
-    % with a system call so that we can prevent over-writing a prior unzipped
-    % version of the data (which can happen in demo mode).
-    command = ['unzip -q -n ' structZipPath ' -d ' fileparts(structZipPath)];
-    system(command);
-    
-    % Find the directory that is produced by this unzip operation
-    fileList = dir(fileparts(structZipPath));
-    fileList = fileList(...
-        cellfun(@(x) ~startsWith(x,'.'),extractfield(fileList,'name')) ...
-        );
-    fileList = fileList(cell2mat(extractfield(fileList,'isdir')));
-    structDirPath = fullfile(fileList.folder,fileList.name);
-    subjectName = fileList.name;
-    
-    % Create directories for the output files
-    nativeSpaceDirPath = fullfile(p.Results.outPath, [p.Results.Subject '_maps_nativeMGZ']);
-    if ~exist(nativeSpaceDirPath,'dir')
-        mkdir(nativeSpaceDirPath);
-    end
-    pseudoHemiDirPath = fullfile(p.Results.outPath, [p.Results.Subject '_maps_nativeMGZ_pseudoHemisphere']);
-    if ~exist(pseudoHemiDirPath,'dir')
-        mkdir(pseudoHemiDirPath);
-    end
-    
-    % Perform the call and report if an error occurred
-    command =  ['python3.7 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' structDirPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath ' ' p.Results.Subject];
-    callErrorStatus = system(command);
-    if callErrorStatus
-        warning('An error occurred during execution of the external Python function for map conversion');
-    end
-    
-    % Save rh map images
-    surfPath = fullfile(structDirPath,'T1w',subjectName,'surf');
-    for mm = 1:length(results.meta.mapField)
-        dataPath = fullfile(nativeSpaceDirPath,['R_' p.Results.Subject '_' results.meta.mapField{mm} '_map.mgz']);
-        fig = makeSurfMap(dataPath,surfPath, ...
-            'mapScale',results.meta.mapScale{mm}, ...
-            'mapLabel',results.meta.mapLabel{mm}, ...
-            'mapBounds',results.meta.mapBounds{mm}, ...
-            'hemisphere','rh','visible',false);
-        plotFileName = fullfile(p.Results.outPath,['rh.' p.Results.Subject '_' results.meta.mapField{mm} '.png']);
-        print(fig,plotFileName,'-dpng')
-        close(fig);
-    end
-    
-    % Save lh map images
-    surfPath = fullfile(structDirPath,'T1w',subjectName,'surf');
-    for mm = 1:length(results.meta.mapField)
-        dataPath = fullfile(nativeSpaceDirPath,['L_' p.Results.Subject '_' results.meta.mapField{mm} '_map.mgz']);
-        fig = makeSurfMap(dataPath,surfPath, ...
-            'mapScale',results.meta.mapScale{mm}, ...
-            'mapLabel',results.meta.mapLabel{mm}, ...
-            'mapBounds',results.meta.mapBounds{mm}, ...
-            'hemisphere','lh','visible',false);
-        plotFileName = fullfile(p.Results.outPath,['lh.'  p.Results.Subject '_' results.meta.mapField{mm} '.png']);
-        print(fig,plotFileName,'-dpng')
-        close(fig);
-    end
-    
+    % Depends on the case again 
+    switch p.Results.dataSourceType
+        case 'icafix'
+            % Uncompress the structZip into the dir that holds the zip. We do this
+            % with a system call so that we can prevent over-writing a prior unzipped
+            % version of the data (which can happen in demo mode).
+            command = ['unzip -q -n ' structZipPath ' -d ' fileparts(structZipPath)];
+            system(command);
+
+            % Find the directory that is produced by this unzip operation
+            fileList = dir(fileparts(structZipPath));
+            fileList = fileList(...
+                cellfun(@(x) ~startsWith(x,'.'),extractfield(fileList,'name')) ...
+                );
+            fileList = fileList(cell2mat(extractfield(fileList,'isdir')));
+            structDirPath = fullfile(fileList.folder,fileList.name);
+            subjectName = fileList.name;
+            
+            % Create directories for the output files
+            nativeSpaceDirPath = fullfile(p.Results.outPath, [p.Results.Subject '_maps_nativeMGZ']);
+            if ~exist(nativeSpaceDirPath,'dir')
+                mkdir(nativeSpaceDirPath);
+            end
+            pseudoHemiDirPath = fullfile(p.Results.outPath, [p.Results.Subject '_maps_nativeMGZ_pseudoHemisphere']);
+            if ~exist(pseudoHemiDirPath,'dir')
+                mkdir(pseudoHemiDirPath);
+            end
+
+            % Perform the call and report if an error occurred
+            command =  ['python3.7 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' structDirPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath ' ' p.Results.Subject];
+            callErrorStatus = system(command);
+            if callErrorStatus
+                warning('An error occurred during execution of the external Python function for map conversion');
+            end
+
+            % Save rh map images
+            surfPath = fullfile(structDirPath,'T1w',subjectName,'surf');
+            for mm = 1:length(results.meta.mapField)
+                dataPath = fullfile(nativeSpaceDirPath,['R_' p.Results.Subject '_' results.meta.mapField{mm} '_map.mgz']);
+                fig = makeSurfMap(dataPath,surfPath, ...
+                    'mapScale',results.meta.mapScale{mm}, ...
+                    'mapLabel',results.meta.mapLabel{mm}, ...
+                    'mapBounds',results.meta.mapBounds{mm}, ...
+                    'hemisphere','rh','visible',false);
+                plotFileName = fullfile(p.Results.outPath,['rh.' p.Results.Subject '_' results.meta.mapField{mm} '.png']);
+                print(fig,plotFileName,'-dpng')
+                close(fig);
+            end
+
+            % Save lh map images
+            surfPath = fullfile(structDirPath,'T1w',subjectName,'surf');
+            for mm = 1:length(results.meta.mapField)
+                dataPath = fullfile(nativeSpaceDirPath,['L_' p.Results.Subject '_' results.meta.mapField{mm} '_map.mgz']);
+                fig = makeSurfMap(dataPath,surfPath, ...
+                    'mapScale',results.meta.mapScale{mm}, ...
+                    'mapLabel',results.meta.mapLabel{mm}, ...
+                    'mapBounds',results.meta.mapBounds{mm}, ...
+                    'hemisphere','lh','visible',false);
+                plotFileName = fullfile(p.Results.outPath,['lh.'  p.Results.Subject '_' results.meta.mapField{mm} '.png']);
+                print(fig,plotFileName,'-dpng')
+                close(fig);
+            end
+        case 'vol2surf'
+            fprintf('Cifti R2 plotting is not implemented yet, so no plots will be created')
+        otherwise
+            error('Only the dataSourceType vol2surf and icafix are implemented for dataFileType cifti');
+            
+    end % switch for cifti types
 end % Handle CIFTI maps
 
 end % Main function
