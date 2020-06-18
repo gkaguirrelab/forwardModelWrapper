@@ -169,7 +169,7 @@
 		"structZip": {
 			"description": "The output structural zip file of an HCP struct analysis",
 			"base": "file",
-			"optional": false,
+			"optional": true,
 			"type": {
 				"enum": [
 					"archive"

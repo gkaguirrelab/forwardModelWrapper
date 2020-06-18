@@ -1,6 +1,8 @@
 #!/usr/bin/python3.7
 
 import os
+# os.system('pip3 install \'hcp-utils==0.1.0\' \'pandas==1.0.3\'')
+# import hcp_utils
 import json
 
 # Some of the libraries supplied by MATLAB runtime are old and runtime prioritize them over system libraries. So we rename them and make runtime use the system libraries instead
@@ -65,9 +67,12 @@ payload_file_folder = os.path.join(flywheel_base, 'input/payloadFile')
 # Path to required inputs
 func_zip_path01 = os.path.join(func_zip_folder01, os.listdir(func_zip_folder01)[0])
 stim_file_path = os.path.join(stim_file_folder, os.listdir(stim_file_folder)[0])
-struct_zip_path = os.path.join(struct_zip_folder, os.listdir(struct_zip_folder)[0])
 
 # Path to optional inputs   
+if os.path.isdir(struct_zip_folder) == True:   
+    struct_zip_path = os.path.join(struct_zip_folder, os.listdir(struct_zip_folder)[0])
+else:
+    struct_zip_path = 'Na'
 if os.path.isdir(func_zip_folder02) == True:    
     func_zip_path02 = os.path.join(func_zip_folder02, os.listdir(func_zip_folder02)[0])
 else:
@@ -149,6 +154,13 @@ elif dataSourceType == 'ldogfix':
     os.system('unzip -q %s/Woofsurfer.zip -d %s/' % (ldogSurfaceAndCalculations, ldogSurfaceAndCalculations))
     os.system('unzip -q %s/exvivo_warp_files.zip -d %s/' % (ldogSurfaceAndCalculations, ldogSurfaceAndCalculations))    
 
+elif dataSourceType == 'vol2surf':  
+    RegName = 'Na'
+    # Get the subject id by looking between sub and ses for fmriprep stuff
+    if 'sub-' in func_zip_path01 and '_ses' in func_zip_path01:
+        subject_id =  (func_zip_path01.split('sub-'))[1].split('_ses')[0]
+    else:
+        subject_id = 'Subject'
 ######################### Run Algorithm #######################################
     
 cmd = """%s %s -mcruserdata ParallelProfile:/usr/flywheel.mlsettings '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' 'maskFilePath' '%s' \
