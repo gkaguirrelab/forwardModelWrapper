@@ -156,6 +156,7 @@ elif dataSourceType == 'ldogfix':
 
 elif dataSourceType == 'vol2surf':  
     RegName = 'Na'
+    ldogSurfaceAndCalculations = 'Na'
     # Get the subject id by looking between sub and ses for fmriprep stuff
     if 'sub-' in func_zip_path01 and '_ses' in func_zip_path01:
         subject_id =  (func_zip_path01.split('sub-'))[1].split('_ses')[0]

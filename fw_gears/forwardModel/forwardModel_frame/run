@@ -155,6 +155,7 @@ elif dataSourceType == 'ldogfix':
     os.system('unzip -q %s/exvivo_warp_files.zip -d %s/' % (ldogSurfaceAndCalculations, ldogSurfaceAndCalculations))    
 
 elif dataSourceType == 'vol2surf':  
+    ldogSurfaceAndCalculations = 'Na'
     RegName = 'Na'
     # Get the subject id by looking between sub and ses for fmriprep stuff
     if 'sub-' in func_zip_path01 and '_ses' in func_zip_path01:

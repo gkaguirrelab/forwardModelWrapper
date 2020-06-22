@@ -1,203 +1,203 @@
 {
-    "name": "forwardmodel",
-    "label": "forwardModel: non-linear fitting of models to fMRI data",
-    "description": "This gear takes as input the functional outputs from ICA-FIX, and then conducts non-linear fitting of parameterized models to the time-series across voxels and vertices. One application is pRF mapping. Model selection and option specification is performed in the config panel.",
-    "version": "0.8.1",
-    "inputs": {
-        "funcZip01": {
-            "base": "file",
-            "description": "The output functional zip file of an ICA-FIX analysis.",
-            "optional": false,
-            "type": {
-                "enum": [
-                    "archive"
-                ]
-            }
-        },
-        "funcZip02": {
-            "base": "file",
-            "description": "The output functional zip file of an ICA-FIX analysis.",
-            "optional": true,
-            "type": {
-                "enum": [
-                    "archive"
-                ]
-            }
-        },
-        "funcZip03": {
-            "base": "file",
-            "description": "The output functional zip file of an ICA-FIX analysis.",
-            "optional": true,
-            "type": {
-                "enum": [
-                    "archive"
-                ]
-            }
-        },
-        "funcZip04": {
-            "base": "file",
-            "description": "The output functional zip file of an ICA-FIX analysis.",
-            "optional": true,
-            "type": {
-                "enum": [
-                    "archive"
-                ]
-            }
-        },
-        "funcZip05": {
-            "base": "file",
-            "description": "The output functional zip file of an ICA-FIX analysis.",
-            "optional": true,
-            "type": {
-                "enum": [
-                    "archive"
-                ]
-            }
-        },
-        "funcZip06": {
-            "base": "file",
-            "description": "The output functional zip file of an ICA-FIX analysis.",
-            "optional": true,
-            "type": {
-                "enum": [
-                    "archive"
-                ]
-            }
-        },
-        "funcZip07": {
-            "base": "file",
-            "description": "The output functional zip file of an ICA-FIX analysis.",
-            "optional": true,
-            "type": {
-                "enum": [
-                    "archive"
-                ]
-            }
-        },
-        "funcZip08": {
-            "base": "file",
-            "description": "The output functional zip file of an ICA-FIX analysis.",
-            "optional": true,
-            "type": {
-                "enum": [
-                    "archive"
-                ]
-            }
-        },
-        "funcZip09": {
-            "base": "file",
-            "description": "The output functional zip file of an ICA-FIX analysis.",
-            "optional": true,
-            "type": {
-                "enum": [
-                    "archive"
-                ]
-            }
-        },
-        "funcZip10": {
-            "base": "file",
-            "description": "The output functional zip file of an ICA-FIX analysis.",
-            "optional": true,
-            "type": {
-                "enum": [
-                    "archive"
-                ]
-            }
-        },
-        "maskFile": {
-            "base": "file",
-            "description": "CIFTI FSLR mask to specify which voxels to analyze. If empty, analyze the whole brain. Using a mask significantly decreases the analysis time.",
-            "optional": true,
-            "type": {
-                "enum": [
-                    "nifti"
-                ]
-            }
-        },
-        "payloadFile": {
-            "base": "file",
-            "description": "A matlab (.mat) file that contains a single variable named \u201cpayload\u201d that is a cell-array of items to be provided to the forward model. Not all models make use of a payload.",
-            "optional": true,
-            "type": {
-                "enum": [
-                    "MATLAB data"
-                ]
-            }
-        },
-        "stimFile": {
-            "base": "file",
-            "description": "A matlab (.mat) file that contains the stimulus apertures, which is a cell vector of R x C x time. Values should be in [0,1]. The number of time points can differ across runs. The cell vector should either be of length n, where n is the number of acquisitions that are present in the input data zip file, or length 1, in which case the cell vector is assumed to apply to every acquisition.",
-            "optional": false,
-            "type": {
-                "enum": [
-                    "MATLAB data"
-                ]
-            }
-        },
-        "structZip": {
-            "base": "file",
-            "description": "The output structural zip file of an HCP struct analysis",
-            "optional": true,
-            "type": {
-                "enum": [
-                    "archive"
-                ]
-            }
-        }
-    },
-    "config": {
-        "averageAcquisitions": {
-            "default": "0",
-            "description": "If set to 1, the fMRI data is averaged across acquisitions. Only valid if all acquisitions used the same stimulus and are of the same duration",
-            "type": "string"
-        },
-        "averageVoxels": {
-            "default": "0",
-            "description": "Average voxels. 0 or 1. Default: 0",
-            "type": "string"
-        },
-        "dataFileType": {
-            "default": "cifti",
-            "description": "Select the data type. Currently, only cifti surface files can be received from the ica-fix output",
-            "type": "string"
-        },
-        "dataSourceType": {
-            "default": "icafix",
-            "description": "Input archive type. Currently, only icafix archives are supported",
-            "type": "string"
-        },
-        "modelClass": {
-            "default": "prfTimeShift",
-            "description": "The model to be fit to the fMRI data. Valid options include 'pRF_timeShift', 'deriveHRF'",
-            "type": "string"
-        },
-        "modelOpts": {
-            "default": "(pixelsPerDegree), 5.18, (screenMagnification), 1, (polyDeg), [], (typicalGain), 300",
-            "description": "A formatted string that provides key-value pairs to the model. Enclose each key in parentheses, and separate all keys and values with commas. The default opts are for the prf_timeShift model. Other opts can be found by examining the readme files for different models at: https://github.com/gkaguirrelab/forwardModel",
-            "type": "string"
-        },
-        "tr": {
-            "description": "Required. TR in seconds (e.g. 1.5).",
-            "type": "string"
-        },
-        "trimDummyStimTRs": {
-            "default": "0",
-            "description": "Used when the stimulus and data lengths are not equal and the inequality is due to the removal of dummy TRs from the sample. Calculates the mean along the time dimension for each voxel and adds that mean to the front of the data matrix. This procedure is repeated multiple times if required until data and stimulus sample lengths are exactly the same. If this option is set to zero, and the stimulus.mat file and the data have different numbers of timepoints, then the stimulus will be assumed to be of the same duration as the data so needs be resampled beforehand to match in temporal resolution. 1 for true and 0 for false. Default = 0 (false)",
-            "type": "string"
-        }
-    },
-    "author": "Geoffrey K. Aguirre",
-    "maintainer": "Ozenc Taskin",
-    "license": "Other",
-    "source": "https://github.com/gkaguirrelab/forwardModelWrapper",
-    "url": "https://github.com/gkaguirrelab/forwardmodel",
-    "custom": {
-        "flywheel": {
-            "suite": "GKAguirreLab"
-        },
-        "gear-builder": {
-            "category": "analysis",
-            "image": "gkaguirrelab/forwardmodel:0.8.1"
-        }
-    }
+	"name": "forwardmodel",
+	"label": "forwardModel: non-linear fitting of models to fMRI data",
+	"description": "This gear takes as input the functional outputs from ICA-FIX, and then conducts non-linear fitting of parameterized models to the time-series across voxels and vertices. One application is pRF mapping. Model selection and option specification is performed in the config panel.",
+	"version": "0.8.1",
+	"inputs": {
+		"funcZip01": {
+			"base": "file",
+			"description": "The output functional zip file of an ICA-FIX analysis.",
+			"optional": false,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZip02": {
+			"base": "file",
+			"description": "The output functional zip file of an ICA-FIX analysis.",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZip03": {
+			"base": "file",
+			"description": "The output functional zip file of an ICA-FIX analysis.",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZip04": {
+			"base": "file",
+			"description": "The output functional zip file of an ICA-FIX analysis.",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZip05": {
+			"base": "file",
+			"description": "The output functional zip file of an ICA-FIX analysis.",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZip06": {
+			"base": "file",
+			"description": "The output functional zip file of an ICA-FIX analysis.",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZip07": {
+			"base": "file",
+			"description": "The output functional zip file of an ICA-FIX analysis.",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZip08": {
+			"base": "file",
+			"description": "The output functional zip file of an ICA-FIX analysis.",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZip09": {
+			"base": "file",
+			"description": "The output functional zip file of an ICA-FIX analysis.",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"funcZip10": {
+			"base": "file",
+			"description": "The output functional zip file of an ICA-FIX analysis.",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		},
+		"maskFile": {
+			"base": "file",
+			"description": "CIFTI FSLR mask to specify which voxels to analyze. If empty, analyze the whole brain. Using a mask significantly decreases the analysis time.",
+			"optional": true,
+			"type": {
+				"enum": [
+					"nifti"
+				]
+			}
+		},
+		"payloadFile": {
+			"base": "file",
+			"description": "A matlab (.mat) file that contains a single variable named “payload” that is a cell-array of items to be provided to the forward model. Not all models make use of a payload.",
+			"optional": true,
+			"type": {
+				"enum": [
+					"MATLAB data"
+				]
+			}
+		},
+		"stimFile": {
+			"base": "file",
+			"description": "A matlab (.mat) file that contains the stimulus apertures, which is a cell vector of R x C x time. Values should be in [0,1]. The number of time points can differ across runs. The cell vector should either be of length n, where n is the number of acquisitions that are present in the input data zip file, or length 1, in which case the cell vector is assumed to apply to every acquisition.",
+			"optional": false,
+			"type": {
+				"enum": [
+					"MATLAB data"
+				]
+			}
+		},
+		"structZip": {
+			"base": "file",
+			"description": "The output structural zip file of an HCP struct analysis",
+			"optional": true,
+			"type": {
+				"enum": [
+					"archive"
+				]
+			}
+		}
+	},
+	"config": {
+		"averageAcquisitions": {
+			"default": "0",
+			"description": "If set to 1, the fMRI data is averaged across acquisitions. Only valid if all acquisitions used the same stimulus and are of the same duration",
+			"type": "string"
+		},
+		"averageVoxels": {
+			"default": "0",
+			"description": "Average voxels. 0 or 1. Default: 0",
+			"type": "string"
+		},
+		"dataFileType": {
+			"default": "cifti",
+			"description": "Select the data type. Currently, only cifti surface files can be received from the ica-fix output",
+			"type": "string"
+		},
+		"dataSourceType": {
+			"default": "icafix",
+			"description": "Input archive type. Currently, only icafix archives are supported",
+			"type": "string"
+		},
+		"modelClass": {
+			"default": "prfTimeShift",
+			"description": "The model to be fit to the fMRI data. Valid options include 'pRF_timeShift', 'deriveHRF'",
+			"type": "string"
+		},
+		"modelOpts": {
+			"default": "(pixelsPerDegree), 5.18, (screenMagnification), 1, (polyDeg), [], (typicalGain), 300",
+			"description": "A formatted string that provides key-value pairs to the model. Enclose each key in parentheses, and separate all keys and values with commas. The default opts are for the prf_timeShift model. Other opts can be found by examining the readme files for different models at: https://github.com/gkaguirrelab/forwardModel",
+			"type": "string"
+		},
+		"tr": {
+			"description": "Required. TR in seconds (e.g. 1.5).",
+			"type": "string"
+		},
+		"trimDummyStimTRs": {
+			"default": "0",
+			"description": "Used when the stimulus and data lengths are not equal and the inequality is due to the removal of dummy TRs from the sample. Calculates the mean along the time dimension for each voxel and adds that mean to the front of the data matrix. This procedure is repeated multiple times if required until data and stimulus sample lengths are exactly the same. If this option is set to zero, and the stimulus.mat file and the data have different numbers of timepoints, then the stimulus will be assumed to be of the same duration as the data so needs be resampled beforehand to match in temporal resolution. 1 for true and 0 for false. Default = 0 (false)",
+			"type": "string"
+		}
+	},
+	"author": "Geoffrey K. Aguirre",
+	"maintainer": "Ozenc Taskin",
+	"license": "Other",
+	"source": "https://github.com/gkaguirrelab/forwardModelWrapper",
+	"url": "https://github.com/gkaguirrelab/forwardmodel",
+	"custom": {
+		"flywheel": {
+			"suite": "GKAguirreLab"
+		},
+		"gear-builder": {
+			"category": "analysis",
+			"image": "gkaguirrelab/forwardmodelgear:0.8.1"
+		}
+	}
 }
