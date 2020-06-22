@@ -99,7 +99,7 @@ else
                 fileName = fullfile(mapOutDirName,[Subject '_' fieldsToSave{ii} '_map.dtseries.nii']);
                 outData = templateImage;
                 outData.cdata = single(results.(fieldsToSave{ii}));
-                ciftisave(outData, fileName, workbenchPath)
+                write_cifti(outData, fileName)
             otherwise
                 error('not a recognized dataFileType')
         end
