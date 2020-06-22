@@ -83,13 +83,13 @@
 		"hook": "",
 		"importance": "",
 		"localHookTemplate": "",
-		"name": "HCPpipelines",
+		"name": "ciftiMatlab",
 		"pathPlacement": "prepend",
 		"subfolder": "global",
 		"toolboxRoot": "",
 		"type": "git",
 		"update": "",
-		"url": "https:\/\/github.com\/Washington-University\/HCPpipelines.git"
+        "url": "https:\/\/github.com\/Washington-University\/cifti-matlab.git"
 	}
 ]
 
