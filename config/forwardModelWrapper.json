@@ -85,7 +85,7 @@
 		"localHookTemplate": "",
 		"name": "ciftiMatlab",
 		"pathPlacement": "prepend",
-		"subfolder": "global",
+		"subfolder": "",
 		"toolboxRoot": "",
 		"type": "git",
 		"update": "",
