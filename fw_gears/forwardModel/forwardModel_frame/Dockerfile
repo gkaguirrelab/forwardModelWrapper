@@ -13,6 +13,7 @@ COPY /python_functions/make_fsaverage.py /opt/make_fsaverage.py
 COPY /python_functions/plot_maps.py /opt/plot_maps.py
 COPY /python_functions/plot_surface.py /opt/plot_surface.py
 COPY /python_functions/ldog_make_html.py /opt/ldog_make_html.py
+COPY /python_functions/plot_cifti_maps.py /opt/plot_cifti_maps.py
 COPY func_input/ /opt/func_input 
 COPY flywheel.mlsettings /usr/flywheel.mlsettings
 RUN chmod +x /flywheel/v0/run
