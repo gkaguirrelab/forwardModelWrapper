@@ -375,7 +375,7 @@ if strcmp(p.Results.dataFileType,'cifti')
         case 'vol2surf'
             for mm = 1:length(results.meta.mapField)
                 mapPath = fullfile(mapsPath,[p.Results.Subject '_' results.meta.mapField{mm} '_map.dtseries.nii']);
-                command =  ['python3.7 ' p.Results.externalSurfaceMakerPath ' ' mapPath ' ' Subject ' ' p.Results.outPath ' ' workbenchPath ' ' p.Results.outPath];
+                command =  ['python3.7 ' p.Results.externalSurfaceMakerPath ' ' mapPath ' ' p.Results.Subject ' ' p.Results.outPath ' ' workbenchPath ' ' p.Results.outPath];
                 callErrorStatus = system(command);
                 if callErrorStatus
                     warning('An error occurred during execution of the external Python function for map conversion');
