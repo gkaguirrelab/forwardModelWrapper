@@ -373,7 +373,14 @@ if strcmp(p.Results.dataFileType,'cifti')
                 close(fig);
             end
         case 'vol2surf'
-            fprintf('Cifti R2 plotting is not implemented yet, so no plots will be created')
+            for mm = 1:length(results.meta.mapField)
+                mapPath = fullfile(mapsPath,[p.Results.Subject '_' results.meta.mapField{mm} '_map.dtseries.nii']);
+                command =  ['python3.7 ' p.Results.externalSurfaceMakerPath ' ' mapPath ' ' Subject ' ' p.Results.outPath ' ' workbenchPath ' ' p.Results.outPath];
+                callErrorStatus = system(command);
+                if callErrorStatus
+                    warning('An error occurred during execution of the external Python function for map conversion');
+                end
+            end
         otherwise
             error('Only the dataSourceType vol2surf and icafix are implemented for dataFileType cifti');
             
