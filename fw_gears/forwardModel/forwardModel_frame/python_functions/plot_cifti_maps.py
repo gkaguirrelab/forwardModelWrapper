@@ -13,6 +13,8 @@ def plot_cifti_maps(cifti_R2_map_path, subject_id, temporary_file_folder, wb_com
         RuntimeError('Cifti type is not recognized. Only can process dtseries and dscalar')
     image_name = str(image_name)
     
+    print('Processing %s' % image_name)
+
     volume_path = os.path.join(temporary_file_folder, image_name + '.nii.gz')
     surf_left_path = os.path.join(temporary_file_folder, 'l.' + image_name + '.func.gii')
     surf_right_path = os.path.join(temporary_file_folder, 'r.' + image_name + '.func.gii')
