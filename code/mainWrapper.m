@@ -155,6 +155,7 @@ p.addParameter('externalMapGifMakerPath', '/Users/aguirre/Documents/MATLAB/proje
 
 % Config options - make surface plots
 p.addParameter('externalSurfaceMakerPath', '/Users/aguirre/Documents/MATLAB/projects/forwardModelWrapper/code/plot_surface.py', @isstr)
+p.addParameter('externalCiftiSurfaceMakerPath', '/Users/aguirre/Documents/MATLAB/projects/forwardModelWrapper/code/plot_cifti_maps.py', @isstr)
 p.addParameter('ldogSurfaceAndCalculations', 'Na', @isstr)
 
 % Config options - make html from the plots 
@@ -375,7 +376,7 @@ if strcmp(p.Results.dataFileType,'cifti')
         case 'vol2surf'
             for mm = 1:length(results.meta.mapField)
                 mapPath = fullfile(mapsPath,[p.Results.Subject '_' results.meta.mapField{mm} '_map.dtseries.nii']);
-                command =  ['python3.7 ' p.Results.externalSurfaceMakerPath ' ' mapPath ' ' p.Results.Subject ' ' p.Results.outPath ' ' p.Results.workbenchPath ' ' p.Results.outPath];
+                command =  ['python3.7 ' p.Results.externalCiftiSurfaceMakerPath ' ' mapPath ' ' p.Results.Subject ' ' p.Results.outPath ' ' p.Results.workbenchPath ' ' p.Results.outPath];
                 callErrorStatus = system(command);
                 if callErrorStatus
                     warning('An error occurred during execution of the external Python function for map conversion');
