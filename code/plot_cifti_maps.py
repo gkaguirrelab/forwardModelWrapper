@@ -46,10 +46,14 @@ def plot_cifti_maps(cifti_R2_map_path, subject_id, temporary_file_folder, wb_com
     # Load images
     surf_left = nilearn.surface.load_surf_data(surf_left_path)
     surf_right = nilearn.surface.load_surf_data(surf_right_path)
+    surf_left[np.isnan(surf_left)] = 0
+    surf_right[np.isnan(surf_right)] = 0
     surf_left_no_zer = surf_left.copy()
     surf_right_no_zer = surf_right.copy()
     surf_left_no_zer[surf_left_no_zer == 0] = 'nan'
+    surf_left_no_zer = surf_left_no_zer[~np.isnan(surf_left_no_zer)]
     surf_right_no_zer[surf_right_no_zer == 0] = 'nan'
+    surf_right_no_zer = surf_right_no_zer[~np.isnan(surf_right_no_zer)]
     volume = nb.load(volume_path)
     volume_dat = volume.get_fdata()
     
