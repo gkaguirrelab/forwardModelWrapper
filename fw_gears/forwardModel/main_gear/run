@@ -6,8 +6,8 @@ import os
 import json
 
 # Some of the libraries supplied by MATLAB runtime are old and runtime prioritize them over system libraries. So we rename them and make runtime use the system libraries instead
-os.system("mv /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libexpat.so.1 /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libexpat.so.1-appended")
-os.system("mv /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libtiff.so.5 /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libtiff.so.5-appended")
+os.system("mv /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libexpat.so.1 /usr/local/MATLAB/MATLAB_Runtime/v98/bin/glnxa64/libexpat.so.1-appended")
+os.system("mv /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libtiff.so.5 /usr/local/MATLAB/MATLAB_Runtime/v98/bin/glnxa64/libtiff.so.5-appended")
 
 # Print the system specs in the log file
 os.system('cat /proc/cpuinfo')
@@ -28,7 +28,7 @@ externalSurfaceMakerPath = '/opt/plot_surface.py'
 externalHtmlMakerPath = '/opt/ldog_make_html.py'
 
 # Set paths to the tools 
-mcr_path = '/usr/local/MATLAB/MATLAB_Runtime/v97' #path to MATLAB runtime
+mcr_path = '/usr/local/MATLAB/MATLAB_Runtime/v98' #path to MATLAB runtime
 workbench_path = '/usr/bin/wb_command'
 
 ###################Parse Config Here###########################################
