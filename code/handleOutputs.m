@@ -100,7 +100,7 @@ else
                 outData = templateImage;
                 outData.cdata = single(results.(fieldsToSave{ii}));
                 outData.diminfo{1,2}.length = 1;
-                write_cifti(outData, fileName)
+                cifti_write(outData, fileName)
             otherwise
                 error('not a recognized dataFileType')
         end

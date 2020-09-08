@@ -225,7 +225,7 @@ for jj=1:length(funcZipPath)
                 thisAcqData = reshape(thisAcqData, [size(thisAcqData,1)*size(thisAcqData,2)*size(thisAcqData,3), size(thisAcqData,4)]);
                 thisAcqData(isnan(thisAcqData)) = 0;
             case 'cifti'
-                thisAcqData = read_cifti(rawName, 'wbcmd', workbenchPath);
+                thisAcqData = cifti_read(rawName, 'wbcmd', workbenchPath);
                 % Check if this is the first acquisition. If so, retain an
                 % example of the source data to be used as a template to format
                 % the output files.
@@ -404,7 +404,7 @@ else
             vxs = find(mask)';
             vxs = single(vxs);
         case 'cifti'
-            rawMask = ciftiopen(p.Results.maskFilePath, workbenchPath);
+            rawMask = cifti_read(p.Results.maskFilePath,'wbcmd', workbenchPath);
             mask = rawMask.cdata;
             vxs = find(mask)';
             vxs = single(vxs);
