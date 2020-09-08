@@ -67,22 +67,25 @@ def plot_cifti_maps(cifti_R2_map_path, subject_id, temporary_file_folder, wb_com
         data = volume_dat[:,:,:,0]
         volume = nb.Nifti1Image(data,affine,header,extra,file_map)
     
+    # Concatenate arrays to find the common minimum and maximum points 
+    concat_arrays = np.concatenate((surf_left_no_zer, surf_right_no_zer))
+
     # Save plots 
     plotting.plot_surf(hcp.mesh.inflated_left, surf_left, bg_map=hcp.mesh.sulc_left,
                             hemi='left',view='medial', colorbar=True, cmap=colormap, title='gifti left',
-                            cbar_vmin=np.nanmin(surf_left_no_zer), cbar_vmax=np.nanmax(surf_left_no_zer), figure=fig1,
+                            cbar_vmin=np.nanmin(concat_arrays), cbar_vmax=np.nanmax(concat_arrays), figure=fig1,
                             output_file=os.path.join(temporary_image_folder, 'med_gifti_left.png')) 
     plotting.plot_surf(hcp.mesh.inflated_left, surf_left, bg_map=hcp.mesh.sulc_left,
                             hemi='left',view='lateral', colorbar=True, cmap=colormap, title='gifti left',
-                            cbar_vmin=np.nanmin(surf_left_no_zer), cbar_vmax=np.nanmax(surf_left_no_zer), figure=fig2,
+                            cbar_vmin=np.nanmin(concat_arrays), cbar_vmax=np.nanmax(concat_arrays), figure=fig2,
                             output_file=os.path.join(temporary_image_folder, 'lat_gifti_left.png'))    
     plotting.plot_surf(hcp.mesh.inflated_right, surf_right, bg_map=hcp.mesh.sulc_right,
                             hemi='right',view='medial', colorbar=True, cmap=colormap, title='gifti right',
-                            cbar_vmin=np.nanmin(surf_right_no_zer), cbar_vmax=np.nanmax(surf_right_no_zer), figure=fig3,
+                            cbar_vmin=np.nanmin(concat_arrays), cbar_vmax=np.nanmax(concat_arrays), figure=fig3,
                             output_file=os.path.join(temporary_image_folder, 'med_gifti_right.png'))
     plotting.plot_surf(hcp.mesh.inflated_right, surf_right, bg_map=hcp.mesh.sulc_right,
                             hemi='right',view='lateral', colorbar=True, cmap=colormap, title='gifti right',
-                            cbar_vmin=np.nanmin(surf_right_no_zer), cbar_vmax=np.nanmax(surf_right_no_zer), figure=fig4,
+                            cbar_vmin=np.nanmin(concat_arrays), cbar_vmax=np.nanmax(concat_arrays), figure=fig4,
                             output_file=os.path.join(temporary_image_folder, 'lat_gifti_right.png'))
     nilearn.plotting.plot_anat(volume, output_file=os.path.join(temporary_image_folder, 'volume.png'),
                                 colorbar=True, cmap=colormap, title='volume', figure=fig5,
