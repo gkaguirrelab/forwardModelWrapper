@@ -196,6 +196,12 @@ if os.path.exists((os.path.join(first_output_dir,'%s_maps_nativeMGZ_pseudoHemisp
 if os.path.exists((os.path.join(first_output_dir,'%s_maps_volumetric' % subject_id))):
     os.system('cd %s; zip -q -r %s *'%(os.path.join(first_output_dir,'%s_maps_volumetric' % subject_id), os.path.join(final_output_dir,'%s_maps_volumetric.zip' % subject_id)))
 
+# If the vol2surf method is used, move the html zip to the final output folder
+if dataSourceType == 'vol2surf':
+    for i in os.listdir(first_output_dir):
+        if os.path.splitext(i)[-1].lower() == '.zip':
+            os.system('mv %s %s/'%(os.path.join(first_output_dir, i), final_output_dir))
+
 # If the icafix protocol is used, move the brain plots directly to the final output folder     
 if dataSourceType == 'icafix':
     for i in os.listdir(first_output_dir):
