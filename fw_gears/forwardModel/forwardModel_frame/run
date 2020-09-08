@@ -6,8 +6,8 @@ import os
 import json
 
 # Some of the libraries supplied by MATLAB runtime are old and runtime prioritize them over system libraries. So we rename them and make runtime use the system libraries instead
-os.system("mv /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libexpat.so.1 /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libexpat.so.1-appended")
-os.system("mv /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libtiff.so.5 /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libtiff.so.5-appended")
+os.system("mv /usr/local/MATLAB/MATLAB_Runtime/v98/bin/glnxa64/libexpat.so.1 /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libexpat.so.1-appended")
+os.system("mv /usr/local/MATLAB/MATLAB_Runtime/v98/bin/glnxa64/libtiff.so.5 /usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64/libtiff.so.5-appended")
 
 # Print the system specs in the log file
 os.system('cat /proc/cpuinfo')
@@ -25,10 +25,11 @@ matlab_func = '/opt/func_input/run_mainWrapper.sh'
 externalMGZMakerPath = '/opt/make_fsaverage.py'
 externalMapGifMakerPath = '/opt/plot_maps.py'
 externalSurfaceMakerPath = '/opt/plot_surface.py'
+externalCiftiSurfaceMakerPath = '/opt/plot_cifti_maps.py'
 externalHtmlMakerPath = '/opt/ldog_make_html.py'
 
 # Set paths to the tools 
-mcr_path = '/usr/local/MATLAB/MATLAB_Runtime/v97' #path to MATLAB runtime
+mcr_path = '/usr/local/MATLAB/MATLAB_Runtime/v98' #path to MATLAB runtime
 workbench_path = '/usr/bin/wb_command'
 
 ###################Parse Config Here###########################################
@@ -169,11 +170,12 @@ cmd = """%s %s -mcruserdata ParallelProfile:/usr/flywheel.mlsettings '%s' '%s' '
 'trimDummyStimTRs' '%s' 'averageAcquisitions' '%s' 'tr' '%s' \
 'externalMGZMakerPath' '%s' 'RegName' '%s' 'modelClass' '%s' 'modelOpts' '%s' \
 'workbenchPath' '%s' 'outPath' '%s' 'flywheelFlag' '1' 'Subject' '%s' 'averageVoxels' '%s' externalMapGifMakerPath '%s' externalSurfaceMakerPath '%s' \
-'externalHtmlMakerPath' '%s' ldogSurfaceAndCalculations '%s'""" % (matlab_func, mcr_path, func_zip_path01, func_zip_path02, func_zip_path03, func_zip_path04, func_zip_path05, 
-                                                                   func_zip_path06, func_zip_path07, func_zip_path08, func_zip_path09, func_zip_path10, stim_file_path, 
-                                                                   struct_zip_path, mask_file_path, payload_file_path, dataFileType, dataSourceType, trimDummyStimTRs, 
-                                                                   averageAcquisitions, tr, externalMGZMakerPath, RegName, modelClass, modelOpts, workbench_path, first_output_dir, 
-                                                                   subject_id, averageVoxels, externalMapGifMakerPath, externalSurfaceMakerPath, externalHtmlMakerPath, ldogSurfaceAndCalculations)
+'externalHtmlMakerPath' '%s' externalCiftiSurfaceMakerPath '%s' ldogSurfaceAndCalculations '%s'""" % (matlab_func, mcr_path, func_zip_path01, func_zip_path02, func_zip_path03, func_zip_path04, func_zip_path05, 
+                                                                                                      func_zip_path06, func_zip_path07, func_zip_path08, func_zip_path09, func_zip_path10, stim_file_path, 
+                                                                                                      struct_zip_path, mask_file_path, payload_file_path, dataFileType, dataSourceType, trimDummyStimTRs, 
+                                                                                                      averageAcquisitions, tr, externalMGZMakerPath, RegName, modelClass, modelOpts, workbench_path, first_output_dir, 
+                                                                                                      subject_id, averageVoxels, externalMapGifMakerPath, externalSurfaceMakerPath, externalHtmlMakerPath, externalCiftiSurfaceMakerPath,
+                                                                                                      ldogSurfaceAndCalculations)
 
 os.system(cmd)        
 
