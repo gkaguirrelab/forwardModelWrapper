@@ -1,7 +1,9 @@
 function [structDirPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath] = mainWrapper( ...
     funcZipPath01, funcZipPath02, funcZipPath03, funcZipPath04, ...
     funcZipPath05, funcZipPath06, funcZipPath07, funcZipPath08, ...
-    funcZipPath09, funcZipPath10, stimFilePath, structZipPath, varargin)
+    funcZipPath09, funcZipPath10, funcZipPath11, funcZipPath12, ...
+    funcZipPath13, funcZipPath14, funcZipPath15 ,stimFilePath, ...
+    structZipPath, varargin)
 % Wrapper function for forwardModel, designed to used within Flywheel
 %
 % Syntax:
@@ -124,6 +126,11 @@ p.addRequired('funcZipPath07',@isstr);
 p.addRequired('funcZipPath08',@isstr);
 p.addRequired('funcZipPath09',@isstr);
 p.addRequired('funcZipPath10',@isstr);
+p.addRequired('funcZipPath11',@isstr);
+p.addRequired('funcZipPath12',@isstr);
+p.addRequired('funcZipPath13',@isstr);
+p.addRequired('funcZipPath14',@isstr);
+p.addRequired('funcZipPath15',@isstr);
 p.addRequired('stimFilePath',@isstr);
 p.addRequired('structZipPath',@isstr);
 
@@ -175,13 +182,16 @@ p.addParameter('vxsPass', [], @isnumeric)
 % Parse
 p.parse(funcZipPath01, funcZipPath02, funcZipPath03, funcZipPath04, ...
     funcZipPath05, funcZipPath06, funcZipPath07, funcZipPath08, ...
-    funcZipPath09, funcZipPath10, stimFilePath, structZipPath, varargin{:})
+    funcZipPath09, funcZipPath10, funcZipPath11, funcZipPath12, ...
+    funcZipPath13, funcZipPath14, funcZipPath15, stimFilePath, ...
+    structZipPath, varargin{:})
 
 
 %% Assemble the funcZipPaths into a cell array
 funcZipPath = {funcZipPath01, funcZipPath02, funcZipPath03, ...
     funcZipPath04, funcZipPath05, funcZipPath06, funcZipPath07, ...
-    funcZipPath08, funcZipPath09, funcZipPath10 };
+    funcZipPath08, funcZipPath09, funcZipPath10, funcZipPath11, ...
+    funcZipPath12, funcZipPath13, funcZipPath14, funcZipPath15};
 
 %% Parse the modelOpts string
 % modelOpts may be passed in with parens substituted for single quotes. We

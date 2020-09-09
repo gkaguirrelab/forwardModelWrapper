@@ -60,6 +60,11 @@ func_zip_folder07 = os.path.join(flywheel_base, 'input/funcZip07')
 func_zip_folder08 = os.path.join(flywheel_base, 'input/funcZip08')
 func_zip_folder09 = os.path.join(flywheel_base, 'input/funcZip09')
 func_zip_folder10 = os.path.join(flywheel_base, 'input/funcZip10')
+func_zip_folder11 = os.path.join(flywheel_base, 'input/funcZip11')
+func_zip_folder12 = os.path.join(flywheel_base, 'input/funcZip12')
+func_zip_folder13 = os.path.join(flywheel_base, 'input/funcZip13')
+func_zip_folder14 = os.path.join(flywheel_base, 'input/funcZip14')
+func_zip_folder15 = os.path.join(flywheel_base, 'input/funcZip15')
 stim_file_folder = os.path.join(flywheel_base, 'input/stimFile')
 struct_zip_folder = os.path.join(flywheel_base, 'input/structZip')
 mask_file_folder = os.path.join(flywheel_base, 'input/maskFile')
@@ -110,6 +115,26 @@ if os.path.isdir(func_zip_folder10) == True:
     func_zip_path10 = os.path.join(func_zip_folder10, os.listdir(func_zip_folder10)[0])
 else:
     func_zip_path10 = 'Na'
+if os.path.isdir(func_zip_folder11) == True:    
+    func_zip_path11 = os.path.join(func_zip_folder11, os.listdir(func_zip_folder11)[0])
+else:
+    func_zip_path11 = 'Na'     
+if os.path.isdir(func_zip_folder12) == True:    
+    func_zip_path12 = os.path.join(func_zip_folder12, os.listdir(func_zip_folder12)[0])
+else:
+    func_zip_path12 = 'Na'  
+if os.path.isdir(func_zip_folder13) == True:    
+    func_zip_path13 = os.path.join(func_zip_folder13, os.listdir(func_zip_folder13)[0])
+else:
+    func_zip_path13 = 'Na'  
+if os.path.isdir(func_zip_folder14) == True:    
+    func_zip_path14 = os.path.join(func_zip_folder14, os.listdir(func_zip_folder14)[0])
+else:
+    func_zip_path14 = 'Na'  
+if os.path.isdir(func_zip_folder15) == True:    
+    func_zip_path15 = os.path.join(func_zip_folder15, os.listdir(func_zip_folder15)[0])
+else:
+    func_zip_path15 = 'Na'   
 if os.path.isdir(mask_file_folder) == True:    
     mask_file_path = os.path.join(mask_file_folder, os.listdir(mask_file_folder)[0])
 else:
@@ -165,13 +190,14 @@ elif dataSourceType == 'vol2surf':
         subject_id = 'Subject'
 ######################### Run Algorithm #######################################
     
-cmd = """%s %s -mcruserdata ParallelProfile:/usr/flywheel.mlsettings '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' 'maskFilePath' '%s' \
+cmd = """%s %s -mcruserdata ParallelProfile:/usr/flywheel.mlsettings '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' 'maskFilePath' '%s' \
 'payloadPath' '%s' 'dataFileType' '%s' 'dataSourceType' '%s' \
 'trimDummyStimTRs' '%s' 'averageAcquisitions' '%s' 'tr' '%s' \
 'externalMGZMakerPath' '%s' 'RegName' '%s' 'modelClass' '%s' 'modelOpts' '%s' \
 'workbenchPath' '%s' 'outPath' '%s' 'flywheelFlag' '1' 'Subject' '%s' 'averageVoxels' '%s' externalMapGifMakerPath '%s' externalSurfaceMakerPath '%s' \
 'externalHtmlMakerPath' '%s' externalCiftiSurfaceMakerPath '%s' ldogSurfaceAndCalculations '%s'""" % (matlab_func, mcr_path, func_zip_path01, func_zip_path02, func_zip_path03, func_zip_path04, func_zip_path05, 
-                                                                                                      func_zip_path06, func_zip_path07, func_zip_path08, func_zip_path09, func_zip_path10, stim_file_path, 
+                                                                                                      func_zip_path06, func_zip_path07, func_zip_path08, func_zip_path09, func_zip_path10, func_zip_path11,
+                                                                                                      func_zip_path12, func_zip_path13, func_zip_path14, func_zip_path15, stim_file_path, 
                                                                                                       struct_zip_path, mask_file_path, payload_file_path, dataFileType, dataSourceType, trimDummyStimTRs, 
                                                                                                       averageAcquisitions, tr, externalMGZMakerPath, RegName, modelClass, modelOpts, workbench_path, first_output_dir, 
                                                                                                       subject_id, averageVoxels, externalMapGifMakerPath, externalSurfaceMakerPath, externalHtmlMakerPath, externalCiftiSurfaceMakerPath,
