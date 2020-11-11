@@ -47,6 +47,10 @@ p.parse(results, templateImage, outPath, Subject, workbenchPath, varargin{:})
 save(fullfile(outPath,[Subject '_' results.model.class '_results.mat']),'results')
 
 
+%% Save the templateImage file
+save(fullfile(outPath,[Subject '_' results.model.class '_templateImage.mat']),'templateImage')
+
+
 %% Save the results figures
 figFields = fieldnames(results.figures);
 if ~isempty(figFields)
