@@ -1,18 +1,19 @@
-function ciftiMakePseudoHemi(dtseriesImage, workDir, outputDir)
+function ciftiMakePseudoHemi(dtseriesImage, workDir, TR, outputDir)
 % Create pseudohemisphere CIFTI surfaces 
 %
 % Syntax:
 %  ciftiMakePseudoHemi(dtseriesImage, workDir, outputDir)
 %
 % Description:
-%   Create pseudohemisphere CIFTI surfaces by averagin cifti dtseries left 
+%   Create pseudohemisphere CIFTI surfaces by averaging cifti dtseries left 
 %   and right hemispheres. The output image doesn't contain a 
-%   volume component. from the LDOG project.
+%   volume component.
 %
 % Inputs:
 %   dtseriesImage         - String. Full path to the intput dtseries image.
 %   workDir               - String. Folder where the intermediate files
 %                           will be saved
+%   TR                    - Number. TR in milliseconds
 %   outputDir             - String. Folder where the output will be saved
 %                         
 %
@@ -32,31 +33,35 @@ end
 volumeOutput = fullfile(workDir, 'volume.nii');
 leftHemisphere = fullfile(workDir, 'leftHemi.func.gii');
 rightHemisphere = fullfile(workDir, 'rightHemi.func.gii');
+labelFile = fullfile(workDir, 'volumeLabels.nii');
 
 % Separate CIFTI into left, right and volume components
-separateCifti = ['wb_command -cifti-separate' ' ' dtseriesImage ' ' 'COLUMN -volume-all' ' ' volumeOutput ' ' '-metric CORTEX_LEFT' ' ' leftHemisphere ' ' '-metric CORTEX_RIGHT' ' ' rightHemisphere];
+separateCifti = ['wb_command -cifti-separate' ' ' dtseriesImage ' ' 'COLUMN -volume-all' ' ' volumeOutput ' ' '-label' ' ' labelFile ' ' '-metric CORTEX_LEFT' ' ' leftHemisphere ' ' '-metric CORTEX_RIGHT' ' ' rightHemisphere];
 fprintf('Separating cifti image into components\n')
 system(separateCifti);
 
-% Create another cifti from the original by removing  the volume component
-origWithoutVol = fullfile(workDir, 'origWithoutVol.dtseries.nii');
-createOrigWithoutVol = ['wb_command -cifti-create-dense-timeseries' ' ' origWithoutVol ' ' '-left-metric' ' ' leftHemisphere ' ' '-right-metric' ' ' rightHemisphere];
-fprintf('Creating a CIFTI without the volume component\n')
-system(createOrigWithoutVol);
+% Convert TR to string
+TRstr = num2str(TR);
+
+% Reconstruct the original cifti with the pieces we have
+origImage = fullfile(workDir, 'origCifti.dtseries.nii');
+createFlippedImage = ['wb_command -cifti-create-dense-timeseries' ' ' origImage ' ' '-volume' ' ' volumeOutput ' ' labelFile ' ' '-left-metric' ' ' leftHemisphere ' ' '-right-metric' ' ' rightHemisphere ' ' '-timestep' ' ' TRstr];
+fprintf('Creating the original cifti\n')
+system(createFlippedImage);
 
 % Flip left and right hemispheres and create another CIFTI image
-reversedWithoutVol = fullfile(workDir, 'reversedWithoutVol.dtseries.nii');
-createReversedWithoutVol = ['wb_command -cifti-create-dense-timeseries' ' ' reversedWithoutVol ' ' '-left-metric' ' ' rightHemisphere ' ' '-right-metric' ' ' leftHemisphere];
+flippedImage = fullfile(workDir, 'flippedCifti.dtseries.nii');
+createFlippedImage = ['wb_command -cifti-create-dense-timeseries' ' ' flippedImage ' ' '-volume' ' ' volumeOutput ' ' labelFile ' ' '-left-metric' ' ' rightHemisphere ' ' '-right-metric' ' ' leftHemisphere ' ' '-timestep' ' ' TRstr];
 fprintf('Creating a reversed cifti\n')
-system(createReversedWithoutVol);
+system(createFlippedImage);
 
 % Average the original and reversed hemispheres 
 [~,name,ext] = fileparts(dtseriesImage);
 averagedImageName = ['pseudo_' name ext];
 averagedImageSavePath = fullfile(outputDir, averagedImageName);
-averageCommand = ['wb_command -cifti-average' ' ' averagedImageSavePath ' ' '-cifti' ' ' origWithoutVol ' ' '-cifti' ' ' reversedWithoutVol];
+averageCommand = ['wb_command -cifti-average' ' ' averagedImageSavePath ' ' '-cifti' ' ' origImage ' ' '-cifti' ' ' flippedImage];
 fprintf('Averaging the original and reversed cifti\n')
 system(averageCommand);
-fprintf('Done!')
+fprintf('Done!\n')
 
 end
