@@ -50,6 +50,16 @@ function [structDirPath,subjectName,nativeSpaceDirPath,pseudoHemiDirPath] = main
 %                           has decided that some initial data time points
 %                           have not reached steady state T1 levels and
 %                           thus are "dummy" scans and are removed.
+%  'padTruncatedTRs'      - Logical. Defaults to false. On occasion an 
+%                           the collection of an acquisition is stopped
+%                           early, leading there to be fewer volumes in the
+%                           data than intended. If a data time series is
+%                           found to be shorter than a stimulus vector, and
+%                           if this flag is set, then the end of the data
+%                           time series is padded with the mean volume of
+%                           the data that are present.
+%                           Note that both trimDummyStimTRs and 
+%                           padTruncatedTRs cannot be set to true.
 %  'averageAcquisitions'  - String. Valid values of 1 or 0. If set to 1,
 %                           the data acquisitions are averaged into a
 %                           single timeseries per voxel/vertex. This is
@@ -145,6 +155,7 @@ p.addParameter('Subject', '00000', @isstr)
 
 % Config options - pre-process
 p.addParameter('trimDummyStimTRs', '0', @isstr)
+p.addParameter('padTruncatedTRs', '0', @isstr)
 p.addParameter('averageAcquisitions', '0', @isstr)
 
 % Config options - forwardModel
@@ -207,6 +218,7 @@ modelOpts = strrep(modelOpts,')','''');
     'verbose',true,...      % Force verbose
     'maskFilePath',p.Results.maskFilePath, ...
     'trimDummyStimTRs',logical(str2double(p.Results.trimDummyStimTRs)), ...
+    'padTruncatedTRs',logical(str2double(p.Results.padTruncatedTRs)), ...
     'dataFileType',p.Results.dataFileType, ...
     'dataSourceType',p.Results.dataSourceType, ...
     'averageAcquisitions',logical(str2double(p.Results.averageAcquisitions)) );
