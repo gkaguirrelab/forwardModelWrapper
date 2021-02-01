@@ -40,6 +40,16 @@ function [stimulus, stimTime, data, vxs, templateImage] = handleInputs(workbench
 %                           stimulus and data lengths to be unequal. If
 %                           this flag is set to true, the start of the
 %                           stimulus is trimmed to match the data length.
+%   padTruncatedTRs       - Logical. Defaults to false. On occasion an 
+%                           the collection of an acquisition is stopped
+%                           early, leading there to be fewer volumes in the
+%                           data than intended. If a data time series is
+%                           found to be shorter than a stimulus vector, and
+%                           if this flag is set, then the end of the data
+%                           time series is padded with the mean volume of
+%                           the data that are present.
+%                           Note that both trimDummyStimTRs and 
+%                           padTruncatedTRs cannot be set to true.
 %   dataFileType          - String. Select whether the data is volumetric
 %                           or surface (CIFTI). Options: volumetric/cifti
 %   dataSourceType        - String. The type of gear that produced the data
@@ -85,6 +95,7 @@ p.addRequired('stimFilePath',@isstr);
 p.addParameter('verbose', true, @islogical)
 p.addParameter('maskFilePath', 'Na', @isstr)
 p.addParameter('trimDummyStimTRs', false, @islogical)
+p.addParameter('padTruncatedTRs', false, @islogical)
 p.addParameter('dataFileType', 'cifti', @isstr)
 p.addParameter('dataSourceType', 'icafix', @isstr)
 p.addParameter('averageAcquisitions', true, @islogical)
@@ -96,6 +107,7 @@ p.parse(workbenchPath, funcZipPath, stimFilePath, varargin{:})
 % Set up a logical flags
 verbose = p.Results.verbose;
 trimDummyStimTRs = p.Results.trimDummyStimTRs;
+padTruncatedTRs = p.Results.padTruncatedTRs;
 averageAcquisitions = p.Results.averageAcquisitions;
 
 %% Check inputs
@@ -110,6 +122,11 @@ for jj=1:length(funcZipPath)
     end
 end
 
+% Make sure that we have not been asked to both trimDummyStimTRs and
+% padTruncatedTRs, as we would not know which one to do
+if padTruncatedTRs && trimDummyStimTRs
+        error('handleInputs:ambiguousTrim','Cannot set padTruncatedTRs and trimDummyStimTRs to true');
+end
 
 %% Loop over entries in funcZipPath
 data = {};
@@ -263,36 +280,6 @@ for jj=1:length(funcZipPath)
 end % Loop over entries in funcZipPath
 
 
-%% Average the acquisitions if requested
-% If the experiment has collected multiple acquisitions of the same
-% stimulus, then it may be desirable to average the fMRI data prior to
-% model fitting. This has the property of increasing the informativeness of
-% the R^2 fitting values, and making the analysis run more quickly.
-if averageAcquisitions
-    
-    % Alert the user
-    if verbose
-        fprintf('Averaging data acquisitions.\n')
-    end
-    
-    % Check that all of the data cells have the same length
-    if length(unique(cellfun(@(x) length(x),data))) > 1
-        error('handleInputs:dataLengthDisagreement', 'Averaging of the acquisition data was requested, but the acquisitions are not of equal length');
-    end
-    
-    % Perform the average
-    meanData = zeros(size(data{1}));
-    for ii=1:length(data)
-        meanData = meanData + data{ii};
-    end
-    meanData = meanData ./ length(data);
-    data = {meanData};
-    clear meanData
-    totalAcquisitions = 1;
-    
-end
-
-
 %% Process stimulus
 
 % Alert the user
@@ -338,7 +325,6 @@ if ~isempty(stimTime)
     end
 end
 
-
 % If the stimulus and stimTime contains a single cell, then replicate this
 % to be the same length as the data array
 if length(stimulus)==1
@@ -377,13 +363,50 @@ if isempty(stimTime)
                 % Let the user know that some trimming went on!
                 warnString = ['Stim file for acquisition ' num2str(ii) ' was trimmed at the start by ' num2str() ' TRs'];
                 warning('handleInputs:stimulusTRTrim', warnString);
-                
+            elseif stimTRs>dataTRs && padTruncatedTRs
+                % Add time points to the end of the data to make the data 
+                % match the length of the stimulus
+                meanVolume = mean(data{ii},2);
+                padData = nan(size(data{ii},1,stimTRs));
+                padData(:,1:dataTRs) = data{ii};
+                padData(:,dataTRs+1:stimTRs) = repmat(meanVolume,1,stimTRs-dataTRs);
+                data{ii} = padData;
             else
                 errorString = ['Acquisition ' num2str(ii) ' of ' num2str(totalAcquisitions) ' has ' num2str(dataTRs) ' TRs, but the stimulus has ' num2str(stimTRs) ' TRs'];
                 error('handleInputs:mismatchTRs', errorString);
             end
         end
     end
+end
+
+
+%% Average the acquisitions if requested
+% If the experiment has collected multiple acquisitions of the same
+% stimulus, then it may be desirable to average the fMRI data prior to
+% model fitting. This has the property of increasing the informativeness of
+% the R^2 fitting values, and making the analysis run more quickly.
+if averageAcquisitions
+    
+    % Alert the user
+    if verbose
+        fprintf('Averaging data acquisitions.\n')
+    end
+    
+    % Check that all of the data cells have the same length
+    if length(unique(cellfun(@(x) length(x),data))) > 1
+        error('handleInputs:dataLengthDisagreement', 'Averaging of the acquisition data was requested, but the acquisitions are not of equal length');
+    end
+    
+    % Perform the average
+    meanData = zeros(size(data{1}));
+    for ii=1:length(data)
+        meanData = meanData + data{ii};
+    end
+    meanData = meanData ./ length(data);
+    data = {meanData};
+    clear meanData
+    totalAcquisitions = 1;
+    
 end
 
 
