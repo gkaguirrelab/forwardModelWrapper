@@ -40,7 +40,7 @@ function [stimulus, stimTime, data, vxs, templateImage] = handleInputs(workbench
 %                           stimulus and data lengths to be unequal. If
 %                           this flag is set to true, the start of the
 %                           stimulus is trimmed to match the data length.
-%   padTruncatedTRs       - Logical. Defaults to false. On occasion an 
+%   padTruncatedTRs       - Logical. Defaults to false. On occasion an
 %                           the collection of an acquisition is stopped
 %                           early, leading there to be fewer volumes in the
 %                           data than intended. If a data time series is
@@ -48,7 +48,7 @@ function [stimulus, stimTime, data, vxs, templateImage] = handleInputs(workbench
 %                           if this flag is set, then the end of the data
 %                           time series is padded with the mean volume of
 %                           the data that are present.
-%                           Note that both trimDummyStimTRs and 
+%                           Note that both trimDummyStimTRs and
 %                           padTruncatedTRs cannot be set to true.
 %   dataFileType          - String. Select whether the data is volumetric
 %                           or surface (CIFTI). Options: volumetric/cifti
@@ -125,7 +125,7 @@ end
 % Make sure that we have not been asked to both trimDummyStimTRs and
 % padTruncatedTRs, as we would not know which one to do
 if padTruncatedTRs && trimDummyStimTRs
-        error('handleInputs:ambiguousTrim','Cannot set padTruncatedTRs and trimDummyStimTRs to true');
+    error('handleInputs:ambiguousTrim','Cannot set padTruncatedTRs and trimDummyStimTRs to true');
 end
 
 %% Loop over entries in funcZipPath
@@ -190,15 +190,15 @@ for jj=1:length(funcZipPath)
             acquisitionList = dir(fullfile(zipDir,'*','*.nii.gz'));
             
             % Some housekeeping variables
-           nAcquisitions = length(acquisitionList);            
-           acqIdxOrder = 1:nAcquisitions;
+            nAcquisitions = length(acquisitionList);
+            acqIdxOrder = 1:nAcquisitions;
             
         case 'vol2surf'
             
             % vol2surf gear saves the acquisitions in a cifti folder
             % located in the main directory
             acquisitionList = dir(fullfile(zipDir,'ciftiFSLR_32k','*.nii'));
-            nAcquisitions = length(acquisitionList); 
+            nAcquisitions = length(acquisitionList);
             acqIdxOrder = 1:nAcquisitions;
             
     end
@@ -361,16 +361,19 @@ if isempty(stimTime)
                 end
                 stimulus{ii} = {thisStim};
                 % Let the user know that some trimming went on!
-                warnString = ['Stim file for acquisition ' num2str(ii) ' was trimmed at the start by ' num2str() ' TRs'];
+                warnString = ['Stim file for acquisition ' num2str(ii) ' was trimmed at the start by ' num2str(stimTRs-dataTRs) ' TRs'];
                 warning('handleInputs:stimulusTRTrim', warnString);
             elseif stimTRs>dataTRs && padTruncatedTRs
-                % Add time points to the end of the data to make the data 
+                % Add time points to the end of the data to make the data
                 % match the length of the stimulus
                 meanVolume = mean(data{ii},2);
                 padData = nan(size(data{ii},1,stimTRs));
                 padData(:,1:dataTRs) = data{ii};
                 padData(:,dataTRs+1:stimTRs) = repmat(meanVolume,1,stimTRs-dataTRs);
                 data{ii} = padData;
+                % Let the user know that some padding went on!
+                warnString = ['The data file for acquisition ' num2str(ii) ' was padded at the end by ' num2str(stimTRs-dataTRs) ' TRs'];
+                warning('handleInputs:stimulusTRTrim', warnString);
             else
                 errorString = ['Acquisition ' num2str(ii) ' of ' num2str(totalAcquisitions) ' has ' num2str(dataTRs) ' TRs, but the stimulus has ' num2str(stimTRs) ' TRs'];
                 error('handleInputs:mismatchTRs', errorString);
@@ -406,6 +409,9 @@ if averageAcquisitions
     data = {meanData};
     clear meanData
     totalAcquisitions = 1;
+    
+    % Just need the first stimulus cell
+    stimulus = stimulus(1);
     
 end
 
