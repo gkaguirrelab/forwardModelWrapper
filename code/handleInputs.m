@@ -74,9 +74,6 @@ function [stimulus, stimTime, data, vxs, templateImage] = handleInputs(workbench
 %                           voxels x time matrices. If a single file is
 %                           specified, result is a similar matrix put in a
 %                           1x1 cell.
-%   vxs                   - Vector. Identifies the indices of the data to
-%                           be analyzed. This is the implementation of a
-%                           mask.
 %   templateImage         - Type dependent upon the nature of the input
 %                           data
 %
