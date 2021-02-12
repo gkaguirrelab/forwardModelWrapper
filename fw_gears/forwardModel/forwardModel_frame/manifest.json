@@ -20,6 +20,11 @@
   			"description": "Select the data type. Currently, only cifti surface files can be received from the ica-fix output",
   			"type": "string"
 		},
+		"padTruncatedTRs":  {
+  			"default": "0",
+  			"description": "If this is set to 1, the function pads the missing TRs",
+  			"type": "string"
+		},		
 		"dataSourceType":  {
   			"default": "icafix",
   			"description": "Input archive type. Currently, only icafix archives are supported",
