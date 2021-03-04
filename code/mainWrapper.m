@@ -343,6 +343,15 @@ if strcmp(p.Results.dataFileType,'cifti')
     command = ['unzip -q -n ' structZipPath ' -d ' fileparts(structZipPath)];
     system(command);
 
+    % Find the directory that is produced by this unzip operation
+    fileList = dir(fileparts(structZipPath));
+    fileList = fileList(...
+        cellfun(@(x) ~startsWith(x,'.'),extractfield(fileList,'name')) ...
+        );
+    fileList = fileList(cell2mat(extractfield(fileList,'isdir')));
+    structDirPath = fullfile(fileList.folder,fileList.name);
+    subjectName = fileList.name;    
+    
     % Create directories for the output files
     nativeSpaceDirPath = fullfile(p.Results.outPath, [p.Results.Subject '_maps_nativeMGZ']);
     if ~exist(nativeSpaceDirPath,'dir')
@@ -355,16 +364,7 @@ if strcmp(p.Results.dataFileType,'cifti')
     % Use external MGZmaker script if icafix is used otherwise use the
     % ciftiToFreesurfer for vol2surf
     switch p.Results.dataSourceType
-        case 'icafix'        
-           % Find the directory that is produced by this unzip operation
-            fileList = dir(fileparts(structZipPath));
-            fileList = fileList(...
-                cellfun(@(x) ~startsWith(x,'.'),extractfield(fileList,'name')) ...
-                );
-            fileList = fileList(cell2mat(extractfield(fileList,'isdir')));
-            structDirPath = fullfile(fileList.folder,fileList.name);
-            subjectName = fileList.name;
-            
+        case 'icafix'                   
             % Perform the call and report if an error occurred
             command =  ['python3.7 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' structDirPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath ' ' p.Results.Subject];
             callErrorStatus = system(command);
@@ -372,12 +372,7 @@ if strcmp(p.Results.dataFileType,'cifti')
                 warning('An error occurred during execution of the external Python function for map conversion');
             end
         case 'vol2surf'
-           % Find the directory that is produced by this unzip operation
-            fileList = dir(fileparts(structZipPath));
-            fileList = fileList(...
-                cellfun(@(x) ~startsWith(x,'.'),extractfield(fileList,'name')) ...
-                );
-            fileList = fileList(cell2mat(extractfield(fileList,'isdir')));
+           % Go deeper in the unzipped folder to find the HCP directory 
             initialStructDirPath = fullfile(fileList.folder,fileList.name);
             folderName = fileList.name;   
             folderNameSplitted = split(folderName, '_');
