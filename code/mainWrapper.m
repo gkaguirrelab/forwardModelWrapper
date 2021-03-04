@@ -166,6 +166,7 @@ p.addParameter('averageVoxels', '0', @isstr)
 
 % Config options - convert to mgz
 p.addParameter('externalMGZMakerPath', [], @isstr)
+p.addparameter('externalCiftiToFreesurferPath', [], @isstr)
 p.addParameter('RegName', 'FS', @isstr)
 
 % Config options - make volumetric map gifs
