@@ -26,7 +26,10 @@ def cifti_to_freesurfer(path_to_cifti_maps, path_to_workbench, path_to_freesurfe
     if not os.path.exists(native_mgz_pseudo_hemi):
         os.system('mkdir %s' % native_mgz_pseudo_hemi)
 
-    for amap in path_to_cifti_maps:
+    for amap in os.listdir(path_to_cifti_maps):
+        
+        # Get file location
+        initial_file_location = os.path.join(path_to_cifti_maps, amap)
         
         # Get image name
         amap_name = os.path.split(amap)[1][:-13]
@@ -37,18 +40,18 @@ def cifti_to_freesurfer(path_to_cifti_maps, path_to_workbench, path_to_freesurfe
         
         # Separate cifti files 
         os.system('%s -cifti-separate %s COLUMN -metric CORTEX_LEFT %s -metric CORTEX_RIGHT %s' % (os.path.join(path_to_workbench, 'wb_command'),
-                                                                                                   amap, os.path.join(workdir, cifti_left),
+                                                                                                   initial_file_location, os.path.join(workdir, cifti_left),
                                                                                                    os.path.join(workdir, cifti_right)))
         
         # Here we average left and right hemispheres at the gifti stage to make pseudohemispheres
         cifti_left_loaded = nb.load(cifti_left)
         cifti_right_loaded = nb.load(cifti_right)   
-        cifti_left_data = cifti_left_loaded.darrays[1].data
-        cifti_right_data = cifti_right_loaded.darrays[1].data 
+        cifti_left_data = cifti_left_loaded.darrays[0].data
+        cifti_right_data = cifti_right_loaded.darrays[0].data 
         averaged_hemi_left = nb.load(cifti_left) # We load the left hemi again to use as a averaged map template
         averaged_hemi_right = nb.load(cifti_right) # We load the right hemi again to use as a averaged map template       
-        averaged_hemi_left_data = averaged_hemi_left.darrays[1].data          
-        averaged_hemi_right_data = averaged_hemi_right.darrays[1].data    
+        averaged_hemi_left_data = averaged_hemi_left.darrays[0].data          
+        averaged_hemi_right_data = averaged_hemi_right.darrays[0].data    
        
         averaged_hemi_left_file = os.path.join(workdir, 'averaged_hemi_left.func.gii')
         averaged_hemi_right_file = os.path.join(workdir, 'averaged_hemi_right.func.gii')    
@@ -89,9 +92,9 @@ def cifti_to_freesurfer(path_to_cifti_maps, path_to_workbench, path_to_freesurfe
                                                                                                        metric_out_pseudo_left, current_area_left,
                                                                                                        new_area_left)    
         right_hemi_pseudo_run = '%s -metric-resample %s %s %s ADAP_BARY_AREA %s -area-metrics %s %s' % (os.path.join(path_to_workbench, 'wb_command'),
-                                                                                                        averaged_hemi_right_file, current_sphere_left, new_sphere_left,
-                                                                                                        metric_out_pseudo_right, current_area_left,
-                                                                                                        new_area_left)    
+                                                                                                        averaged_hemi_right_file, current_sphere_right, new_sphere_right,
+                                                                                                        metric_out_pseudo_right, current_area_right,
+                                                                                                        new_area_right)    
         
         os.system(left_hemi_run)
         os.system(right_hemi_run)
