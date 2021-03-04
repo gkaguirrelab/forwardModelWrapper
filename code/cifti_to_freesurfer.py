@@ -8,7 +8,7 @@ def cifti_to_freesurfer(path_to_cifti_maps, path_to_workbench, path_to_freesurfe
     
     Inputs:
         path_to_cifti_maps = Folder containing cifti maps
-        path_to_workbench = Path to the folder where workbench commands are located
+        path_to_workbench = Path to the wb_command function
         path_to_freesurfer_bin = Freesurfer bin folder where freesurfer functions are located
         path_to_subject_freesurfer = Path to freesurfer subject dir. This is specified by $SUBJECTS_DIR when freesurfer is installed
         standard_mesh_atlases_folder = Path to standard Mesh atlases folder. Zipped version can be found in forwardModelWrapper utilities 
@@ -39,7 +39,7 @@ def cifti_to_freesurfer(path_to_cifti_maps, path_to_workbench, path_to_freesurfe
         cifti_right = os.path.join(workdir, 'cifti_right.func.gii')
         
         # Separate cifti files 
-        os.system('%s -cifti-separate %s COLUMN -metric CORTEX_LEFT %s -metric CORTEX_RIGHT %s' % (os.path.join(path_to_workbench, 'wb_command'),
+        os.system('%s -cifti-separate %s COLUMN -metric CORTEX_LEFT %s -metric CORTEX_RIGHT %s' % (path_to_workbench,
                                                                                                    initial_file_location, os.path.join(workdir, cifti_left),
                                                                                                    os.path.join(workdir, cifti_right)))
         
@@ -79,19 +79,19 @@ def cifti_to_freesurfer(path_to_cifti_maps, path_to_workbench, path_to_freesurfe
         new_area_right = os.path.join(standard_mesh_atlases_folder, 'resample_fsaverage', 'fsaverage.R.midthickness_va_avg.164k_fsavg_R.shape.gii')
         
         # Run fsaverage conversion 
-        left_hemi_run = '%s -metric-resample %s %s %s ADAP_BARY_AREA %s -area-metrics %s %s' % (os.path.join(path_to_workbench, 'wb_command'),
+        left_hemi_run = '%s -metric-resample %s %s %s ADAP_BARY_AREA %s -area-metrics %s %s' % (path_to_workbench,
                                                                                                 cifti_left, current_sphere_left, new_sphere_left,
                                                                                                 metric_out_left, current_area_left,
                                                                                                 new_area_left)
-        right_hemi_run = '%s -metric-resample %s %s %s ADAP_BARY_AREA %s -area-metrics %s %s' % (os.path.join(path_to_workbench, 'wb_command'),
+        right_hemi_run = '%s -metric-resample %s %s %s ADAP_BARY_AREA %s -area-metrics %s %s' % (path_to_workbench,
                                                                                                 cifti_right, current_sphere_right, new_sphere_right,
                                                                                                 metric_out_right, current_area_right,
                                                                                                 new_area_right)
-        left_hemi_pseudo_run = '%s -metric-resample %s %s %s ADAP_BARY_AREA %s -area-metrics %s %s' % (os.path.join(path_to_workbench, 'wb_command'),
+        left_hemi_pseudo_run = '%s -metric-resample %s %s %s ADAP_BARY_AREA %s -area-metrics %s %s' % (path_to_workbench,
                                                                                                        averaged_hemi_left_file, current_sphere_left, new_sphere_left,
                                                                                                        metric_out_pseudo_left, current_area_left,
                                                                                                        new_area_left)    
-        right_hemi_pseudo_run = '%s -metric-resample %s %s %s ADAP_BARY_AREA %s -area-metrics %s %s' % (os.path.join(path_to_workbench, 'wb_command'),
+        right_hemi_pseudo_run = '%s -metric-resample %s %s %s ADAP_BARY_AREA %s -area-metrics %s %s' % (path_to_workbench,
                                                                                                         averaged_hemi_right_file, current_sphere_right, new_sphere_right,
                                                                                                         metric_out_pseudo_right, current_area_right,
                                                                                                         new_area_right)    
