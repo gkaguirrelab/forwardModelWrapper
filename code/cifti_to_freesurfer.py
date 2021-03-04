@@ -7,12 +7,12 @@ def cifti_to_freesurfer(path_to_cifti_maps, path_to_workbench, path_to_freesurfe
     This script maps cifti images to freesurfer native and fsaverage surfaces
     
     Inputs:
-        path_to_cifti_maps = Folder containing cifti files
+        path_to_cifti_maps = Folder containing cifti maps
         path_to_workbench = Path to the folder where workbench commands are located
-        path_to_freesurfer_bin = Freesurfer bin folder
-        path_to_subject_freesurfer = Path to freesurfer subject dir 
-        standard_mesh_atlases_folder = Path to standard Mesh atlases folder.
-        subject_id = Subject Id. must match the freesurfer subject folder name in subjecs dir
+        path_to_freesurfer_bin = Freesurfer bin folder where freesurfer functions are located
+        path_to_subject_freesurfer = Path to freesurfer subject dir. This is specified by $SUBJECTS_DIR when freesurfer is installed
+        standard_mesh_atlases_folder = Path to standard Mesh atlases folder. Zipped version can be found in forwardModelWrapper utilities 
+        subject_id = Subject Id. Must match the subject folder located in path_to_subject_freesurfer
         workdir = Workdir where the intermediate outputs will be saved 
         native_mgz = Folder where the native mgz results will be saved
         native_mgz_pseudo_hemi = Folder where the pseudo hemi mgz results will be saved
