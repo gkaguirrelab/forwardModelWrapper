@@ -102,6 +102,8 @@ def cifti_to_freesurfer(path_to_cifti_maps, path_to_workbench, path_to_freesurfe
         os.system(right_hemi_pseudo_run)  
         
         # Convert fsaverage gifti to mgz
+        fsaverage_files_in_workdir = os.path.join(workdir, 'fsaverage')
+        os.system('mkdir %s' % fsaverage_files_in_workdir)
         metric_out_left_mgz = os.path.join(workdir, 'L_%s.mgz' % amap_name)
         metric_out_right_mgz = os.path.join(workdir, 'R_%s.mgz' % amap_name)
         metric_out_pseudo_left_mgz = os.path.join(workdir, 'L_pseudo_%s.mgz' % amap_name)
