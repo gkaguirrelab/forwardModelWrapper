@@ -400,7 +400,7 @@ if strcmp(p.Results.dataFileType,'cifti')
             end           
             
             % Perform the call and report if an error occurred
-            command =  ['python3 ' p.Results.externalCiftiToFreesurferPath ' ' mapsPath ' ' p.Results.workbenchPath ' ' p.Results.freesurferInstallationPath ' ' p.Results.standardMeshAtlasesFolder ' ' subjectName ' ' p.Results.workDir ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
+            command =  ['python3.7 ' p.Results.externalCiftiToFreesurferPath ' ' mapsPath ' ' p.Results.workbenchPath ' ' p.Results.freesurferInstallationPath ' ' p.Results.standardMeshAtlasesFolder ' ' subjectName ' ' p.Results.workDir ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
             callErrorStatus = system(command);
             if callErrorStatus
                 warning('An error occurred during execution of the external Python function for map conversion');
