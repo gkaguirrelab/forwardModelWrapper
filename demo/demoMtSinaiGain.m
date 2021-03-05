@@ -85,7 +85,7 @@ fileNames = {...
 
 for ff=1:length(fileNames)
     tmpPath = fullfile(saveDir,fileNames{ff});
-    fw.downloadOutputFromAnalysis(analysisID,fileNames{ff},tmpPath);
+%    fw.downloadOutputFromAnalysis(analysisID,fileNames{ff},tmpPath);
     command = sprintf('funcZipPath%02d = tmpPath',ff);
     eval(command);
 end
@@ -103,6 +103,16 @@ end
 % Path to the external python routine that converts map formats
 externalMGZMakerPath = fullfile(getpref('forwardModelWrapper','projectBaseDir'),'code','make_fsaverage.py');
 
+% Path to the external python routine that converts map formats
+externalCiftiToFreesurferPath = fullfile(getpref('forwardModelWrapper','projectBaseDir'),'code','cifti_to_freesurfer.py');
+
+standardMeshAtlasesFolder = fullfile(getpref('forwardModelWrapper','projectBaseDir'),'code','utilities','standard_mesh_atlases');
+
+freesurferBinPath = '/Applications/freesurfer/bin';
+
+freesurferSubjectFolderPath = outPath;
+
+workDir = outPath;
 
 % Assemble the modelOpts
 modelOpts = ['{' ...
@@ -125,5 +135,10 @@ mainWrapper(funcZipPath01,funcZipPath02,funcZipPath03,funcZipPath04, ...
     'Subject',subjectName,...
     'workbenchPath',workbenchPath, ...
     'externalMGZMakerPath', externalMGZMakerPath, ...
+    'externalCiftiToFreesurferPath', externalCiftiToFreesurferPath, ...
+    'standardMeshAtlasesFolder', standardMeshAtlasesFolder, ...
+    'freesurferBinPath', freesurferBinPath, ...
+    'freesurferSubjectFolderPath', freesurferSubjectFolderPath, ...
+    'workDir', workDir, ...
     'outPath',outPath);
 
