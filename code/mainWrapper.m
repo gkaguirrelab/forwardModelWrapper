@@ -166,7 +166,7 @@ p.addParameter('averageVoxels', '0', @isstr)
 
 % Config options - convert to mgz
 p.addParameter('externalMGZMakerPath', [], @isstr)
-p.addparameter('externalCiftiToFreesurferPath', [], @isstr)
+p.addParameter('externalCiftiToFreesurferPath', [], @isstr)
 p.addParameter('RegName', 'FS', @isstr)
 
 % Config options - make volumetric map gifs
@@ -182,8 +182,7 @@ p.addParameter('externalHtmlMakerPath', '/Users/aguirre/Documents/MATLAB/project
 
 % Internal paths
 p.addParameter('workbenchPath', '', @isstr);
-p.addParameter('freesurferBinPath', '', @isstr);
-p.addParameter('freesurferSubjectFolderPath', '', @isstr);
+p.addParameter('freesurferInstallationPath', '', @isstr);
 p.addParameter('standardMeshAtlasesFolder', '', @isstr);
 p.addParameter('workDir', '', @isstr);
 p.addParameter('outPath', '', @isstr);
@@ -343,15 +342,6 @@ if strcmp(p.Results.dataFileType,'cifti')
     % version of the data (which can happen in demo mode).
     command = ['unzip -q -n ' structZipPath ' -d ' fileparts(structZipPath)];
     system(command);
-
-    % Find the directory that is produced by this unzip operation
-    fileList = dir(fileparts(structZipPath));
-    fileList = fileList(...
-        cellfun(@(x) ~startsWith(x,'.'),extractfield(fileList,'name')) ...
-        );
-    fileList = fileList(cell2mat(extractfield(fileList,'isdir')));
-    structDirPath = fullfile(fileList.folder,fileList.name);
-    subjectName = fileList.name;    
     
     % Create directories for the output files
     nativeSpaceDirPath = fullfile(p.Results.outPath, [p.Results.Subject '_maps_nativeMGZ']);
@@ -365,7 +355,17 @@ if strcmp(p.Results.dataFileType,'cifti')
     % Use external MGZmaker script if icafix is used otherwise use the
     % ciftiToFreesurfer for vol2surf
     switch p.Results.dataSourceType
-        case 'icafix'                   
+        case 'icafix'    
+            
+            % Find the directory that is produced by this unzip operation
+            fileList = dir(fileparts(structZipPath));
+            fileList = fileList(...
+                cellfun(@(x) ~startsWith(x,'.'),extractfield(fileList,'name')) ...
+                );
+            fileList = fileList(cell2mat(extractfield(fileList,'isdir')));
+            structDirPath = fullfile(fileList.folder,fileList.name);
+            subjectName = fileList.name;    
+            
             % Perform the call and report if an error occurred
             command =  ['python3.7 ' p.Results.externalMGZMakerPath ' ' mapsPath ' ' structDirPath ' ' p.Results.RegName ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath ' ' p.Results.Subject];
             callErrorStatus = system(command);
@@ -373,29 +373,42 @@ if strcmp(p.Results.dataFileType,'cifti')
                 warning('An error occurred during execution of the external Python function for map conversion');
             end
         case 'vol2surf'
-           % Go deeper in the unzipped folder to find the HCP directory 
-            initialStructDirPath = fullfile(fileList.folder,fileList.name);
-            folderName = fileList.name;   
-            folderNameSplitted = split(folderName, '_');
+            
+            % If on Linux change the LD library path because Matlab's path
+            % overwrites the linux one and libraries cannot be found
+            if isunix
+                setenv('LD_LIBRARY_PATH', ['/usr/lib/x86_64-linux-gnu:',getenv('LD_LIBRARY_PATH')]);
+            end
+            
+            % Go deeper in the unzipped folder to find the FS directory 
+            [path, name, ~] = fileparts(structZipPath);
+            initialStructDirPath = fullfile(path, name);
+            folderNameSplitted = split(name, '_');
             subjectName = folderNameSplitted{1};
             structDirPath = fullfile(initialStructDirPath, subjectName);
-        
+            
             % In the vol2surf case we first get the path to the freesurfer 
             % folder in the hcp-like archive and copy it into the 
             % freesurferSubjectFolderPath so that freesurfer commands will
-            % be able to find them
-            fsPath = fullfile(structDirPath, 'T1w', subjectName);
-            system(['cp -r ' fsPath ' ' p.Results.freesurferBinPath])  
+            % be able to find them. Do this operation if the subject folder
+            % does not already exist in your FS subject path
+            freesurferSubjectFolderPath = fullfile(p.Results.freesurferInstallationPath, 'subjects');
+            subjectFileInFS = fullfile(freesurferSubjectFolderPath, subjectName);
+            if ~exist(subjectFileInFS, 'dir')
+                fsPath = fullfile(structDirPath, 'T1w', subjectName);
+                system(['cp -r ' fsPath ' ' freesurferSubjectFolderPath]);  
+            end           
             
             % Perform the call and report if an error occurred
-            command =  ['python3.7 ' p.Results.externalCiftiToFreesurferPath ' ' mapsPath ' ' p.Results.workbenchPath ' ' p.Results.freesurferBinPath ' ' p.Results.freesurferSubjectFolderPath ' ' p.Results.standardMeshAtlasesFolder ' ' subjectName ' ' p.Results.workDir ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
+            command =  ['python3.7 ' p.Results.externalCiftiToFreesurferPath ' ' mapsPath ' ' p.Results.workbenchPath ' ' p.Results.freesurferInstallationPath ' ' p.Results.standardMeshAtlasesFolder ' ' subjectName ' ' p.Results.workDir ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
             callErrorStatus = system(command);
             if callErrorStatus
                 warning('An error occurred during execution of the external Python function for map conversion');
             end       
         otherwise
-            error('Only the dataSourceType vol2surf and icafix are implemented for dataFileType cifti');            
-           
+            
+            error('Only the dataSourceType vol2surf and icafix are implemented for dataFileType cifti');
+    end % end switch
     % Save rh map images
     surfPath = fullfile(structDirPath,'T1w',subjectName,'surf');
     for mm = 1:length(results.meta.mapField)
@@ -424,7 +437,6 @@ if strcmp(p.Results.dataFileType,'cifti')
         close(fig);
     end
             
-    end % switch for cifti types
-end % Handle CIFTI maps
+end % switch for cifti types
 
 end % Main function
