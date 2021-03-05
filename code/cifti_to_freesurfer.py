@@ -1,14 +1,14 @@
 import os, sys
 import nibabel as nb
 
-def cifti_to_freesurfer(path_to_cifti_maps, path_to_workbench, path_to_freesurfer_bin, path_to_subject_freesurfer, standard_mesh_atlases_folder, subject_id, workdir, native_mgz, native_mgz_pseudo_hemi):
+def cifti_to_freesurfer(path_to_cifti_maps, path_to_workbench, path_to_freesurfer, standard_mesh_atlases_folder, subject_id, workdir, native_mgz, native_mgz_pseudo_hemi):
     
     '''
     This script maps cifti images to freesurfer native and fsaverage surfaces
     
     Inputs:
         path_to_cifti_maps = Folder containing cifti maps
-        path_to_workbench = Path to the folder where workbench commands are located
+        path_to_workbench = Path to the wb_command function
         path_to_freesurfer_bin = Freesurfer bin folder where freesurfer functions are located
         path_to_subject_freesurfer = Path to freesurfer subject dir. This is specified by $SUBJECTS_DIR when freesurfer is installed
         standard_mesh_atlases_folder = Path to standard Mesh atlases folder. Zipped version can be found in forwardModelWrapper utilities 
@@ -17,7 +17,11 @@ def cifti_to_freesurfer(path_to_cifti_maps, path_to_workbench, path_to_freesurfe
         native_mgz = Folder where the native mgz results will be saved
         native_mgz_pseudo_hemi = Folder where the pseudo hemi mgz results will be saved
     ''' 
-        
+
+    # Get freesurfer subjects dir and bin
+    path_to_freesurfer_bin = os.path.join(path_to_freesurfer, 'bin')
+    path_to_subject_freesurfer = os.path.join(path_to_freesurfer, 'subjects')
+    
     # Create the workdir, native and fsavrage folders if they don't exist
     if not os.path.exists(workdir):
         os.system('mkdir %s' % workdir)
@@ -39,7 +43,7 @@ def cifti_to_freesurfer(path_to_cifti_maps, path_to_workbench, path_to_freesurfe
         cifti_right = os.path.join(workdir, 'cifti_right.func.gii')
         
         # Separate cifti files 
-        os.system('%s -cifti-separate %s COLUMN -metric CORTEX_LEFT %s -metric CORTEX_RIGHT %s' % (os.path.join(path_to_workbench, 'wb_command'),
+        os.system('%s -cifti-separate %s COLUMN -metric CORTEX_LEFT %s -metric CORTEX_RIGHT %s' % (path_to_workbench,
                                                                                                    initial_file_location, os.path.join(workdir, cifti_left),
                                                                                                    os.path.join(workdir, cifti_right)))
         
@@ -66,32 +70,32 @@ def cifti_to_freesurfer(path_to_cifti_maps, path_to_workbench, path_to_freesurfe
         #  Set paths for the files we use for fsaverage mapping
         current_sphere_left = os.path.join(standard_mesh_atlases_folder, 'resample_fsaverage', 'fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii')
         new_sphere_left = os.path.join(standard_mesh_atlases_folder, 'resample_fsaverage', 'fsaverage_std_sphere.L.164k_fsavg_L.surf.gii')
-        metric_out_left = os.path.join(workdir, '%s.L.32k_fsavg_L.func.gii' % subject_id)
-        metric_out_pseudo_left = os.path.join(workdir, '%s.L.32k_fsavg_pseudo_L.func.gii' % subject_id)
+        metric_out_left = os.path.join(workdir, '%s.L.32k_fsavg_L.func.gii' % amap_name)
+        metric_out_pseudo_left = os.path.join(workdir, '%s.L.32k_fsavg_pseudo_L.func.gii' % amap_name)
         current_area_left = os.path.join(standard_mesh_atlases_folder, 'resample_fsaverage', 'fs_LR.L.midthickness_va_avg.32k_fs_LR.shape.gii')
         new_area_left = os.path.join(standard_mesh_atlases_folder, 'resample_fsaverage', 'fsaverage.L.midthickness_va_avg.164k_fsavg_L.shape.gii')
         
         current_sphere_right = os.path.join(standard_mesh_atlases_folder, 'resample_fsaverage', 'fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.gii')
         new_sphere_right = os.path.join(standard_mesh_atlases_folder, 'resample_fsaverage', 'fsaverage_std_sphere.R.164k_fsavg_R.surf.gii')
-        metric_out_right = os.path.join(workdir, '%s.R.32k_fsavg_R.func.gii' % subject_id)
-        metric_out_pseudo_right = os.path.join(workdir, '%s.R.32k_fsavg_pseudo_R.func.gii' % subject_id)
+        metric_out_right = os.path.join(workdir, '%s.R.32k_fsavg_R.func.gii' % amap_name)
+        metric_out_pseudo_right = os.path.join(workdir, '%s.R.32k_fsavg_pseudo_R.func.gii' % amap_name)
         current_area_right = os.path.join(standard_mesh_atlases_folder, 'resample_fsaverage', 'fs_LR.R.midthickness_va_avg.32k_fs_LR.shape.gii')
         new_area_right = os.path.join(standard_mesh_atlases_folder, 'resample_fsaverage', 'fsaverage.R.midthickness_va_avg.164k_fsavg_R.shape.gii')
         
         # Run fsaverage conversion 
-        left_hemi_run = '%s -metric-resample %s %s %s ADAP_BARY_AREA %s -area-metrics %s %s' % (os.path.join(path_to_workbench, 'wb_command'),
+        left_hemi_run = '%s -metric-resample %s %s %s ADAP_BARY_AREA %s -area-metrics %s %s' % (path_to_workbench,
                                                                                                 cifti_left, current_sphere_left, new_sphere_left,
                                                                                                 metric_out_left, current_area_left,
                                                                                                 new_area_left)
-        right_hemi_run = '%s -metric-resample %s %s %s ADAP_BARY_AREA %s -area-metrics %s %s' % (os.path.join(path_to_workbench, 'wb_command'),
+        right_hemi_run = '%s -metric-resample %s %s %s ADAP_BARY_AREA %s -area-metrics %s %s' % (path_to_workbench,
                                                                                                 cifti_right, current_sphere_right, new_sphere_right,
                                                                                                 metric_out_right, current_area_right,
                                                                                                 new_area_right)
-        left_hemi_pseudo_run = '%s -metric-resample %s %s %s ADAP_BARY_AREA %s -area-metrics %s %s' % (os.path.join(path_to_workbench, 'wb_command'),
+        left_hemi_pseudo_run = '%s -metric-resample %s %s %s ADAP_BARY_AREA %s -area-metrics %s %s' % (path_to_workbench,
                                                                                                        averaged_hemi_left_file, current_sphere_left, new_sphere_left,
                                                                                                        metric_out_pseudo_left, current_area_left,
                                                                                                        new_area_left)    
-        right_hemi_pseudo_run = '%s -metric-resample %s %s %s ADAP_BARY_AREA %s -area-metrics %s %s' % (os.path.join(path_to_workbench, 'wb_command'),
+        right_hemi_pseudo_run = '%s -metric-resample %s %s %s ADAP_BARY_AREA %s -area-metrics %s %s' % (path_to_workbench,
                                                                                                         averaged_hemi_right_file, current_sphere_right, new_sphere_right,
                                                                                                         metric_out_pseudo_right, current_area_right,
                                                                                                         new_area_right)    
@@ -102,11 +106,15 @@ def cifti_to_freesurfer(path_to_cifti_maps, path_to_workbench, path_to_freesurfe
         os.system(right_hemi_pseudo_run)  
         
         # Convert fsaverage gifti to mgz
-        metric_out_left_mgz = os.path.join(workdir, 'L_%s.mgz' % amap_name)
-        metric_out_right_mgz = os.path.join(workdir, 'R_%s.mgz' % amap_name)
-        metric_out_pseudo_left_mgz = os.path.join(workdir, 'L_pseudo_%s.mgz' % amap_name)
-        metric_out_pseudo_right_mgz = os.path.join(workdir, 'R_pseudo_%s.mgz' % amap_name)       
+        fsaverage_files_in_workdir = os.path.join(workdir, 'fsaverage')
+        os.system('mkdir %s' % fsaverage_files_in_workdir)
+        metric_out_left_mgz = os.path.join(fsaverage_files_in_workdir, 'L_%s.mgz' % amap_name)
+        metric_out_right_mgz = os.path.join(fsaverage_files_in_workdir, 'R_%s.mgz' % amap_name)
+        metric_out_pseudo_left_mgz = os.path.join(fsaverage_files_in_workdir, 'L_pseudo_%s.mgz' % amap_name)
+        metric_out_pseudo_right_mgz = os.path.join(fsaverage_files_in_workdir, 'R_pseudo_%s.mgz' % amap_name)       
         
+        os.environ['FREESURFER_HOME'] = path_to_freesurfer
+        os.environ['SUBJECTS_DIR'] = path_to_subject_freesurfer
         os.system('%s %s %s' % (os.path.join(path_to_freesurfer_bin, 'mri_convert'), metric_out_left, metric_out_left_mgz))
         os.system('%s %s %s' % (os.path.join(path_to_freesurfer_bin, 'mri_convert'), metric_out_right, metric_out_right_mgz))
         os.system('%s %s %s' % (os.path.join(path_to_freesurfer_bin, 'mri_convert'), metric_out_pseudo_left, metric_out_pseudo_left_mgz))
@@ -117,16 +125,12 @@ def cifti_to_freesurfer(path_to_cifti_maps, path_to_workbench, path_to_freesurfe
         native_metric_right = os.path.join(native_mgz, 'R_%s.mgz' % amap_name)
         native_metric_left_pseudo = os.path.join(native_mgz_pseudo_hemi, 'L_%s.mgz' % amap_name)
         native_metric_right_pseudo = os.path.join(native_mgz_pseudo_hemi, 'R_%s.mgz' % amap_name)
-        os.system('SUBJECTS_DIR=%s; %s --srcsubject fsaverage --trgsubject %s --hemi lh --sval %s --tval %s' % (path_to_subject_freesurfer,
-                                                                                                                os.path.join(path_to_freesurfer_bin, 'mri_surf2surf'),
-                                                                                                                subject_id, metric_out_left_mgz, native_metric_left))
-        os.system('SUBJECTS_DIR=%s; %s --srcsubject fsaverage --trgsubject %s --hemi rh --sval %s --tval %s' % (path_to_subject_freesurfer,
-                                                                                                                os.path.join(path_to_freesurfer_bin, 'mri_surf2surf'),
-                                                                                                                subject_id, metric_out_right_mgz, native_metric_right))  
-        os.system('SUBJECTS_DIR=%s; %s --srcsubject fsaverage --trgsubject %s --hemi lh --sval %s --tval %s' % (path_to_subject_freesurfer,
-                                                                                                                os.path.join(path_to_freesurfer_bin, 'mri_surf2surf'),
-                                                                                                                subject_id, metric_out_pseudo_left_mgz, native_metric_left_pseudo))
-        os.system('SUBJECTS_DIR=%s; %s --srcsubject fsaverage --trgsubject %s --hemi rh --sval %s --tval %s' % (path_to_subject_freesurfer,
-                                                                                                                os.path.join(path_to_freesurfer_bin, 'mri_surf2surf'),
-                                                                                                                subject_id, metric_out_pseudo_right_mgz, native_metric_right_pseudo)) 
+        os.system('%s --srcsubject fsaverage --trgsubject %s --hemi lh --sval %s --tval %s' % (os.path.join(path_to_freesurfer_bin, 'mri_surf2surf'),
+                                                                                                subject_id, metric_out_left_mgz, native_metric_left))
+        os.system('%s --srcsubject fsaverage --trgsubject %s --hemi rh --sval %s --tval %s' % (os.path.join(path_to_freesurfer_bin, 'mri_surf2surf'),
+                                                                                                subject_id, metric_out_right_mgz, native_metric_right))  
+        os.system('%s --srcsubject fsaverage --trgsubject %s --hemi lh --sval %s --tval %s' % (os.path.join(path_to_freesurfer_bin, 'mri_surf2surf'),
+                                                                                                subject_id, metric_out_pseudo_left_mgz, native_metric_left_pseudo))
+        os.system('%s --srcsubject fsaverage --trgsubject %s --hemi rh --sval %s --tval %s' % (os.path.join(path_to_freesurfer_bin, 'mri_surf2surf'),
+                                                                                                subject_id, metric_out_pseudo_right_mgz, native_metric_right_pseudo)) 
 cifti_to_freesurfer(*sys.argv[1:])  

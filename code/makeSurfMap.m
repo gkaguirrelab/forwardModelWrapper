@@ -107,9 +107,9 @@ if p.Results.showCurvature
     ind.sulci = curv<0;
     ind.gyri = curv>0;
     ind.medial = curv==0;
-    curv(ind.sulci) = .8;
+    curv(ind.sulci) = 0.1;
     curv(ind.gyri) = 0.9;
-    curv(ind.medial) = 0.7;
+    curv(ind.medial) = 0.5;
     cmap_curv = repmat(curv,1,3);
 else
     curv = 0.85 * ones(size(curv));
