@@ -16,6 +16,7 @@ COPY /python_functions/ldog_make_html.py /opt/ldog_make_html.py
 COPY /python_functions/plot_cifti_maps.py /opt/plot_cifti_maps.py
 COPY /python_functions/cifti_to_freesurfer.py /opt/cifti_to_freesurfer.py
 COPY func_input /opt/func_input 
+COPY standard_mesh_atlases /opt/standard_mesh_atlases
 COPY flywheel.mlsettings /usr/flywheel.mlsettings
 RUN chmod +x /flywheel/v0/run
 RUN chmod +x /opt/func_input/*  

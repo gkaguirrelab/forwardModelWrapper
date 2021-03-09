@@ -385,7 +385,7 @@ if strcmp(p.Results.dataFileType,'cifti')
             initialStructDirPath = fullfile(path, name);
             folderNameSplitted = split(name, '_');
             subjectName = folderNameSplitted{1};
-            structDirPath = fullfile(initialStructDirPath, subjectName);
+            structDirPath = fullfile(path, subjectName);
             
             % In the vol2surf case we first get the path to the freesurfer 
             % folder in the hcp-like archive and copy it into the 
@@ -401,6 +401,7 @@ if strcmp(p.Results.dataFileType,'cifti')
             
             % Perform the call and report if an error occurred
             command =  ['python3.7 ' p.Results.externalCiftiToFreesurferPath ' ' mapsPath ' ' p.Results.workbenchPath ' ' p.Results.freesurferInstallationPath ' ' p.Results.standardMeshAtlasesFolder ' ' subjectName ' ' p.Results.workDir ' ' nativeSpaceDirPath ' ' pseudoHemiDirPath];
+            fprintf(command)
             callErrorStatus = system(command);
             if callErrorStatus
                 warning('An error occurred during execution of the external Python function for map conversion');

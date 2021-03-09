@@ -33,7 +33,11 @@ externalCiftiToFreesurferPath = '/opt/cifti_to_freesurfer.py'
 mcr_path = '/usr/local/MATLAB/MATLAB_Runtime/v98' #path to MATLAB runtime
 workbench_path = '/usr/bin/wb_command'
 freesurferInstallationPath = '/freesurfer'
+standardMeshAtlasesFolder = '/opt/standard_mesh_atlases
 
+# External workdir (required for the cifti_to_freesurfer
+external_workdir = '/external_workdir
+os.system('mkdir %s' % external_workdir)
 ###################Parse Config Here###########################################
 
 with open(config_path) as config_file:
@@ -198,13 +202,13 @@ cmd = """%s %s -mcruserdata ParallelProfile:/usr/flywheel.mlsettings '%s' '%s' '
 'trimDummyStimTRs' '%s' 'averageAcquisitions' '%s' 'tr' '%s' \
 'externalMGZMakerPath' '%s' 'RegName' '%s' 'modelClass' '%s' 'modelOpts' '%s' \
 'workbenchPath' '%s' 'outPath' '%s' 'flywheelFlag' '1' 'Subject' '%s' 'averageVoxels' '%s' externalMapGifMakerPath '%s' externalSurfaceMakerPath '%s' \
-'externalHtmlMakerPath' '%s' externalCiftiSurfaceMakerPath '%s' ldogSurfaceAndCalculations '%s' padTruncatedTRs '%s' workbench_path '%s' freesurferInstallationPath '%s'""" % (matlab_func, mcr_path, func_zip_path01, func_zip_path02, func_zip_path03, func_zip_path04, func_zip_path05, 
+'externalHtmlMakerPath' '%s' externalCiftiSurfaceMakerPath '%s' ldogSurfaceAndCalculations '%s' padTruncatedTRs '%s' externalCiftiToFreesurferPath '%s' freesurferInstallationPath '%s' standardMeshAtlasesFolder '%s' workDir '%s'""" % (matlab_func, mcr_path, func_zip_path01, func_zip_path02, func_zip_path03, func_zip_path04, func_zip_path05, 
                                                                                                       func_zip_path06, func_zip_path07, func_zip_path08, func_zip_path09, func_zip_path10, func_zip_path11,
                                                                                                       func_zip_path12, func_zip_path13, func_zip_path14, func_zip_path15, stim_file_path, 
                                                                                                       struct_zip_path, mask_file_path, payload_file_path, dataFileType, dataSourceType, trimDummyStimTRs, 
                                                                                                       averageAcquisitions, tr, externalMGZMakerPath, RegName, modelClass, modelOpts, workbench_path, first_output_dir, 
                                                                                                       subject_id, averageVoxels, externalMapGifMakerPath, externalSurfaceMakerPath, externalHtmlMakerPath, externalCiftiSurfaceMakerPath,
-                                                                                                      ldogSurfaceAndCalculations, padTruncatedTRs, workbench_path, freesurferInstallationPath)
+                                                                                                      ldogSurfaceAndCalculations, padTruncatedTRs, externalCiftiToFreesurferPath, freesurferInstallationPath, standardMeshAtlasesFolder, external_workdir)
 
 os.system(cmd)        
 
