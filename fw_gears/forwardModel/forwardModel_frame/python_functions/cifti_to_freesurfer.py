@@ -115,10 +115,10 @@ def cifti_to_freesurfer(path_to_cifti_maps, path_to_workbench, path_to_freesurfe
         
         os.environ['FREESURFER_HOME'] = path_to_freesurfer
         os.environ['SUBJECTS_DIR'] = path_to_subject_freesurfer
-        os.system('%s %s %s' % (os.path.join(path_to_freesurfer_bin, 'mri_convert'), metric_out_left, metric_out_left_mgz))
-        os.system('%s %s %s' % (os.path.join(path_to_freesurfer_bin, 'mri_convert'), metric_out_right, metric_out_right_mgz))
-        os.system('%s %s %s' % (os.path.join(path_to_freesurfer_bin, 'mri_convert'), metric_out_pseudo_left, metric_out_pseudo_left_mgz))
-        os.system('%s %s %s' % (os.path.join(path_to_freesurfer_bin, 'mri_convert'), metric_out_pseudo_right, metric_out_pseudo_right_mgz))
+        os.system('%s %s %s' % (os.path.join(path_to_freesurfer_bin, 'mri_convert.bin'), metric_out_left, metric_out_left_mgz))
+        os.system('%s %s %s' % (os.path.join(path_to_freesurfer_bin, 'mri_convert.bin'), metric_out_right, metric_out_right_mgz))
+        os.system('%s %s %s' % (os.path.join(path_to_freesurfer_bin, 'mri_convert.bin'), metric_out_pseudo_left, metric_out_pseudo_left_mgz))
+        os.system('%s %s %s' % (os.path.join(path_to_freesurfer_bin, 'mri_convert.bin'), metric_out_pseudo_right, metric_out_pseudo_right_mgz))
         
         # Map fsaverage to fsnative
         native_metric_left = os.path.join(native_mgz, 'L_%s.mgz' % amap_name)
