@@ -410,6 +410,11 @@ if averageAcquisitions
     % Just need the first stimulus cell
     stimulus = stimulus(1);
     
+    if ~isempty(stimTime)
+        stimTime = stimTime(1);
+    end
+    
+    
 end
 
 
