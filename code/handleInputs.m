@@ -96,6 +96,7 @@ p.addParameter('padTruncatedTRs', false, @islogical)
 p.addParameter('dataFileType', 'cifti', @isstr)
 p.addParameter('dataSourceType', 'icafix', @isstr)
 p.addParameter('averageAcquisitions', true, @islogical)
+p.addParameter('convertToPercentChange', false, @islogical)
 p.addParameter('cleanUpZips', true, @islogical)
 
 % Parse
@@ -106,6 +107,8 @@ verbose = p.Results.verbose;
 trimDummyStimTRs = p.Results.trimDummyStimTRs;
 padTruncatedTRs = p.Results.padTruncatedTRs;
 averageAcquisitions = p.Results.averageAcquisitions;
+convertToPercentChange = p.Results.convertToPercentChange;
+
 
 %% Check inputs
 
@@ -377,6 +380,22 @@ if isempty(stimTime)
             end
         end
     end
+end
+
+
+%% Convert to percent change units if requested
+if convertToPercentChange
+    
+    % Alert the user
+    if verbose
+        fprintf('Converting to percent change units.\n')
+    end
+    
+    for ii=1:length(data)
+        thisAcqData = data{ii};
+        meanVec = mean(thisAcqData,2);
+        data{ii} = 100.*((thisAcqData-meanVec)./meanVec);
+    end    
 end
 
 
