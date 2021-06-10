@@ -1,4 +1,4 @@
-function ciftiMakePseudoHemi(dtseriesImage, workDir, outputDir, workbenchPath, varargin)
+function averagedImageSavePath =  ciftiMakePseudoHemi(dtseriesImage, workDir, outputDir, workbenchPath, varargin)
 % Create pseudohemisphere CIFTI surfaces 
 %
 % Syntax:
@@ -49,6 +49,9 @@ end
 if ~exist(outputDir)
     mkdir(outputDir)
 end
+if isunix
+    setenv('LD_LIBRARY_PATH', ['/usr/lib/x86_64-linux-gnu:',getenv('LD_LIBRARY_PATH')]);
+end
 
 % Check if cifti data is single TR. If not and TR not specified throw error
 dataLoaded = ciftiopen(dtseriesImage);
@@ -64,7 +67,7 @@ rightHemisphere = fullfile(workDir, 'rightHemi.func.gii');
 labelFile = fullfile(workDir, 'volumeLabels.nii');
 
 % Create workbench command root 
-workbenchCommand = fullfile(workbenchPath, 'wb_command');
+workbenchCommand = workbenchPath;
 
 % Separate CIFTI into left, right and volume components
 separateCifti = [workbenchCommand ' ' '-cifti-separate' ' ' dtseriesImage ' ' 'COLUMN -volume-all' ' ' volumeOutput ' ' '-label' ' ' labelFile ' ' '-metric CORTEX_LEFT' ' ' leftHemisphere ' ' '-metric CORTEX_RIGHT' ' ' rightHemisphere];

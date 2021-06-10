@@ -40,6 +40,11 @@
   			"description": "If set to 1, the fMRI data is averaged across acquisitions. Only valid if all acquisitions used the same stimulus and are of the same duration",
   			"type": "string"
 		},
+		"pseudoHemiAnalysis":  {
+  			"default": "0",
+  			"description": "If set to 1, the left and right hemispheres are averaged and a pseudo hemisphere image is createad prior to the analysis",
+  			"type": "string"
+		},
 		"tr":  {
   			"description": "Required. TR in seconds (e.g. 1.5).",
   			"type": "string"

@@ -157,6 +157,8 @@ p.addParameter('Subject', '00000', @isstr)
 p.addParameter('trimDummyStimTRs', '0', @isstr)
 p.addParameter('padTruncatedTRs', '0', @isstr)
 p.addParameter('averageAcquisitions', '0', @isstr)
+p.addParameter('convertToPercentChange', '0', @isstr)
+p.addParameter('pseudoHemiAnalysis', '0', @isstr)
 
 % Config options - forwardModel
 p.addParameter('modelClass','prfTimeShift',@isstr);
@@ -225,7 +227,10 @@ modelOpts = strrep(modelOpts,')','''');
     'padTruncatedTRs',logical(str2double(p.Results.padTruncatedTRs)), ...
     'dataFileType',p.Results.dataFileType, ...
     'dataSourceType',p.Results.dataSourceType, ...
-    'averageAcquisitions',logical(str2double(p.Results.averageAcquisitions)) );
+    'tr', p.Results.tr, ...
+    'averageAcquisitions',logical(str2double(p.Results.averageAcquisitions)),...
+    'pseudoHemiAnalysis', logical(str2double(p.Results.pseudoHemiAnalysis)),...
+    'convertToPercentChange',logical(str2double(p.Results.convertToPercentChange)) );
 
 % If vxsPass has been defined (perhaps by the demo routine), substitute
 % this value for vxs

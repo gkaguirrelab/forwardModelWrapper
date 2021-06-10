@@ -2,7 +2,7 @@
     "name": "forwardmodel",
     "label": "forwardModel: non-linear fitting of models to fMRI data",
     "description": "This gear takes as input the functional outputs from ICA-FIX, and then conducts non-linear fitting of parameterized models to the time-series across voxels and vertices. One application is pRF mapping. Model selection and option specification is performed in the config panel.",
-    "version": "0.10.8",
+    "version": "0.11.1",
     "inputs": {
         "funcZip01": {
             "base": "file",
@@ -231,6 +231,11 @@
             "description": "If this is set to 1, the function pads the missing TRs",
             "type": "string"
         },
+        "pseudoHemiAnalysis": {
+            "default": "0",
+            "description": "If set to 1, the left and right hemispheres are averaged and a pseudo hemisphere image is createad prior to the analysis",
+            "type": "string"
+        },
         "tr": {
             "description": "Required. TR in seconds (e.g. 1.5).",
             "type": "string"
@@ -252,7 +257,7 @@
         },
         "gear-builder": {
             "category": "analysis",
-            "image": "gkaguirrelab/forwardmodel:0.10.8"
+            "image": "gkaguirrelab/forwardmodel:0.11.1"
         }
     }
 }
