@@ -54,32 +54,31 @@ averageVoxels = config['averageVoxels']
 modelOpts = '{' + config['modelOpts'] + '}'
 padTruncatedTRs = config['padTruncatedTRs']
 pseudoHemiAnalysis = config['pseudoHemiAnalysis']
+convertToPercentChange = config['convertToPercentChange']
 
 ################### Input Files ###############################################
 
+# Get the DWI images
+func_images = []
+for i in range(36):
+    image_number = i+1  
+    if image_number < 10: 
+        image_number_string = '0' + str(image_number)
+    else:
+        image_number_string = str(image_number)  
+
+    image_path_and_name = os.path.join(flywheel_base, 'input', 'funcZip%s' % image_number_string) 
+    if os.path.exists(image_path_and_name):
+        main_image = os.path.join(image_path_and_name, os.listdir(image_path_and_name)[0])
+        func_images.append(main_image)
+
 # Path to input folders 
-func_zip_folder01 = os.path.join(flywheel_base, 'input/funcZip01')
-func_zip_folder02 = os.path.join(flywheel_base, 'input/funcZip02')
-func_zip_folder03 = os.path.join(flywheel_base, 'input/funcZip03')
-func_zip_folder04 = os.path.join(flywheel_base, 'input/funcZip04')
-func_zip_folder05 = os.path.join(flywheel_base, 'input/funcZip05')
-func_zip_folder06 = os.path.join(flywheel_base, 'input/funcZip06')
-func_zip_folder07 = os.path.join(flywheel_base, 'input/funcZip07')
-func_zip_folder08 = os.path.join(flywheel_base, 'input/funcZip08')
-func_zip_folder09 = os.path.join(flywheel_base, 'input/funcZip09')
-func_zip_folder10 = os.path.join(flywheel_base, 'input/funcZip10')
-func_zip_folder11 = os.path.join(flywheel_base, 'input/funcZip11')
-func_zip_folder12 = os.path.join(flywheel_base, 'input/funcZip12')
-func_zip_folder13 = os.path.join(flywheel_base, 'input/funcZip13')
-func_zip_folder14 = os.path.join(flywheel_base, 'input/funcZip14')
-func_zip_folder15 = os.path.join(flywheel_base, 'input/funcZip15')
 stim_file_folder = os.path.join(flywheel_base, 'input/stimFile')
 struct_zip_folder = os.path.join(flywheel_base, 'input/structZip')
 mask_file_folder = os.path.join(flywheel_base, 'input/maskFile')
 payload_file_folder = os.path.join(flywheel_base, 'input/payloadFile')
 
-# Path to required inputs
-func_zip_path01 = os.path.join(func_zip_folder01, os.listdir(func_zip_folder01)[0])
+# Path to stimulus
 stim_file_path = os.path.join(stim_file_folder, os.listdir(stim_file_folder)[0])
 
 # Path to optional inputs   
@@ -87,62 +86,6 @@ if os.path.isdir(struct_zip_folder) == True:
     struct_zip_path = os.path.join(struct_zip_folder, os.listdir(struct_zip_folder)[0])
 else:
     struct_zip_path = 'Na'
-if os.path.isdir(func_zip_folder02) == True:    
-    func_zip_path02 = os.path.join(func_zip_folder02, os.listdir(func_zip_folder02)[0])
-else:
-    func_zip_path02 = 'Na'
-if os.path.isdir(func_zip_folder03) == True:    
-    func_zip_path03 = os.path.join(func_zip_folder03, os.listdir(func_zip_folder03)[0])
-else:
-    func_zip_path03 = 'Na'
-if os.path.isdir(func_zip_folder04) == True:    
-    func_zip_path04 = os.path.join(func_zip_folder04, os.listdir(func_zip_folder04)[0])
-else:
-    func_zip_path04 = 'Na'
-if os.path.isdir(func_zip_folder05) == True:    
-    func_zip_path05 = os.path.join(func_zip_folder05, os.listdir(func_zip_folder05)[0])
-else:
-    func_zip_path05 = 'Na'
-if os.path.isdir(func_zip_folder06) == True:    
-    func_zip_path06 = os.path.join(func_zip_folder06, os.listdir(func_zip_folder06)[0])
-else:
-    func_zip_path06 = 'Na'
-if os.path.isdir(func_zip_folder07) == True:    
-    func_zip_path07 = os.path.join(func_zip_folder07, os.listdir(func_zip_folder07)[0])
-else:
-    func_zip_path07 = 'Na'
-if os.path.isdir(func_zip_folder08) == True:    
-    func_zip_path08 = os.path.join(func_zip_folder08, os.listdir(func_zip_folder08)[0])
-else:
-    func_zip_path08 = 'Na'
-if os.path.isdir(func_zip_folder09) == True:    
-    func_zip_path09 = os.path.join(func_zip_folder09, os.listdir(func_zip_folder09)[0])
-else:
-    func_zip_path09 = 'Na'
-if os.path.isdir(func_zip_folder10) == True:    
-    func_zip_path10 = os.path.join(func_zip_folder10, os.listdir(func_zip_folder10)[0])
-else:
-    func_zip_path10 = 'Na'
-if os.path.isdir(func_zip_folder11) == True:    
-    func_zip_path11 = os.path.join(func_zip_folder11, os.listdir(func_zip_folder11)[0])
-else:
-    func_zip_path11 = 'Na'     
-if os.path.isdir(func_zip_folder12) == True:    
-    func_zip_path12 = os.path.join(func_zip_folder12, os.listdir(func_zip_folder12)[0])
-else:
-    func_zip_path12 = 'Na'  
-if os.path.isdir(func_zip_folder13) == True:    
-    func_zip_path13 = os.path.join(func_zip_folder13, os.listdir(func_zip_folder13)[0])
-else:
-    func_zip_path13 = 'Na'  
-if os.path.isdir(func_zip_folder14) == True:    
-    func_zip_path14 = os.path.join(func_zip_folder14, os.listdir(func_zip_folder14)[0])
-else:
-    func_zip_path14 = 'Na'  
-if os.path.isdir(func_zip_folder15) == True:    
-    func_zip_path15 = os.path.join(func_zip_folder15, os.listdir(func_zip_folder15)[0])
-else:
-    func_zip_path15 = 'Na'   
 if os.path.isdir(mask_file_folder) == True:    
     mask_file_path = os.path.join(mask_file_folder, os.listdir(mask_file_folder)[0])
 else:
@@ -192,24 +135,28 @@ elif dataSourceType == 'vol2surf':
     ldogSurfaceAndCalculations = 'Na'
     RegName = 'Na'
     # Get the subject id by looking between sub and ses for fmriprep stuff
-    if 'sub-' in func_zip_path01 and '_ses' in func_zip_path01:
-        subject_id =  (func_zip_path01.split('sub-'))[1].split('_ses')[0]
+    if 'sub-' in func_images[0] and '_ses' in func_images[0]:
+        subject_id =  (func_images[0].split('sub-'))[1].split('_ses')[0]
     else:
         subject_id = 'Subject'
 ######################### Run Algorithm #######################################
     
-cmd = """%s %s -mcruserdata ParallelProfile:/usr/flywheel.mlsettings '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' 'maskFilePath' '%s' \
+cmd = """%s %s -mcruserdata ParallelProfile:/usr/flywheel.mlsettings '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s' 'maskFilePath' '%s' \
 'payloadPath' '%s' 'dataFileType' '%s' 'dataSourceType' '%s' \
 'trimDummyStimTRs' '%s' 'averageAcquisitions' '%s' 'tr' '%s' \
 'externalMGZMakerPath' '%s' 'RegName' '%s' 'modelClass' '%s' 'modelOpts' '%s' \
 'workbenchPath' '%s' 'outPath' '%s' 'flywheelFlag' '1' 'Subject' '%s' 'averageVoxels' '%s' externalMapGifMakerPath '%s' externalSurfaceMakerPath '%s' \
-'externalHtmlMakerPath' '%s' externalCiftiSurfaceMakerPath '%s' ldogSurfaceAndCalculations '%s' padTruncatedTRs '%s' externalCiftiToFreesurferPath '%s' freesurferInstallationPath '%s' standardMeshAtlasesFolder '%s' workDir '%s' 'pseudoHemiAnalysis' '%s'""" % (matlab_func, mcr_path, func_zip_path01, func_zip_path02, func_zip_path03, func_zip_path04, func_zip_path05, 
-                                                                                                      func_zip_path06, func_zip_path07, func_zip_path08, func_zip_path09, func_zip_path10, func_zip_path11,
-                                                                                                      func_zip_path12, func_zip_path13, func_zip_path14, func_zip_path15, stim_file_path, 
-                                                                                                      struct_zip_path, mask_file_path, payload_file_path, dataFileType, dataSourceType, trimDummyStimTRs, 
-                                                                                                      averageAcquisitions, tr, externalMGZMakerPath, RegName, modelClass, modelOpts, workbench_path, first_output_dir, 
-                                                                                                      subject_id, averageVoxels, externalMapGifMakerPath, externalSurfaceMakerPath, externalHtmlMakerPath, externalCiftiSurfaceMakerPath,
-                                                                                                      ldogSurfaceAndCalculations, padTruncatedTRs, externalCiftiToFreesurferPath, freesurferInstallationPath, standardMeshAtlasesFolder, external_workdir, pseudoHemiAnalysis)
+'externalHtmlMakerPath' '%s' externalCiftiSurfaceMakerPath '%s' ldogSurfaceAndCalculations '%s' padTruncatedTRs '%s' externalCiftiToFreesurferPath '%s' freesurferInstallationPath '%s' standardMeshAtlasesFolder '%s' workDir '%s' 'pseudoHemiAnalysis' '%s' 'convertToPercentChange' '%s'""" % (matlab_func, mcr_path, func_images[0], func_images[1], func_images[2], func_images[3], func_images[4], 
+                                                                                                                                                                                                                                                                                                  func_images[5], func_images[6], func_images[7], func_images[8], func_images[9], func_images[10],
+                                                                                                                                                                                                                                                                                                  func_images[11], func_images[12], func_images[13], func_images[14], func_images[15], 
+                                                                                                                                                                                                                                                                                                  func_images[16], func_images[17], func_images[18], func_images[19], func_images[20],
+                                                                                                                                                                                                                                                                                                  func_images[21], func_images[22], func_images[23], func_images[24], func_images[25],
+                                                                                                                                                                                                                                                                                                  func_images[26], func_images[27], func_images[28], func_images[29], func_images[30],
+                                                                                                                                                                                                                                                                                                  func_images[31], func_images[32], func_images[33], func_images[34], func_images[35], stim_file_path, 
+                                                                                                                                                                                                                                                                                                  struct_zip_path, mask_file_path, payload_file_path, dataFileType, dataSourceType, trimDummyStimTRs, 
+                                                                                                                                                                                                                                                                                                  averageAcquisitions, tr, externalMGZMakerPath, RegName, modelClass, modelOpts, workbench_path, first_output_dir, 
+                                                                                                                                                                                                                                                                                                  subject_id, averageVoxels, externalMapGifMakerPath, externalSurfaceMakerPath, externalHtmlMakerPath, externalCiftiSurfaceMakerPath,
+                                                                                                                                                                                                                                                                                                  ldogSurfaceAndCalculations, padTruncatedTRs, externalCiftiToFreesurferPath, freesurferInstallationPath, standardMeshAtlasesFolder, external_workdir, pseudoHemiAnalysis, convertToPercentChange)
 
 os.system(cmd)        
 
