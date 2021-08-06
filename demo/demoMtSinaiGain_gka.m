@@ -52,7 +52,7 @@ projectID = '5ca7803af546b60029ef118e';
 fileName = 'V1_mask.dtseries.nii';
 maskFilePath = fullfile(saveDir,fileName);
 fw.downloadFileFromProject(projectID,fileName,maskFilePath);
-
+maskFilePath = 'Na';
 
 
 %% Download the functional data inputs
@@ -112,7 +112,7 @@ fileNames = {...
 for ff=1:36
     if ff<=length(fileNames)
         tmpPath = fullfile(saveDir,fileNames{ff});
- %       fw.downloadOutputFromAnalysis(analysisID,fileNames{ff},tmpPath);
+        fw.downloadOutputFromAnalysis(analysisID,fileNames{ff},tmpPath);
         command = sprintf('funcZipPath%02d = tmpPath',ff);
         eval(command);
     else
