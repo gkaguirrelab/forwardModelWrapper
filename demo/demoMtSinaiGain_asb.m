@@ -52,7 +52,6 @@ projectID = '5ca7803af546b60029ef118e';
 fileName = 'HEROgka1_inferred_varea.dtseries.nii';
 maskFilePath = fullfile(saveDir,fileName);
 fw.downloadFileFromProject(projectID,fileName,maskFilePath);
-maskFilePath = 'Na';
 
 
 %% Download the functional data inputs
