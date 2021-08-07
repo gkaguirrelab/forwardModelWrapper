@@ -112,7 +112,7 @@ fileNames = {...
 for ff=1:36
     if ff<=length(fileNames)
         tmpPath = fullfile(saveDir,fileNames{ff});
-        fw.downloadOutputFromAnalysis(analysisID,fileNames{ff},tmpPath);
+%        fw.downloadOutputFromAnalysis(analysisID,fileNames{ff},tmpPath);
         command = sprintf('funcZipPath%02d = tmpPath',ff);
         eval(command);
     else

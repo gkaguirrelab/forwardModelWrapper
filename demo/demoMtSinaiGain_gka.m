@@ -32,7 +32,7 @@ polyDeg = '13';
 % Flag to average the acquisitions together before computing pRF
 % parameters. This makes the operation faster.
 averageAcquisitions = '0';
-averageVoxels = '1';
+averageVoxels = '0';
 convertToPercentChange = '1';
 typicalGain = '1';
 
@@ -111,7 +111,7 @@ fileNames = {...
 for ff=1:36
     if ff<=length(fileNames)
         tmpPath = fullfile(saveDir,fileNames{ff});
-        fw.downloadOutputFromAnalysis(analysisID,fileNames{ff},tmpPath);
+%        fw.downloadOutputFromAnalysis(analysisID,fileNames{ff},tmpPath);
         command = sprintf('funcZipPath%02d = tmpPath',ff);
         eval(command);
     else
