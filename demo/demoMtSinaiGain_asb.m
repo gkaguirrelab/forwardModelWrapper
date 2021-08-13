@@ -49,7 +49,13 @@ fw.downloadFileFromProject(projectID,fileName,stimFilePath);
 
 %% Download the mask file
 projectID = '5ca7803af546b60029ef118e';
-fileName = 'HEROgka1_inferred_varea.dtseries.nii';
+%{
+    fileName = 'HEROgka1_inferred_varea.dtseries.nii';
+    fileName = 'LGN_bilateral.dtseries.nii';
+    fileName = 'midbrain_bilateral.dtseries.nii';
+    fileName = 'thalamus_bilateral.dtseries.nii';
+%}
+fileName = 'LGN_bilateral.dtseries.nii';
 maskFilePath = fullfile(saveDir,fileName);
 fw.downloadFileFromProject(projectID,fileName,maskFilePath);
 
