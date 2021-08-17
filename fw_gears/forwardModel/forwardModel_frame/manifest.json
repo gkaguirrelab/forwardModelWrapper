@@ -224,7 +224,7 @@
 		"funcZip16": {
 			"description": "The output functional zip file of an ICA-FIX analysis.",
 			"base": "file",
-			"optional": false,
+			"optional": true,
 			"type": {
 				"enum": [
 					"archive"
