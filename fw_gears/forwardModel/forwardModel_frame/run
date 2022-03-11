@@ -1,4 +1,4 @@
-#!/usr/bin/python3.7
+#!/usr/local/bin/python3.7
 
 import os
 # os.system('pip3 install \'hcp-utils==0.1.0\' \'pandas==1.0.3\'')
@@ -58,7 +58,7 @@ convertToPercentChange = config['convertToPercentChange']
 
 ################### Input Files ###############################################
 
-# Get the DWI images
+# Get the input images
 func_images = []
 for i in range(36):
     image_number = i+1  
@@ -71,6 +71,8 @@ for i in range(36):
     if os.path.exists(image_path_and_name):
         main_image = os.path.join(image_path_and_name, os.listdir(image_path_and_name)[0])
         func_images.append(main_image)
+    else:
+        func_images.append('Na')
 
 # Path to input folders 
 stim_file_folder = os.path.join(flywheel_base, 'input/stimFile')
