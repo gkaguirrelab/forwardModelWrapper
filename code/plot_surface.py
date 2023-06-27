@@ -57,13 +57,13 @@ def plot_surface(subject_id, path_to_R2_map, ldog_surface_and_calculations_folde
     fig3 = plt.figure(figsize=[11,6])
     fig4 = plt.figure(figsize=[11,6])
     plotting.plot_surf_stat_map(loaded_inflated_left, loaded_lh_map, bg_map=sulc_map_lh,
-                                threshold=threshold, view='medial', title='left', figure=fig1, output_file=os.path.join(output,'%s_left_medial.png' % subject_id), vmax=1)
+                                threshold=threshold, view='medial', title='left', figure=fig1, output_file=os.path.join(output,'%s_left_medial.png' % subject_id), vmax=1, cmap='hot')
     plotting.plot_surf_stat_map(loaded_inflated_left, loaded_lh_map, bg_map=sulc_map_lh,
-                                threshold=threshold, view='lateral', title='left', figure=fig2, output_file=os.path.join(output,'%s_left_lateral.png' % subject_id), vmax=1)    
+                                threshold=threshold, view='lateral', title='left', figure=fig2, output_file=os.path.join(output,'%s_left_lateral.png' % subject_id), vmax=1, cmap='hot')    
     
     plotting.plot_surf_stat_map(loaded_inflated_right, loaded_rh_map, bg_map=sulc_map_rh,
-                                threshold=threshold, view='medial', title='right', figure=fig3, output_file=os.path.join(output,'%s_right_medial.png' % subject_id), vmax=1)   
+                                threshold=threshold, view='medial', title='right', figure=fig3, output_file=os.path.join(output,'%s_right_medial.png' % subject_id), vmax=1, cmap='hot')   
     plotting.plot_surf_stat_map(loaded_inflated_right, loaded_rh_map, bg_map=sulc_map_rh,
-                                threshold=threshold, view='lateral', title='right', figure=fig4, output_file=os.path.join(output,'%s_right_lateral.png' % subject_id), vmax=1)     
+                                threshold=threshold, view='lateral', title='right', figure=fig4, output_file=os.path.join(output,'%s_right_lateral.png' % subject_id), vmax=1, cmap='hot')     
     
 plot_surface(*sys.argv[1:])   
