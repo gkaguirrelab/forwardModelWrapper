@@ -12,9 +12,9 @@ function [stimulus, stimTime, data, vxs, templateImage] = handleInputs(workbench
 % Inputs:
 %   workbenchPath         - String. path to workbench_command
 %   funcZipPath           - Cell array of strings. Provides the paths to
-%                           zip archives that has been produced by either
-%                           hcp-icafix or hcp-func. May contain entries
-%                           that are "Na", which will be ignored.
+%                           zip archives of functional data, such as are
+%                           produced by hcp-icafix or fmriprep. May contain
+%                           entries that are "Na", which will be ignored.
 %   stimFilePath          - String. Full path to a .mat file that contains
 %                           the stimulus descriptions. This is a matrix in
 %                           which the last dimension is the time domain of
@@ -55,7 +55,8 @@ function [stimulus, stimTime, data, vxs, templateImage] = handleInputs(workbench
 %   dataSourceType        - String. The type of gear that produced the data
 %                           zip file. This information is used to know how
 %                           to find the data files within the zip archive.
-%                           Valid options currently are: {'icafix'}
+%                           Valid options currently :
+%                               icafix, fmriprep, ldogfix, vol2surf
 %   averageAcquisitions   - Logical.
 %
 % Outputs:
@@ -142,47 +143,63 @@ data = {};
 totalAcquisitions = 0;
 
 for jj=1:length(funcZipPath)
-    
+
     % Inform the user
     if verbose
         fprintf('  Unzipping funcZip\n');
     end
-    
+
     % Create a temp directory to hold the zip file output
     zipDir = fullfile(fileparts(funcZipPath{jj}),tempname('.'));
     mkdir(zipDir)
-    
+
     % Uncompress the zip archive into the zipDir.
     command = ['unzip -q -n ' funcZipPath{jj} ' -d ' zipDir];
     system(command);
-    
+
     % Find the files, which vary in name and location by dataSourceType
     switch p.Results.dataSourceType
+        case 'fmriprep'
+
+            % fmriprep saves the output data within sub/sess/func
+            acquisitionList = dir(fullfile(zipDir,'*','fmriprep','sub*','ses*','func','*desc-preproc_bold.nii.gz'));
+
+            % Each entry is a different fMRI acquisition
+            nAcquisitions = length(acquisitionList);
+
+            % We want to respect the "run" order of the acquisitions, so that this order can be matched to the order of a
+            % stimulus array. To do so, we examine the value that appears
+            % after the "run-" string
+            for ii=1:nAcquisitions
+                namePos(ii) = str2double(extractBetween(acquisitionList(ii).name,'run-','_space') );
+            end
+            [~,acqIdxOrder] = sort(namePos);
+
         case 'icafix'
-            
+
             % The ICA-FIX gear saves the output data within the MNINonLinear dir
             acquisitionList = dir(fullfile(zipDir,'*','MNINonLinear','Results'));
-            
+
             % Remove the entries returned by dir that are
             acquisitionList = acquisitionList(~ismember({acquisitionList.name},{'.','..'}));
-            
+
             % Remove any entries that have a dot prefix, including the dir itself and the
             % enclosing dir
             acquisitionList = acquisitionList(...
                 cellfun(@(x) ~startsWith(x,'.'),extractfield(acquisitionList,'name')) ...
                 );
-            
+
             % Find the ICAFIX concat dir
             icaFixConcatDir = acquisitionList(cellfun(@(x) startsWith(x,'ICAFIX'),extractfield(acquisitionList,'name')));
-            
+
             % Remove the ICAFIX concat dir from the acquisition list
             acquisitionList = acquisitionList(...
                 cellfun(@(x) ~startsWith(x,'ICAFIX'),extractfield(acquisitionList,'name')) ...
                 );
-            
-            % Each entry left in funcZipPaths is a different fMRI acquisition
+
+            % Each entry left in acquisitionList is a different fMRI acquisition
             nAcquisitions = length(acquisitionList);
-            
+
             % We want to respect the order of the acquisitions as they were given
             % to ICAFIX, so that this order can be matched to the order of a
             % stimulus array. To do so, we examine the name of the ICAFIX concat
@@ -191,36 +208,38 @@ for jj=1:length(funcZipPath)
                 namePos(ii) = strfind(icaFixConcatDir.name,acquisitionList(ii).name);
             end
             [~,acqIdxOrder] = sort(namePos);
-            
+
         case {'ldogfix','ldogFix'}
-            
+
             % The ldogFix gear saves the acquisitions in a shallow
             % directory structure
             acquisitionList = dir(fullfile(zipDir,'*','*.nii.gz'));
-            
+
             % Some housekeeping variables
             nAcquisitions = length(acquisitionList);
             acqIdxOrder = 1:nAcquisitions;
-            
+
         case 'vol2surf'
-            
+
             % vol2surf gear saves the acquisitions in a cifti folder
             % located in the main directory
             acquisitionList = dir(fullfile(zipDir,'ciftiFSLR_32k','*.nii'));
             nAcquisitions = length(acquisitionList);
             acqIdxOrder = 1:nAcquisitions;
-            
+
     end
-    
+
     % Loop through the acquisitions
     for nn = 1:nAcquisitions
-        
+
         % Load the acquisitions in the specified order (this is mostly
         % relevant for ICAFIX outputs)
         ii = acqIdxOrder(nn);
-        
+
         % Get the name of the acquisition
         switch p.Results.dataSourceType
+            case 'fmriprep'
+                rawName = fullfile(acquisitionList(ii).folder,acquisitionList(ii).name);
             case 'icafix'
                 switch p.Results.dataFileType
                     case 'volumetric'
@@ -233,7 +252,7 @@ for jj=1:length(funcZipPath)
             case 'vol2surf'
                 rawName = fullfile(acquisitionList(ii).folder,acquisitionList(ii).name);
         end
-        
+
         % Load the data, dependent upon dataFileType
         switch p.Results.dataFileType
             case 'volumetric'
@@ -253,8 +272,8 @@ for jj=1:length(funcZipPath)
             case 'cifti'
                 if psudoHemiAnalysis
                     rawName = ciftiMakePseudoHemi(rawName, pseudoWorkdir, pseudoWorkdir, workbenchPath, 'TR', p.Results.tr);
-                end 
-                    
+                end
+
                 thisAcqData = cifti_read(rawName, 'wbcmd', workbenchPath);
                 % Check if this is the first acquisition. If so, retain an
                 % example of the source data to be used as a template to format
@@ -269,27 +288,27 @@ for jj=1:length(funcZipPath)
                 errorString = [p.Results.dataFileType ' is not a recognized dataFileType for this routine. Try, cifti or volumetric'];
                 error('handleInputs:invalidDataFileType', errorString);
         end
-        
+
         % Increment the total number of acquisitions
         totalAcquisitions = totalAcquisitions + 1;
-        
+
         % Store the acquisition data in a cell array
         data{totalAcquisitions} = thisAcqData;
-        
+
         % Alert the user
         if verbose
             outputString = ['Read acquisition ' num2str(nn) ' of ' num2str(nAcquisitions) ' -- ' rawName '\n'];
             fprintf(outputString)
         end
     end % Loop over acquisitions within a funcZip file
-    
+
     % Delete the temporary directory that contains the unpacked zip
     % contents
     if p.Results.cleanUpZips
         command = ['rm -r ' zipDir];
         system(command);
     end
-    
+
 end % Loop over entries in funcZipPath
 
 
@@ -398,17 +417,17 @@ end
 
 %% Convert to percent change units if requested
 if convertToPercentChange
-    
+
     % Alert the user
     if verbose
         fprintf('Converting to percent change units.\n')
     end
-    
+
     for ii=1:length(data)
         thisAcqData = data{ii};
         meanVec = mean(thisAcqData,2);
         data{ii} = 100.*((thisAcqData-meanVec)./meanVec);
-    end    
+    end
 end
 
 
@@ -418,17 +437,17 @@ end
 % model fitting. This has the property of increasing the informativeness of
 % the R^2 fitting values, and making the analysis run more quickly.
 if averageAcquisitions
-    
+
     % Alert the user
     if verbose
         fprintf('Averaging data acquisitions.\n')
     end
-    
+
     % Check that all of the data cells have the same length
     if length(unique(cellfun(@(x) length(x),data))) > 1
         error('handleInputs:dataLengthDisagreement', 'Averaging of the acquisition data was requested, but the acquisitions are not of equal length');
     end
-    
+
     % Perform the average
     meanData = zeros(size(data{1}));
     for ii=1:length(data)
@@ -438,15 +457,15 @@ if averageAcquisitions
     data = {meanData};
     clear meanData
     totalAcquisitions = 1;
-    
+
     % Just need the first stimulus cell
     stimulus = stimulus(1);
-    
+
     if ~isempty(stimTime)
         stimTime = stimTime(1);
     end
-    
-    
+
+
 end
 
 
@@ -457,6 +476,26 @@ end
 if strcmp(p.Results.maskFilePath,'Na')
     sizer = size(data{1});
     vxs = 1:prod(sizer(1:end-1));
+elseif strcmp(p.Results.maskFilePath,'fmriprep')
+    switch p.Results.dataFileType
+        case 'volumetric'
+            maskFileList = dir(fullfile(zipDir,'*','fmriprep','sub*','ses*','func','*desc-brain_mask.nii.gz'));
+            nMasks = length(maskFileList);
+            for ii = 1:nMasks
+                rawName = fullfile(maskFileList(ii).folder,maskFileList(ii).name);
+                thisMask = MRIread(rawName);
+                thisMask = thisMask.vol;
+                thisMask = single(thisMask);
+                thisMask = reshape(thisMask, [size(thisMask,1)*size(thisMask,2)*size(thisMask,3),1]);
+                mask(ii,:)=thisMask;
+            end
+            mask = sum(mask,1);
+            mask(mask<nMasks) = 0;
+            vxs = find(mask)';
+            vxs = single(vxs);
+        otherwise
+            error('Need to implement non-volumetric file handling here')
+    end
 else
     switch p.Results.dataFileType
         case 'volumetric'
@@ -475,7 +514,7 @@ else
             errorString = [p.Results.dataFileType ' is not a recognized dataFileType for this routine. Try, cifti or volumetric'];
             error('handleInputs:notICAFIX', errorString);
     end
-    
+
     % Alert the user
     if verbose
         fprintf(['Found a mask with ' num2str(length(vxs)) ' voxels/vertices\n']);
