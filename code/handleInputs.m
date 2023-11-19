@@ -97,6 +97,7 @@ p.addParameter('padTruncatedTRs', false, @islogical)
 p.addParameter('dataFileType', 'cifti', @isstr)
 p.addParameter('dataSourceType', 'icafix', @isstr)
 p.addParameter('averageAcquisitions', true, @islogical)
+p.addParameter('smoothSD','0', @isstr)
 p.addParameter('convertToPercentChange', false, @islogical)
 p.addParameter('cleanUpZips', true, @islogical)
 p.addParameter('pseudoHemiAnalysis', false, @islogical)
@@ -266,6 +267,18 @@ for jj=1:length(funcZipPath)
                     templateImage.nframes = 1;
                 end
                 thisAcqData = thisAcqData.vol;
+
+                % Smooth if requested
+                smoothSD = str2double(p.Results.smoothSD);
+                smoothSize = round((smoothSD*3)/2)*2+1;
+                if smoothSD > 0
+                    for ii = 1:size(thisAcqData,4)
+                        vol = squeeze(thisAcqData(:,:,:,ii));
+                        vol = smooth3(vol,'gaussian',smoothSize,smoothSD);
+                        thisAcqData(:,:,:,ii) = vol;
+                    end
+                end
+
                 thisAcqData = single(thisAcqData);
                 thisAcqData = reshape(thisAcqData, [size(thisAcqData,1)*size(thisAcqData,2)*size(thisAcqData,3), size(thisAcqData,4)]);
                 thisAcqData(isnan(thisAcqData)) = 0;
