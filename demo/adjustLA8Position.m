@@ -67,11 +67,11 @@ for ss = 1:length(dirSets)
         % Load the entire acquisition and correct each TR
         loadPath = fullfile(saveDir,fileName{thisSet(aa)});
         temp = MRIread(loadPath);
-        newVol = int16(zeros(size(temp.vol)));
+        newVol = int32(zeros(size(temp.vol)));
         for ii = 1:temp.nframes
             frame = squeeze(temp.vol(:,:,:,ii));
             frame_reg = imwarp(frame,tform,"OutputView",sameAsInput);
-            newVol(:,:,:,ii) = int16(round(frame_reg));
+            newVol(:,:,:,ii) = int32(round(frame_reg));
         end
 
         % Save the corrected acquisition
