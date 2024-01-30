@@ -58,21 +58,25 @@ for ss = 1:length(dirSets)
     thisSet = dirSets{ss};
     fixed = avgVol{thisSet(1)}(15:55,:,:);
     for aa = 2:length(thisSet)
+
+        % Some items for the registration
         moving = avgVol{thisSet(aa)}(15:55,:,:);
         tform = imregtform(moving,fixed,'rigid',optimizer,metric);
-
         sameAsInput = affineOutputView(size(avgVol{thisSet(aa)}),tform,"BoundsStyle","SameAsInput");
+
         % Load the entire acquisition and correct each TR
         loadPath = fullfile(saveDir,fileName{thisSet(aa)});
         temp = MRIread(loadPath);
+        newVol = single(zeros(size(temp.vol)));
         for ii = 1:temp.nframes
             frame = squeeze(temp.vol(:,:,:,ii));
             frame_reg = imwarp(frame,tform,"OutputView",sameAsInput);
-            temp.vol(:,:,:,ii) = frame_reg;
+            newVol(:,:,:,ii) = single(frame_reg);
         end
 
         % Save the corrected acquisition
-        newName = strsplit(fileName{thisSet(aa)});
+        temp.vol = newVol;
+        newName = strsplit(fileName{thisSet(aa)},'.');
         newName = [newName{1} '_reg.nii.gz'];
         savePath = fullfile(saveDir,newName);
         MRIwrite(temp,savePath);
