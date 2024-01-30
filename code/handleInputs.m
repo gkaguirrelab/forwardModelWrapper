@@ -160,6 +160,24 @@ for jj=1:length(funcZipPath)
 
     % Find the files, which vary in name and location by dataSourceType
     switch p.Results.dataSourceType
+
+        case 'tedana'
+
+            % the tedana script saves the output data within sub/sess/me,
+            % and then in sub-directories for each run
+            acquisitionList = dir(fullfile(zipDir,'*','sub*','ses*','me','*','*desc-optcomDenoised_bold.nii.gz'));
+
+            % Each entry is a different fMRI acquisition
+            nAcquisitions = length(acquisitionList);
+
+            % We want to respect the "run" order of the acquisitions, so that this order can be matched to the order of a
+            % stimulus array. To do so, we examine the value that appears
+            % after the "run-" string
+            for ii=1:nAcquisitions
+                namePos(ii) = str2double(extractBetween(acquisitionList(ii).name,'run-','_desc') );
+            end
+            [~,acqIdxOrder] = sort(namePos);
+
         case 'fmriprep'
 
             % fmriprep saves the output data within sub/sess/func
@@ -239,7 +257,7 @@ for jj=1:length(funcZipPath)
 
         % Get the name of the acquisition
         switch p.Results.dataSourceType
-            case 'fmriprep'
+            case {'fmriprep','tedana'}
                 rawName = fullfile(acquisitionList(ii).folder,acquisitionList(ii).name);
             case 'icafix'
                 switch p.Results.dataFileType
