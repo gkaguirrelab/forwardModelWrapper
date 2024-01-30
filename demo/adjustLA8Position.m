@@ -67,11 +67,11 @@ for ss = 1:length(dirSets)
         % Load the entire acquisition and correct each TR
         loadPath = fullfile(saveDir,fileName{thisSet(aa)});
         temp = MRIread(loadPath);
-        newVol = single(zeros(size(temp.vol)));
+        newVol = int16(zeros(size(temp.vol)));
         for ii = 1:temp.nframes
             frame = squeeze(temp.vol(:,:,:,ii));
             frame_reg = imwarp(frame,tform,"OutputView",sameAsInput);
-            newVol(:,:,:,ii) = single(frame_reg);
+            newVol(:,:,:,ii) = int16(round(frame_reg));
         end
 
         % Save the corrected acquisition
@@ -79,7 +79,7 @@ for ss = 1:length(dirSets)
         newName = strsplit(fileName{thisSet(aa)},'.');
         newName = [newName{1} '_reg.nii.gz'];
         savePath = fullfile(saveDir,newName);
-        MRIwrite(temp,savePath);
+        MRIwrite(temp,savePath,'short');
         clear temp
 
         % Upload the corrected acquisition to flywheel
