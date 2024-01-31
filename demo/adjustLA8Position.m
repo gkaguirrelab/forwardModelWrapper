@@ -75,12 +75,15 @@ for ss = 1:length(dirSets)
         end
 
         % Save the corrected acquisition
-        temp.vol = newVol;
+        hdr = temp.niftihdr;
+        hdr.vol = permute(newVol,[2 1 3 4]);
         newName = strsplit(fileName{thisSet(aa)},'.');
         newName = [newName{1} '_reg.nii.gz'];
         savePath = fullfile(saveDir,newName);
-        MRIwrite(temp,savePath,'short');
+        save_nifti(hdr,savePath);
+
         clear temp
+        clear hdr
 
         % Upload the corrected acquisition to flywheel
         fw.uploadFileToAcquisition(acquisitionId{thisSet(aa)},savePath);
